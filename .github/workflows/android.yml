@@ -1,7 +1,7 @@
 name: Android CI
 
 on:
-  workflow_dispatch:             # يتيح التشغيل اليدوي
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -31,7 +31,7 @@ jobs:
           emulator-options: -no-window
 
       - name: Install dependencies
-        run: npm ci            # أو yarn install
+        run: npm ci
 
       - name: Prebuild Expo (if using Expo Managed)
         run: npx expo prebuild --platform android
