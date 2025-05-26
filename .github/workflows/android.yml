@@ -22,7 +22,7 @@ jobs:
           java-version: '17'
 
       - name: Install Android SDK tools
-        uses: reactivecircus/android-emulator-runner@v3
+        uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 31
           target: default
@@ -45,7 +45,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: app-release
           path: android/app/build/outputs/apk/release/app-release.apk
