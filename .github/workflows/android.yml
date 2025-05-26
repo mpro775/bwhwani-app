@@ -1,27 +1,25 @@
 name: Android CI
 
 on:
+  workflow_dispatch:             # يتيح التشغيل اليدوي
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_SDK_ROOT: ${{ runner.tool_cache }}/android-sdk
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup JDK 11
+      - name: Setup JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
 
       - name: Install Android SDK tools
         uses: reactivecircus/android-emulator-runner@v2
@@ -33,12 +31,11 @@ jobs:
           emulator-options: -no-window
 
       - name: Install dependencies
-        run: yarn install    # أو npm ci
+        run: npm ci            # أو yarn install
 
-      - name: Prebuild Expo (if using Expo)
+      - name: Prebuild Expo (if using Expo Managed)
         run: npx expo prebuild --platform android
 
-      # 执行 gradlew داخل android/
       - name: Grant execute permission to gradlew
         working-directory: android
         run: chmod +x ./gradlew
@@ -50,5 +47,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v3
         with:
-          name: app-release.apk
+          name: app-release
           path: android/app/build/outputs/apk/release/app-release.apk
