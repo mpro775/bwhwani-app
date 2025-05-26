@@ -22,7 +22,7 @@ jobs:
           java-version: '17'
 
       - name: Install Android SDK tools
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v3
         with:
           api-level: 31
           target: default
