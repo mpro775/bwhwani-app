@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="90787bd8-bb0b-4abb-8589-f3a7d894637a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/App.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/debug.keystore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/proguard-rules.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-hdpi/splashscreen_logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-mdpi/splashscreen_logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xhdpi/splashscreen_logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxhdpi/splashscreen_logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable-xxxhdpi/splashscreen_logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/drawable/rn_edit_text_material.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values-night/colors.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/android/settings.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/adaptive_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/avatar.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/banners/banner1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/banners/banner2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/banners/banner3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/banners/grocery1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/banners/grocery2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/blood_donation_empty.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/delivery_illustration.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/empty-box.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/empty_favorite.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/favicon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fonts/cairo_bold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fonts/cairo_regular.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fonts/cairo_semibold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/freelancer_placeholder.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/gradient-bg.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/beauty.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/bread.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/electronics.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/fruits.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/gifts.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/juice.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/market.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/meat.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/milk.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/restaurant.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/rice.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/store.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/sweets.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/login_top_illustration.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/logos/giftshop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/logos/istanbul.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/products/apple.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/products/banana.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/products/milk.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/profile_placeholder.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/restaurants/item1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/restaurants/logo1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/restaurants/steak1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/splash_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/trending/item1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/trending/item2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/trending/item3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/babel.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eas.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/fonts/Cairo-Bold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/fonts/Cairo-Regular.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/fonts/Cairo-SemiBold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/FloatingCartButton.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/GlobalSmartSearchBar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/QuickAccess.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/QuickActions.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/RatingModal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/business/BusinessHeader.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/business/BusinessInfoCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/business/BusinessProductItem.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/business/BusinessProductList.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/business/BusinessTabs.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/CategoryBannerSlider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/CategoryFiltersBar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/CategoryHeader.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/CategoryItemCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/CategorySearchBar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/category/SubCategoriesSlider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliveryBannerSlider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliveryCategories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliveryHeader.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliverySearchBar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliveryTrending.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/delivery/DeliveryWorkingHours.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/grocery/GroceryProductCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/market/LatestProducts.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/market/MarketBanner.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/market/MarketCategories.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/market/MarketSlider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/components/market/SpecialOffers.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/config/googleAuth.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/context/CartContext.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data/bloodDonors.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data/data.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data/opportunities.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/data/products.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/BloodTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/BookingTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/DeliveryTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/LostAndFoundStack.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/LostAndFoundTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/MarketTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/OpportunitiesStack.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/OpportunitiesTabNavigation.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Auth/ForgotPasswordScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Auth/LoginScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Auth/RegisterScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/AddBookingScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/BookingChatScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/BookingDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/BookingFormScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/BookingsListScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/ManageBookingAvailabilityScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/Escrow/MyBookingsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/FavoritesScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/HomeScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/AddFoundItemScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/AddLostItemScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/FoundChatScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/FoundDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/FoundItemsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/LostAndFoundDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/LostChatScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/LostAndFound/LostItemsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/MarketScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/MyActivityScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/blood/BecomeDonorScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/blood/BloodChatScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/blood/BloodTypesScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/blood/DonorProfileScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/BusinessDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/CartScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/CategoryDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/DeliveryHomeScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/FavoritesScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/GroceryDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/GroceryScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/InvoiceScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/MyOrdersScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/OrderDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/delivery/ProductDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/map/SelectLocationScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/market/AllProductsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/market/MarketHomeScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/market/MarketMyProductsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/market/ProductDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/AddFreelancerScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/AddOpportunityScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/FreelancerDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/FreelancersListScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/MyFreelancerProfileScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/OpportunitiesListScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/opportunities/OpportunityDetailsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/profile/DeliveryAddressesScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/profile/EditProfileScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/profile/SettingsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/profile/UserProfileScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/system/SettingsScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/tabs/MyBloodRequests.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/tabs/MyInteractions.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/tabs/MyLostAndFound.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/tabs/MyOpportunities.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/screens/transport/TransportScreen.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/storage/interactionStorage.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/storage/userStorage.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/types/navigation.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/types/types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/favoratStorage.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/utils/opportunitiesStorage.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="2xde7IhebpicHxNt2muKRUnRYZh" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Smart Academy/bThwaniProject/bthwani-dev/bThwaniApp"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="90787bd8-bb0b-4abb-8589-f3a7d894637a" name="Changes" comment="" />
+      <created>1748272211553</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748272211553</updated>
+    </task>
+    <servers />
+  </component>
+</project>

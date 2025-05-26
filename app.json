@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "bThwaniApp",
+    "slug": "bThwaniApp",
+    "scheme": "bthwani",
+
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": ["react-native-swiper", "expo-checkbox"]
+      }
+    },
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash_icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+            "permissions": ["READ_EXTERNAL_STORAGE"],
+
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive_icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.m_pro1234.bThwaniApp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+
+    "plugins": ["expo-font"],
+    "assetBundlePatterns": ["**/*"],
+
+    "extra": {
+      "eas": {
+        "projectId": "54ecf7af-be84-496e-871c-a2050d2f2621"
+      }
+    },
+    "owner": "m7750"
+  }
+}

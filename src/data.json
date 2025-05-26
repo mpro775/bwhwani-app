@@ -1,0 +1,393 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "title": "إلكترونيات",
+      "icon": "laptop-chromebook"
+    },
+    {
+      "id": "2",
+      "title": "مركبات",
+      "icon": "directions-car"
+    },
+    {
+      "id": "3",
+      "title": "أثاث",
+      "icon": "weekend"
+    },
+    {
+      "id": "4",
+      "title": "ملابس",
+      "icon": "checkroom"
+    },
+    {
+      "id": "5",
+      "title": "هواتف",
+      "icon": "smartphone"
+    },
+    {
+      "id": "6",
+      "title": "ألعاب",
+      "icon": "sports-esports"
+    },
+    {
+      "id": "7",
+      "title": "أدوات منزلية",
+      "icon": "home-work"
+    },
+    {
+      "id": "8",
+      "title": "أخرى",
+      "icon": "widgets"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "name": "شاشة سامسونج 55 بوصة",
+      "price": 350000,
+      "offerPrice": 280000,
+      "hasOffer": true,
+      "category": "إلكترونيات",
+      "categoryId": "1",
+      "user": {
+        "name": "محمد مراد",
+        "phone": "778032532",
+        "profileImage": "https://example.com/profile.jpg"
+      },
+      "description": "شاشة ذكية بدقة 4K مع تقنية HDR10+",
+      "createdAt": "2025-05-10T08:00:00Z",
+      "viewsCount": 16,
+      "location": "أمانة العاصمة",
+      "images": [
+        "https://images.samsung.com/is/image/samsung/p6pim/eg/ua55du8000uxeg/gallery/eg-crystal-uhd-du8000-ua55du8000uxeg-540599267?$720_576_JPG$",
+        "https://images.samsung.com/is/image/samsung/eg-uhd-tv-tu7000-ua55tu7000uxeg-frontblack-229062244?$684_547_PNG$"
+      ],
+      "comments": [
+        {
+          "user": "علي صالح",
+          "text": "منتج رائع ومضمون!"
+        },
+        {
+          "user": "هبة محمد",
+          "text": "هل متاح التوصيل؟"
+        }
+      ],
+      "condition": "new",
+      "warranty": true,
+      "delivery": true,
+      "specs": {
+        "brand": "Samsung",
+        "model": "UA55DU8000",
+        "year": 2024
+      },
+      "rating": 4.5,
+      "remainingTime": "2 أيام",
+      "socialShares": {
+        "whatsapp": 12,
+        "facebook": 8
+      }
+    },
+    {
+      "id": "2",
+      "name": "كنب كلاسيك 3 قطع",
+      "price": 180000,
+      "offerPrice": 135000,
+      "hasOffer": true,
+      "category": "أثاث",
+      "categoryId": "3",
+      "images": [
+        "https://cdn.salla.sa/abARO/oMKV08DcXsOB99tH94els3G28DmsUwpB9aqiJ1ti.jpg"
+      ],
+      "user": {
+        "name": "أحمد صالح",
+        "phone": "777123456",
+        "profileImage": "https://example.com/user1.jpg"
+      },
+      "description": "كنب فاخر من الجلد الصناعي المقاوم للخدوش",
+      "createdAt": "2025-05-10T10:00:00Z",
+      "viewsCount": 22,
+      "location": "أمانة العاصمة",
+      "comments": [],
+      "condition": "used",
+      "warranty": false,
+      "delivery": false,
+      "specs": {
+        "material": "جلد صناعي",
+        "color": "بني"
+      },
+      "rating": 4.2,
+      "remainingTime": "5 أيام",
+      "socialShares": {
+        "whatsapp": 5,
+        "facebook": 3
+      }
+    },
+    {
+      "id": "3",
+      "name": "غسالة هاير",
+      "price": 210000,
+      "offerPrice": 190000,
+      "hasOffer": true,
+      "category": "أدوات منزلية",
+      "categoryId": "7",
+      "images": [
+        "https://media.zid.store/d005338f-1bdf-4493-b493-33420a3d7360/7d70f652-cfb4-4685-832a-cc7848d1745e.jpg"
+      ],
+      "user": {
+        "name": "فاطمة عبد الله",
+        "phone": "770987654",
+        "profileImage": "https://example.com/user2.jpg"
+      },
+      "description": "سعة 8 كجم مع تقنية التوفير الذكي للطاقة",
+      "createdAt": "2025-05-09T15:00:00Z",
+      "viewsCount": 35,
+      "location": "صنعاء",
+      "comments": [],
+      "condition": "new",
+      "warranty": true,
+      "delivery": true,
+      "specs": {
+        "brand": "Haier",
+        "model": "HWM80-178S",
+        "year": 2023
+      },
+      "rating": 4.7,
+      "remainingTime": "3 أيام",
+      "socialShares": {
+        "whatsapp": 9,
+        "facebook": 4
+      }
+    },
+    {
+      "id": "4",
+      "name": "لاب توب Dell",
+      "price": 150000,
+      "offerPrice": null,
+      "hasOffer": false,
+      "category": "إلكترونيات",
+      "categoryId": "1",
+      "images": [
+        "https://laptopmedia.com/wp-content/uploads/2019/08/1-12-e1565684571724.jpg"
+      ],
+      "user": {
+        "name": "حسين علي",
+        "phone": "771223344",
+        "profileImage": "https://example.com/user3.jpg"
+      },
+      "description": "معالج i7 الجيل العاشر، ذاكرة 16GB، مساحة 512GB SSD",
+      "createdAt": "2025-05-08T09:30:00Z",
+      "viewsCount": 48,
+      "location": "تعز",
+      "comments": [],
+      "condition": "used",
+      "warranty": false,
+      "delivery": true,
+      "specs": {
+        "brand": "Dell",
+        "model": "XPS 15",
+        "year": 2022
+      },
+      "rating": 4.0,
+      "socialShares": {
+        "whatsapp": 7,
+        "facebook": 2
+      }
+    },
+    {
+      "id": "5",
+      "name": "مكيف GREE",
+      "price": 70000,
+      "offerPrice": null,
+      "hasOffer": false,
+      "category": "إلكترونيات",
+      "categoryId": "1",
+      "images": [
+        "https://cdn.salla.sa/aDplg/c7fe5360-3aa2-4529-8362-2706f44ba1a7-1000x1000-zyPUryJ1HjqNkQv1AvQO9sSWrzd0rXzGLwwF1MpW.jpg"
+      ],
+      "user": {
+        "name": "منى أحمد",
+        "phone": "773556677",
+        "profileImage": "https://example.com/user4.jpg"
+      },
+      "description": "تبريد سريع بسعة 18000 BTU، موفر للطاقة",
+      "createdAt": "2025-05-07T11:00:00Z",
+      "viewsCount": 17,
+      "location": "الحديدة",
+      "comments": [],
+      "condition": "new",
+      "warranty": true,
+      "delivery": false,
+      "specs": {
+        "brand": "GREE",
+        "model": "GWH18QC-K3DNA1G",
+        "year": 2024
+      },
+      "rating": 4.8,
+      "socialShares": {
+        "whatsapp": 15,
+        "facebook": 6
+      }
+    },
+    {
+      "id": "6",
+      "name": "آيفون 13 برو",
+      "price": 550000,
+      "offerPrice": null,
+      "hasOffer": false,
+      "category": "هواتف",
+      "categoryId": "5",
+      "images": [
+        "https://iplanet.one/cdn/shop/files/iPhone_13_Pro_Max_Silver_PDP_Image_Position-1A__GBEN.jpg?v=1691139033&width=1445"
+      ],
+      "user": {
+        "name": "ليلى سالم",
+        "phone": "772334455",
+        "profileImage": "https://example.com/user5.jpg"
+      },
+      "description": "شريحتين اتصال، ذاكرة 256GB، مقاوم للماء",
+      "createdAt": "2025-05-06T13:45:00Z",
+      "viewsCount": 53,
+      "location": "عدن",
+      "comments": [],
+      "condition": "new",
+      "warranty": true,
+      "delivery": true,
+      "specs": {
+        "brand": "Apple",
+        "model": "iPhone 13 Pro",
+        "year": 2023
+      },
+      "rating": 4.9,
+      "socialShares": {
+        "whatsapp": 22,
+        "facebook": 12
+      }
+    },
+    {
+      "id": "7",
+      "name": "سماعات بلوتوث",
+      "price": 45000,
+      "offerPrice": null,
+      "hasOffer": false,
+      "category": "هواتف",
+      "categoryId": "5",
+      "images": [
+        "https://images.unsplash.com/photo-1590658006821-04f4008d5717?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+      ],
+      "user": {
+        "name": "سعيد ناصر",
+        "phone": "775665544",
+        "profileImage": "https://example.com/user6.jpg"
+      },
+      "description": "مقاومة للماء، بطارية تعمل 20 ساعة متواصلة",
+      "createdAt": "2025-05-05T18:30:00Z",
+      "viewsCount": 12,
+      "location": "المكلا",
+      "comments": [],
+      "condition": "new",
+      "warranty": true,
+      "delivery": true,
+      "specs": {
+        "brand": "Sony",
+        "model": "WH-1000XM4",
+        "year": 2024
+      },
+      "rating": 4.6,
+      "socialShares": {
+        "whatsapp": 8,
+        "facebook": 3
+      }
+    }
+  ],
+  "offers": [
+    {
+      "id": "1",
+      "name": "شاشة سامسونج 55 بوصة",
+      "oldPrice": "350,000",
+      "newPrice": "280,000",
+      "discount": "20%",
+      "image": "https://images.samsung.com/is/image/samsung/p6pim/eg/ua55du8000uxeg/gallery/eg-crystal-uhd-du8000-ua55du8000uxeg-540599267?$720_576_JPG$"
+    },
+    {
+      "id": "2",
+      "name": "كنب كلاسيك 3 قطع",
+      "oldPrice": "180,000",
+      "newPrice": "135,000",
+      "discount": "25%",
+      "image": "https://cdn.salla.sa/abARO/oMKV08DcXsOB99tH94els3G28DmsUwpB9aqiJ1ti.jpg"
+    },
+    {
+      "id": "3",
+      "name": "غسالة هاير",
+      "oldPrice": "210,000",
+      "newPrice": "190,000",
+      "discount": "10%",
+      "image": "https://media.zid.store/d005338f-1bdf-4493-b493-33420a3d7360/7d70f652-cfb4-4685-832a-cc7848d1745e.jpg"
+    }
+  ],
+  "slides": [
+    {
+      "id": "1",
+      "title": "خصم 50% على كراسي المكاتب!",
+      "image": "https://img.freepik.com/free-vector/gradient-furniture-sale-banner-template_23-2148919731.jpg"
+    },
+    {
+      "id": "2",
+      "title": "عرض اليوم فقط على آيفون 13",
+      "image": "https://img.freepik.com/free-psd/new-smartphone-social-media-cover-design-template_47987-25433.jpg"
+    },
+    {
+      "id": "3",
+      "title": "توصيل مجاني للطلبات فوق 30 ألف",
+      "image": "https://mir-s3-cdn-cf.behance.net/project_modules/fs/6188de114285425.60380c1a5a4de.jpg"
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "name": " التوصيل",
+      "icon": "storefront",
+      "screen": "DeliveryTab"
+    },
+    {
+      "id": 2,
+      "name": " الحراج",
+      "icon": "shopping",
+      "screen": "السوق"
+    },
+    {
+      "id": 5,
+      "name": "بنك الدم",
+      "icon": "water",
+      "screen": "BloodBankStack"
+    },
+    {
+      "id": 3,
+      "name": "الوظائف",
+      "icon": "briefcase",
+      "screen": "Opportunities"
+    },
+    {
+      "id": 4,
+      "name": "المفقودات",
+      "icon": "help-circle-outline",
+      "screen": "LostAndFound"
+    },
+    {
+      "id": 7,
+      "name": "تاكسي",
+      "icon": "car",
+      "screen": "Transport"
+    },
+
+    {
+      "id": 6,
+      "name": "الحجوزات ",
+      "icon": "calendar",
+      "screen": "Escrow"
+    }
+  ]
+}
+
+
