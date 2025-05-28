@@ -10,6 +10,7 @@ dependencies {
   classpath("com.facebook.react:react-native-gradle-plugin")
   classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
 }
+
 }
 
 def reactNativeAndroidDir = new File(
