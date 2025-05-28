@@ -18,9 +18,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import { Video } from "expo-av";
 import { ResizeMode } from "expo-av";
-import { getUserToken } from "utils/authToken";
 import { Picker } from '@react-native-picker/picker';
-import { uploadFileToBunny } from "utils/uploadFileToBunny";
+import { uploadFileToBunny } from "utils/api/uploadFileToBunny";
+import { getToken } from "utils/api/token";
 
 const API_URL = "http://192.168.1.105:3000";
 
@@ -146,7 +146,7 @@ const handleDelete = async (id: string) => {
   }, []);
 
   useEffect(() => {
-    getUserToken().then(setToken);
+    getToken().then(setToken);
   }, []);
 
   const handleAddProduct = async () => {

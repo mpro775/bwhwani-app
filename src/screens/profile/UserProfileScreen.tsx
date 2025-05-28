@@ -25,16 +25,16 @@ import { RootStackParamList } from "../../types/navigation";
 import { UserProfile } from "../../types/types";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker"; // تأكد من الاستيراد
-import { uploadFileToBunny } from "utils/uploadFileToBunny";
+import { uploadFileToBunny } from "utils/api/uploadFileToBunny";
 
 const COLORS = {
-  primary: "#FF7A00",
-  secondary: "#4CAF50",
-  background: "#F8F9FA",
-  text: "#2D3436",
-  accent: "#FF5252",
-  lightGray: "#B0BEC5",
-  surface: "#FFFFFF",
+  primary: "#D84315",
+  secondary: "#5D4037",
+  background: "#FFFFFF",
+  accent: "#8B4B47",
+  text: "#4E342E",
+  lightText: "#9E9E9E",     // ✅ لون نص رمادي فاتح
+  lightGray: "#F3F3F3",     // ✅ لون خلفية رمادية ناعمة
 };
 
 const UserProfileScreen = () => {
@@ -60,7 +60,7 @@ const UserProfileScreen = () => {
       const user = await fetchUserProfile();
       setProfile(user);
     } catch {
-      Alert.alert("خطأ", "فشل تحميل البيانات");
+      console.log("خطأ", "فشل تحميل البيانات");
     } finally {
       setRefreshing(false);
     }
@@ -123,7 +123,6 @@ const pickImage = async () => {
         </Text>
         <Button
           mode="contained"
-          color={COLORS.primary}
           icon="account-plus"
           onPress={() => navigation.navigate("Register")}
           style={styles.registerButton}
@@ -473,7 +472,7 @@ const styles = StyleSheet.create({
   },
 
   section: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
 
     borderRadius: 16,
 
@@ -536,7 +535,7 @@ const styles = StyleSheet.create({
   statBox: {
     flex: 1,
 
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
 
     borderRadius: 12,
 
@@ -570,7 +569,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     textAlign: "right",
 
     borderRadius: 12,
@@ -629,7 +628,7 @@ const styles = StyleSheet.create({
     flexDirection: "row-reverse", // هذا جيد
     justifyContent: "space-between", // ✅ يوزع العناصر أفضل
     alignItems: "center",
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -701,7 +700,7 @@ const styles = StyleSheet.create({
 
     fontSize: 14,
 
-    color: COLORS.lightGray,
+    color: COLORS.secondary,
 
     textAlign: "center",
 
@@ -710,7 +709,7 @@ const styles = StyleSheet.create({
 
   registerButton: {
     borderRadius: 12,
-
+backgroundColor:COLORS.primary,
     paddingVertical: 8,
   },
 

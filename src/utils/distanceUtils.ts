@@ -1,3 +1,5 @@
+// utils/distanceUtils.ts
+
 export const haversineDistance = (
   lat1: number,
   lng1: number,
@@ -9,6 +11,7 @@ export const haversineDistance = (
   const R = 6371; // نصف قطر الأرض بالكيلومتر
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
+
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
@@ -17,9 +20,8 @@ export const haversineDistance = (
   return R * c;
 };
 
-export const estimateDuration = (distanceKm: number): string => {
-  const averageSpeed = 40; // كم/ساعة
-  const hours = distanceKm / averageSpeed;
+export const estimateDuration = (distanceKm: number, averageSpeedKmh = 40): string => {
+  const hours = distanceKm / averageSpeedKmh;
   const minutes = Math.round(hours * 60);
   return `${minutes} دقيقة تقريباً`;
 };

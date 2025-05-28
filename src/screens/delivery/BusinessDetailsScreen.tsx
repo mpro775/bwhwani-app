@@ -10,9 +10,9 @@ import BusinessProductList from "../../components/business/BusinessProductList";
 import FloatingCartButton from "../../components/FloatingCartButton";
 
 import { RootStackParamList } from "../../types/navigation";
-import { API_BASE_URL } from "../../config/config";
 import { fetchWithAuth } from "api/authService";
 import { useCart } from "../../context/CartContext";
+import { API_URL } from "utils/api/config";
 
 // نوعات الراجعة من الباك
 type SubCategory = { _id: string; name: string };
@@ -53,13 +53,13 @@ export default function BusinessDetailsScreen() {
       try {
         // 1) جلب فئات فرعية للمتجر
         const subRes = await fetchWithAuth(
-          `${API_BASE_URL}/delivery/subcategories/store/${business._id}`
+          `${API_URL}/delivery/subcategories/store/${business._id}`
         );
         const subs: SubCategory[] = await subRes.json();
 
         // 2) جلب منتجات المتجر
         const prodRes = await fetchWithAuth(
-          `${API_BASE_URL}/delivery/products?storeId=${business._id}`
+          `${API_URL}/delivery/products?storeId=${business._id}`
         );
         const prods: StoreProduct[] = await prodRes.json();
 

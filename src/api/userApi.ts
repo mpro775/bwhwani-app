@@ -1,7 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axiosAuth from "utils/axiosAuth";
+import axiosInstance from "utils/api/axiosInstance";
 
-const API_URL = "http://192.168.1.105:3000";
 
 const getAuthHeaders = async () => {
   const token = await AsyncStorage.getItem("firebase-token");
@@ -11,7 +10,7 @@ const getAuthHeaders = async () => {
 // ✅ 1. الحصول على بيانات المستخدم
 export const fetchUserProfile = async () => {
   const headers = await getAuthHeaders();
-  const response = await axiosAuth.get(`${API_URL}/users/me`, { headers });
+  const response = await axiosInstance.get(`/users/me`, { headers });
   return response.data;
 };
 
@@ -25,28 +24,28 @@ type UpdateUserProfilePayload = {
 
 export const updateUserProfileAPI = async (data: UpdateUserProfilePayload) => {
   const headers = await getAuthHeaders();
-  const response = await axiosAuth.patch(`${API_URL}/users/profile`, data, { headers });
+  const response = await axiosInstance.patch(`/users/profile`, data, { headers });
   return response.data;
 };
 
 // ✅ 3. إضافة عنوان للمستخدم
 export const addUserAddress = async (address: any) => {
   const headers = await getAuthHeaders();
-  const res = await axiosAuth.post(`${API_URL}/users/address`, address, { headers });
+  const res = await axiosInstance.post(`/users/address`, address, { headers });
   return res.data;
 };
 
 // ✅ 4. حذف عنوان
 export const deleteUserAddress = async (addressId: string) => {
   const headers = await getAuthHeaders();
-  const res = await axiosAuth.delete(`${API_URL}/users/address/${addressId}`, { headers });
+  const res = await axiosInstance.delete(`/users/address/${addressId}`, { headers });
   return res.data;
 };
 
 // ✅ 5. تحديد عنوان افتراضي
 export const setDefaultUserAddress = async (address: any) => {
   const headers = await getAuthHeaders();
-  const res = await axiosAuth.patch(`${API_URL}/users/default-address`, address, { headers });
+  const res = await axiosInstance.patch(`/users/default-address`, address, { headers });
   return res.data;
 };
 
@@ -58,8 +57,8 @@ export const logoutUser = async () => {
 
 export const updateUserAvatar = async (imageUrl: string) => {
   const headers = await getAuthHeaders();
-  const res = await axiosAuth.patch(
-    `${API_URL}/users/avatar`,
+  const res = await axiosInstance.patch(
+    `/users/avatar`,
     { image: imageUrl }, // ✅ تطابق مع req.body.image
     { headers }
   );
@@ -70,6 +69,6 @@ export const updateUserAvatar = async (imageUrl: string) => {
 // ✅ 8. تحديث بيانات بنك الدم
 export const updateBloodSettings = async (bloodData: any) => {
   const headers = await getAuthHeaders();
-  const res = await axiosAuth.patch(`${API_URL}/users/blood-settings`, bloodData, { headers });
+  const res = await axiosInstance.patch(`/users/blood-settings`, bloodData, { headers });
   return res.data;
 };

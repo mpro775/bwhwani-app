@@ -3,14 +3,8 @@
     "name": "bThwaniApp",
     "slug": "bThwaniApp",
     "scheme": "bthwani",
-
     "version": "1.0.0",
     "orientation": "portrait",
-    "doctor": {
-      "reactNativeDirectoryCheck": {
-        "exclude": ["react-native-swiper", "expo-checkbox"]
-      }
-    },
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -20,30 +14,41 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
-            "permissions": ["READ_EXTERNAL_STORAGE"],
-
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive_icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.m_pro1234.bThwaniApp"
+      "package": "com.m_pro1234.bThwaniApp",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
-    "plugins": ["expo-font"],
-    "assetBundlePatterns": ["**/*"],
-
+    "plugins": [
+      "expo-font"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "extra": {
       "eas": {
         "projectId": "54ecf7af-be84-496e-871c-a2050d2f2621"
       }
     },
-    "owner": "m7750"
+    "owner": "m7750",
+    "updates": {
+      "url": "https://u.expo.dev/54ecf7af-be84-496e-871c-a2050d2f2621"
+    }
   }
 }

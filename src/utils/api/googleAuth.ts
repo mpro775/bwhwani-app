@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { API_URL } from "utils/api/config";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -15,7 +16,6 @@ type AuthStackParamList = {
   Register: undefined;
 };
 
-const API_URL = "http://192.168.1.100:3000"; // 🔧 غيّره عند الإنتاج
 const FIREBASE_API_KEY = "AIzaSyCFdBl4qtA6OwpdNsDX24V_9phbjAiMQWU";
 
 export const useGoogleLogin = () => {

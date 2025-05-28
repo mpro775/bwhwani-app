@@ -9,13 +9,17 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import CategoryBannerSlider from "../../components/category/CategoryBannerSlider";
 import CategorySearchBar from "../../components/category/CategorySearchBar";
 import CategoryHeader from "../../components/category/CategoryHeader";
 import DeliveryHeader from "../../components/delivery/DeliveryHeader";
 import DeliveryCategories from "../../components/delivery/DeliveryCategories";
 import GroceryProductCard from "../../components/grocery/GroceryProductCard";
 import FloatingCartButton from "../../components/FloatingCartButton";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "types/navigation";
+import { useNavigation } from "@react-navigation/native";
+import DeliveryTrending from "components/delivery/DeliveryTrending";
+import DeliveryBannerSlider from "components/delivery/DeliveryBannerSlider";
 
 // تعريف الألوان
 const COLORS = {
@@ -25,31 +29,15 @@ const COLORS = {
   text: "#4E342E",
   accent: "#8B4B47",
 };
-const trendingProducts = [
-  {
-    id: "p1",
-    name: "موز يمني",
-    price: 650,
-    originalPrice: 800,
-    image: require("../../../assets/products/banana.jpg"),
-  },
-  {
-    id: "p2",
-    name: "تفاح أمريكي",
-    price: 1200,
-    originalPrice: 1500,
-    image: require("../../../assets/products/apple.jpg"),
-  },
-  {
-    id: "p3",
-    name: "لبن نادك",
-    price: 300,
-    originalPrice: 400,
-    image: require("../../../assets/products/milk.jpg"),
-  },
-];
+type NavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "CategoryDetails"
+>;
+
 
 const GroceryHomeScreen = () => {
+    const navigation = useNavigation<NavigationProp>();
+  
   return (
     <ScrollView style={styles.container}>
       {/* العنوان */}
@@ -57,54 +45,20 @@ const GroceryHomeScreen = () => {
       {/* البحث */}
       <CategorySearchBar />
       {/* سلايدر إعلانات */}
-      <CategoryBannerSlider
-        banners={[
-          require("../../../assets/banners/grocery1.jpg"),
-          require("../../../assets/banners/grocery2.jpg"),
-        ]}
+      <DeliveryBannerSlider
       />
-      <DeliveryCategories
-        sectionTitle="فئات البقالة"
-        categories={[
-          {
-            id: "f1",
-            title: "الخضروات",
-            icon: require("../../../assets/icons/fruits.png"),
-          },
-          {
-            id: "f2",
-            title: "الألبان",
-            icon: require("../../../assets/icons/milk.png"),
-          },
-          {
-            id: "f3",
-            title: "اللحوم",
-            icon: require("../../../assets/icons/meat.png"),
-          },
-          {
-            id: "f4",
-            title: "المخبوزات",
-            icon: require("../../../assets/icons/bread.png"),
-          },
-        ]}
-        onSelectCategory={(id) => console.log("تم اختيار الفئة:", id)}
-      />
-      {/* الرائج اليوم */}
-      <Text style={styles.sectionTitle}>الرائج اليوم</Text>
-      <View style={{ marginTop: 10, marginBottom: 40 }}>
-        <FlatList
-          horizontal
-          data={trendingProducts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ marginHorizontal: 8 }}>
-              <GroceryProductCard product={item} />
-            </View>
-          )}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 8 }}
+        <DeliveryCategories
+              onSelectCategory={(id: string, title: string) =>
+            navigation.navigate("CategoryDetails", {
+                categoryId: id,
+
+              categoryName: title,
+            })
+          }
         />
-      </View>{" "}
+   <View style={styles.section}>
+        <DeliveryTrending onSelect={(id) => console.log("تم الضغط على:", id)} />
+      </View>
       <FloatingCartButton />
     </ScrollView>
   );
@@ -118,6 +72,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 40,
     backgroundColor: COLORS.background,
+  },
+    section: {
+    marginBottom: 10, // مسافة بين العناصر
   },
   sectionTitle: {
     fontWeight: "bold",

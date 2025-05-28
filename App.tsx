@@ -1,5 +1,5 @@
-import 'react-native-gesture-handler';
-import 'react-native-reanimated'; // مهم جدًا
+import "react-native-gesture-handler";
+import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import React, { useEffect, useState } from "react";
@@ -9,54 +9,61 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import AppNavigation from "./src/navigation";
-import { CartProvider, useCart } from "./src/context/CartContext";
+import { CartProvider } from "./src/context/CartContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import OnboardingScreen from "screens/OnboardingScreen";
 
-
-// منع الإخفاء التلقائي للسبيلاش
+// ✅ إبقاء Splash ظاهرة لحين تهيئة التطبيق
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [isReady, setIsReady] = useState(false);
-
-
+  const [appIsReady, setAppIsReady] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
+    null
+  );
 
   useEffect(() => {
-    const prepare = async () => {
+    const prepareApp = async () => {
       try {
+        // ✅ تحميل الخطوط
         await Font.loadAsync({
           "Cairo-Regular": require("./assets/fonts/cairo_regular.ttf"),
           "Cairo-Bold": require("./assets/fonts/cairo_bold.ttf"),
           "Cairo-SemiBold": require("./assets/fonts/cairo_semibold.ttf"),
         });
 
+        // ✅ تفعيل RTL إن لم يكن مفعل
         if (!I18nManager.isRTL) {
           I18nManager.allowRTL(true);
           I18nManager.forceRTL(true);
+          // ملاحظة: في بعض الحالات تحتاج لإعادة التشغيل هنا
         }
 
-        // ⏳ إخفاء Splash بعد مهلة صغيرة فقط للعرض
-        setTimeout(async () => {
-          await SplashScreen.hideAsync();
-          setIsReady(true);
-        }, 2000); // 2 ثانية فقط
-      } catch (error) {
-        console.warn("⚠️ Initialization Error:", error);
-        setIsReady(true);
+        const seen = await AsyncStorage.getItem("hasSeenOnboarding");
+        setHasSeenOnboarding(seen === "true");
+
+        await SplashScreen.hideAsync();
+        setAppIsReady(true);
+      } catch (e) {
+        console.warn("❌ Error initializing app:", e);
+      } finally {
+        // ✅ إخفاء Splash بمجرد انتهاء التهيئة
+        await SplashScreen.hideAsync();
+        setAppIsReady(true);
       }
     };
 
-    prepare();
+    prepareApp();
   }, []);
 
-  if (!isReady) return null;
+if (!appIsReady || hasSeenOnboarding === null) return null;
 
   return (
     <CartProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-          
           <StatusBar style="dark" />
-          <AppNavigation />
+<AppNavigation hasSeenOnboarding={hasSeenOnboarding} />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </CartProvider>

@@ -62,6 +62,7 @@ import MyBookingsScreen from "../screens/Escrow/MyBookingsScreen";
 import ManageBookingAvailabilityScreen from "../screens/Escrow/ManageBookingAvailabilityScreen";
 import AddBookingScreen from "../screens/Escrow/AddBookingScreen";
 import ForgotPasswordScreen from "screens/Auth/ForgotPasswordScreen";
+import OnboardingScreen from "screens/OnboardingScreen";
 
 
 
@@ -81,6 +82,7 @@ ForgotPassword:undefined;
   MyOrdersScreen: undefined;
   OrderDetailsScreen: { order: any };
   FavoritesScreen: undefined;
+  Onboarding:undefined;
   EditProfile: undefined;
 AddLostItemScreen:undefined;
 BookingsStack: undefined;
@@ -240,9 +242,7 @@ const MainTabs = () => {
   return (
     <TopTab.Navigator
       tabBarPosition="bottom"
-      
       screenOptions={{
-        swipeEnabled: true,
         tabBarShowIcon: true,
         tabBarActiveTintColor: "#D84315",
         tabBarInactiveTintColor: "#B0BEC5",
@@ -250,38 +250,41 @@ const MainTabs = () => {
           backgroundColor: "#FFF",
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom,
-          
         },
-           tabBarLabelStyle: {
+        tabBarLabelStyle: {
           fontFamily: "Cairo-SemiBold",
           fontSize: 12,
         },
-      
       }}
     >
       <TopTab.Screen
-        name="الرئيسية"
+        name="HomeTab"
         component={HomeScreen}
         options={{
+          title: "الرئيسية", // ✅ سيُستخدم كـ headerTitle تلقائي
+          tabBarLabel: "الرئيسية",
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={20} color={color} />
           ),
         }}
       />
-
-
-     <TopTab.Screen
-        name="انشطتي"
+      <TopTab.Screen
+        name="ActivityTab"
         component={MyActivityScreen}
         options={{
+          title: "أنشطتي",
+          tabBarLabel: "أنشطتي",
           tabBarIcon: ({ color }) => (
-<MaterialIcons name="dashboard" size={20} color={color}  />          ),
+            <MaterialIcons name="dashboard" size={20} color={color} />
+          ),
         }}
       />
       <TopTab.Screen
-        name="حسابي"
+        name="ProfileTab"
         component={ProfileScreen}
         options={{
+          title: "حسابي",
+          tabBarLabel: "حسابي",
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={20} color={color} />
           ),
@@ -398,15 +401,17 @@ const AppDrawer = () => (
   </Drawer.Navigator>
 );
 
-const AppNavigation = () => (
+const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) => (
   <NavigationContainer>
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
       <RootStack.Screen name="MainApp" component={AppDrawer} />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
       <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
+    {!hasSeenOnboarding && (
+        <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
+      )}
 
-      {/* الشاشات الجديدة */}
 
       <RootStack.Screen name="DeliveryTab" component={DeliveryTabNavigation} />
       <RootStack.Screen

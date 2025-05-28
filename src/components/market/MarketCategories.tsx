@@ -19,7 +19,6 @@ import {
 } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation"; // تأكد من استيراد هذا
 import { fetchCategories } from "api/categoryApi";
-import { API_BASE_URL } from "config/config";
 
 type Category = {
   _id: string;

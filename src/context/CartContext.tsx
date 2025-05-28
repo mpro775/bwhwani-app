@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getOrCreateCartId } from "../utils/cartId";
-import axiosAuth from "../utils/axiosAuth";
+import axiosInstance from "utils/api/axiosInstance";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -47,7 +47,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       const url = userId
         ? `/delivery/cart/user/${userId}`
         : `/delivery/cart/${cartId}`;
-      const res = await axiosAuth.get(url);
+      const res = await axiosInstance.get(url);
       setItems(res.data.items || []);
     } catch {
       setItems([]);
@@ -85,7 +85,7 @@ const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
 
   // 5) أرسل للـ backend
   try {
-    const res = await axiosAuth.post("/delivery/cart/add", body);
+    const res = await axiosInstance.post("/delivery/cart/add", body);
     console.log("5️⃣ [CartContext] POST success:", res.status);
     console.log("6️⃣ [CartContext] response data:", res.data);
     setItems(res.data.cart.items || []);
@@ -115,7 +115,7 @@ const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
     const url = userId
       ? `/delivery/cart/user/${userId}/items/${id}`
       : `/delivery/cart/${cartId}/items/${id}`;
-    await axiosAuth.delete(url);
+    await axiosInstance.delete(url);
     await loadCart(userId || undefined);
   };
 
@@ -125,7 +125,7 @@ const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
     const url = userId
       ? `/delivery/cart/user/${userId}`
       : `/delivery/cart/${cartId}`;
-    await axiosAuth.delete(url);
+    await axiosInstance.delete(url);
     setItems([]);
   };
 
@@ -136,7 +136,7 @@ const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
     const storeId = await AsyncStorage.getItem('guestStoreId');
 
     try {
-      await axiosAuth.post('/delivery/cart/merge', { items: guestItems, storeId });
+      await axiosInstance.post('/delivery/cart/merge', { items: guestItems, storeId });
       await AsyncStorage.removeItem('guestCart');
       await AsyncStorage.removeItem('guestStoreId');
       await loadCart(userId);

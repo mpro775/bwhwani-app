@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useGoogleLogin } from "../../config/googleAuth";
+import { useGoogleLogin } from "../../utils/api/googleAuth";
 import { loginWithEmail } from "../../api/authService";
 import { useCart } from "context/CartContext";
 

@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import CategoryHeader from "../../components/category/CategoryHeader";
 import CategorySearchBar from "../../components/category/CategorySearchBar";
-import CategoryBannerSlider from "../../components/category/CategoryBannerSlider";
 import SubCategoriesSlider from "../../components/category/SubCategoriesSlider";
 import CategoryFiltersBar from "../../components/category/CategoryFiltersBar";
 import CategoryItemCard from "../../components/category/CategoryItemCard";
@@ -16,10 +15,11 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
-import { API_BASE_URL } from "../../config/config";
 import { haversineDistance, estimateDuration } from "../../utils/distanceUtils";
 import { fetchUserProfile } from "api/userApi";
 import { DeliveryStore } from "types/types";
+import DeliveryBannerSlider from "components/delivery/DeliveryBannerSlider";
+import { API_URL } from "utils/api/config";
 
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -44,7 +44,7 @@ const CategoryDetailsScreen = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(`${API_BASE_URL}/delivery/stores?categoryId=${categoryId}`);
+        const res = await fetch(`${API_URL}/delivery/stores?categoryId=${categoryId}`);
         const data = await res.json();
 
   
@@ -129,7 +129,7 @@ const CategoryDetailsScreen = () => {
       />
 
       <CategorySearchBar value={search} onChangeText={setSearch} />
-      <CategoryBannerSlider />
+      <DeliveryBannerSlider />
       <SubCategoriesSlider
         subCategories={["مقبلات", "مشاوي", "وجبات سريعة", "العروض"]}
         onSelect={(val: string) => console.log("الفئة المختارة:", val)}

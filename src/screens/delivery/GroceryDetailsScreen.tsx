@@ -4,8 +4,8 @@ import { ScrollView, StyleSheet, View, Text } from "react-native";
 
 import CategoryHeader from "../../components/category/CategoryHeader";
 import CategorySearchBar from "../../components/category/CategorySearchBar";
-import CategoryBannerSlider from "../../components/category/CategoryBannerSlider";
 import GroceryProductCard from "../../components/grocery/GroceryProductCard";
+import DeliveryBannerSlider from "components/delivery/DeliveryBannerSlider";
 
 type Product = {
   id: string;
@@ -29,7 +29,7 @@ const GroceryDetailsScreen = () => {
     <ScrollView style={styles.container}>
       <CategoryHeader location="شارع الدوحة" />
       <CategorySearchBar />
-      <CategoryBannerSlider banners={banners} />
+      <DeliveryBannerSlider />
 
       <Text style={styles.sectionTitle}>منتجات {categoryTitle}</Text>
 

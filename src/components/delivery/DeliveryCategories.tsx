@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { API_URL } from "utils/api/config";
 
-import { API_BASE_URL } from "config/config";
 
 const COLORS = {
   primary: "#D84315",
@@ -42,7 +42,7 @@ const DeliveryCategories: React.FC<Props> = ({
     const fetchCategories = async () => {
 
       try {
-        const res = await fetch(`${API_BASE_URL}/delivery/categories`);
+        const res = await fetch(`${API_URL}/delivery/categories`);
         const data = await res.json();
         setCategories(data);
 

@@ -8,10 +8,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { API_URL } from "utils/api/config";
 
-import { API_BASE_URL } from "config/config";
 
-const API_URL = `${API_BASE_URL}/delivery/stores`;
 
 const COLORS = {
   primary: "#D84315",
@@ -42,7 +41,7 @@ const DeliveryTrending: React.FC<Props> = ({
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch(`${API_URL}/delivery/stores`);
         const data = await res.json();
 
         setStores(data); // ← تأكد أن الاستجابة عبارة عن array مباشرة

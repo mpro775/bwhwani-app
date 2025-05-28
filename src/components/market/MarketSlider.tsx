@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import axios from "axios";
-import { API_BASE_URL } from "config/config";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.88;

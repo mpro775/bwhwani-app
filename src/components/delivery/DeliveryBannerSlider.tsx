@@ -11,9 +11,9 @@ import {
   Linking,
 } from "react-native";
 import { Animated } from "react-native";
+import { API_URL } from "utils/api/config";
 
 // ✅ عدّل هذا حسب رابط السيرفر الخاص بك
-import { API_BASE_URL } from "config/config";
 
 const COLORS = {
   primary: "#D84315",
@@ -39,7 +39,7 @@ const DeliveryBannerSlider: React.FC = () => {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/delivery/banners`);
+        const res = await fetch(`${API_URL}/delivery/banners`);
         const data = await res.json();
 
         setBanners(data);

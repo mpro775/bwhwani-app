@@ -16,7 +16,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { useGoogleLogin } from "../../config/googleAuth";
+import { useGoogleLogin } from "../../utils/api/googleAuth";
 import { loginWithEmail, registerWithEmail } from "api/authService";
 
 type AuthStackParamList = {
