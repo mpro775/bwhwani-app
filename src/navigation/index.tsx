@@ -12,7 +12,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import ProductDetailsScreen from "../screens/market/ProductDetailsScreen";
 import DeliveryTabNavigation from "../navigation/DeliveryTabNavigation";
@@ -63,6 +63,7 @@ import ManageBookingAvailabilityScreen from "../screens/Escrow/ManageBookingAvai
 import AddBookingScreen from "../screens/Escrow/AddBookingScreen";
 import ForgotPasswordScreen from "screens/Auth/ForgotPasswordScreen";
 import OnboardingScreen from "screens/OnboardingScreen";
+import { ScrollView } from "react-native-gesture-handler";
 
 
 
@@ -116,6 +117,8 @@ type DrawerParamList = {
   HomeStack: undefined;
   BloodBankStack: undefined;
   Opportunities: undefined;
+  MarketStack: NavigatorScreenParams<MarketStackParamList>;
+
   LostAndFound: undefined;
   Settings: undefined;
   BookingsStack: undefined;
@@ -199,7 +202,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView contentContainerStyle={{ paddingTop: 40, paddingBottom: 20 }}>
       <View style={{ alignItems: "center", paddingVertical: 24 }}>
         <Image
           source={require("../../assets/profile_placeholder.png")}
@@ -232,7 +235,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         )}
       </View>
       <DrawerItemList {...props} />
-    </View>
+    </ScrollView>
   );
 };
 
@@ -297,20 +300,30 @@ const MainTabs = () => {
 const AppDrawer = () => (
   <Drawer.Navigator
     initialRouteName="HomeStack"
-    screenOptions={{
+
+  screenOptions={({ navigation }) => ({
       headerShown: true,
       drawerActiveTintColor: "#D84315",
       drawerPosition: "right",
       drawerInactiveTintColor: "#B0BEC5",
+          headerRight: () => null, // إلغاء الزر من اليسار
+ headerLeft: () => (
+      <TouchableOpacity
+        style={{ marginLeft: 16 }}
+        onPress={() => navigation.toggleDrawer()}
+      >
+        <Ionicons name="menu" size={24} color="#3E2723" />
+      </TouchableOpacity>
+    ),
       drawerLabelStyle: {
         fontFamily: "Cairo-SemiBold",
         fontSize: 16,
-        textAlign: "right",
         writingDirection: "rtl",
+        paddingHorizontal:50,
       },
       drawerStyle: {
         backgroundColor: "#FFFFFF",
-        width: 280,
+  width: "85%",
       },
       headerStyle: {
         backgroundColor: "#FFFFFF",
@@ -322,7 +335,8 @@ const AppDrawer = () => (
         textAlign: "center",
         writingDirection: "rtl",
       },
-    }}
+     })}
+
     drawerContent={(props) => <CustomDrawerContent {...props} />}
   >
     <Drawer.Screen
@@ -334,6 +348,18 @@ const AppDrawer = () => (
         headerTitleAlign: "center",
         drawerIcon: ({ color, size }) => (
           <Ionicons name="home" size={size} color={color} />
+        ),
+      }}
+    />
+       <Drawer.Screen
+      name="MarketStack"
+      component={MarketStackNavigator}
+      options={{
+        drawerLabel: "حراج يثواني",
+        headerTitle: "حراج بثواني ",
+        headerTitleAlign: "center",
+        drawerIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name="shopping" size={size} color={color} />
         ),
       }}
     />
@@ -403,14 +429,17 @@ const AppDrawer = () => (
 
 const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) => (
   <NavigationContainer>
-    <RootStack.Navigator screenOptions={{ headerShown: false }}>
-      <RootStack.Screen name="MainApp" component={AppDrawer} />
+  <RootStack.Navigator
+    initialRouteName={hasSeenOnboarding ? "MainApp" : "Onboarding"}
+    screenOptions={{ headerShown: false }}
+  >
+    <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
+    <RootStack.Screen name="MainApp" component={AppDrawer} />
+
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
       <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
-    {!hasSeenOnboarding && (
-        <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
-      )}
+
 
 
       <RootStack.Screen name="DeliveryTab" component={DeliveryTabNavigation} />

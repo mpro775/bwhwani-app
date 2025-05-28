@@ -21,8 +21,8 @@ import { ResizeMode } from "expo-av";
 import { Picker } from '@react-native-picker/picker';
 import { uploadFileToBunny } from "utils/api/uploadFileToBunny";
 import { getToken } from "utils/api/token";
+import { API_URL } from "utils/api/config";
 
-const API_URL = "http://192.168.1.105:3000";
 
 const COLORS = {
   primary: "#D84315",
@@ -75,6 +75,7 @@ const MarketMyProductsScreen = () => {
   const [token, setToken] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
 const [editingProductId, setEditingProductId] = useState<string | null>(null);
+const [isError, setIsError] = useState(false);
 
 const loadUserProfile = async () => {
   const stored = await AsyncStorage.getItem("user-profile");
@@ -132,18 +133,25 @@ const handleDelete = async (id: string) => {
   setProducts(updatedProducts);
 };
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await fetch(`${API_URL}/market/categories`);
-        const data = await res.json();
-        if (Array.isArray(data)) setCategories(data);
-      } catch (err) {
-        console.error("فشل في تحميل الفئات:", err);
+ useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/market/categories`);
+      const data = await res.json();
+
+      if (Array.isArray(data) && data.length > 0) {
+        setCategories(data);
+      } else {
+        setIsError(true);
       }
-    };
-    fetchCategories();
-  }, []);
+    } catch (err) {
+      console.warn("⚠️ فشل في تحميل الفئات:", err);
+      setIsError(true);
+    }
+  };
+
+  fetchCategories();
+}, []);
 
   useEffect(() => {
     getToken().then(setToken);

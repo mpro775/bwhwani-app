@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import axios from "axios";
+import axiosInstance from "utils/api/axiosInstance";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.88;
@@ -28,7 +29,7 @@ const MarketSlider = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get("http://192.168.1.105:3000/market/sliders").then((res) => {
+    axiosInstance.get("/market/sliders").then((res) => {
       setSlides(res.data);
       setLoading(false);
     });
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 20,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFF",
   },
   card: {
     width: ITEM_WIDTH,

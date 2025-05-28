@@ -55,8 +55,9 @@ const OnboardingScreen = () => {
       onDone={handleDone}
       onSkip={handleDone}
       bottomBarColor={COLORS.background}
+      bottomBarHeight={200}
       nextLabel={
-        <Text style={{ fontFamily: "Cairo-Bold", color: "#D84315" }}>
+        <Text style={{ fontFamily: "Cairo-Bold", color: "#D84315",marginBottom:30 }}>
           التالي
         </Text>
       }

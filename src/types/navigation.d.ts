@@ -3,6 +3,7 @@ import { NavigatorScreenParams } from "@react-navigation/native";
 export type RootStackParamList = {
   // الحساب والموقع
   UserProfile: undefined;
+  MainApp: undefined;
   EditProfile: undefined;
   AddBookingScreen:undefined;
   DeliveryAddresses: {

@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { inlineStyles } from "react-native-svg";
 
 type ValidIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 type ValidScreenName = keyof DrawerParamList;
@@ -147,7 +148,7 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.statsRow}>
-              <StatItem value="50K+" label="خدمة مكتملة" />
+              <StatItem value="50+" label="خدمة مكتملة" />
               <View style={styles.divider} />
               <StatItem value="4.9" label="تقييم عام" />
             </View>
@@ -288,21 +289,17 @@ searchInput: {
     fontSize: isSmallScreen ? 22 : 26,
     color: COLORS.text,
     lineHeight: isSmallScreen ? 28 : 34,
-    textAlign: "right",
         marginBottom: 2,
 
   },
   brand: {
     color: COLORS.primary,
-    marginTop: 2,
-
   },
   welcomeSubtitle: {
     fontFamily: "Cairo-Regular",
     fontSize: isSmallScreen ? 14 : 16,
     color: COLORS.secondary,
     marginTop: 2,
-    textAlign: "right",
   },
   statsRow: {
     flexDirection: "row-reverse",
@@ -337,10 +334,11 @@ searchInput: {
   },
   sectionHeader: {
     marginBottom: isSmallScreen ? 12 : 16,
-    alignItems: "flex-end",
+    alignItems: "flex-start",
   },
   sectionTitle: {
     fontFamily: "Cairo-Bold",
+    textAlign:"center",
     fontSize: isSmallScreen ? 18 : 20,
     color: COLORS.text,
   },

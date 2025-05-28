@@ -21,12 +21,7 @@ const MarketHomeScreen = () => {
     <SafeAreaView style={styles.safe}>
       <LinearGradient colors={["#FFFFFF", "#FFFFFF"]} style={styles.background}>
         {/* ✅ Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>السوق المفتوح</Text>
-          <TouchableOpacity>
-            <Ionicons name="cart-outline" size={24} color="#D84315" />
-          </TouchableOpacity>
-        </View>
+  
 
         {/* ✅ Content */}
         <ScrollView showsVerticalScrollIndicator={false}>
