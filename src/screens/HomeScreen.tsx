@@ -16,8 +16,6 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 
-import GlobalSmartSearchBar from "../components/GlobalSmartSearchBar";
-import { QuickActions } from "../components/QuickActions";
 type ValidIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 type ValidScreenName = keyof DrawerParamList;
 const quickActions: QuickAction[] = [
@@ -155,21 +153,7 @@ const HomeScreen = () => {
             </View>
           </LinearGradient>
         </View>
-          <QuickActions />
 
-<GlobalSmartSearchBar
-  onSearch={(text, image) => {
-    if (image) {
-      console.log("📷 تم اختيار صورة:", image);
-      // تحليل الصورة - مستقبلًا
-    }
-
-    if (text) {
-      console.log("🔍 البحث النصي:", text);
-      // يمكن توجيه المستخدم إلى صفحة نتائج أو تطبيق فلاتر
-    }
-  }}
-/>
 
 
 

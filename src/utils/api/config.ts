@@ -18,4 +18,4 @@ const isLocal =
     hostUri.includes("127.0.0.1"));
 
 // التصدير النهائي
-export const API_URL = isLocal ? LOCAL_API : PRODUCTION_API;
+export const API_URL =  PRODUCTION_API;

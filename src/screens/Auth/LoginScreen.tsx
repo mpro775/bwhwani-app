@@ -108,7 +108,7 @@ const handleLogin = async () => {
     }
 
     // 4) يمكنك أيضاً حفظ idToken/oauth token العام للتطبيق:
-    await AsyncStorage.setItem("token", token);
+    await AsyncStorage.setItem("firebase-idToken", token);
     await AsyncStorage.setItem("userId", userId);
 
     // 5) ادمج سلة الضيف مع حساب المستخدم

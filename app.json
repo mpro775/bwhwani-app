@@ -21,7 +21,6 @@
     },
     "android": {
       "permissions": [
-        "READ_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE"
       ],
       "adaptiveIcon": {

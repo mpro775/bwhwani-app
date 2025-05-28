@@ -1,10 +1,10 @@
-import * as Random from 'expo-random';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 
 const CART_ID_KEY = 'guestCartId';
 
 const generateRandomId = async (): Promise<string> => {
-  const bytes = await Random.getRandomBytesAsync(16);
+const randomBytes = await Crypto.getRandomBytesAsync(16);
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 };
 
