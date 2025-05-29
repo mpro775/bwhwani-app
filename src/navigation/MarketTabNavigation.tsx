@@ -64,7 +64,7 @@ const MarketTabNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="الفئات"
+        name="منتجاتي"
         component={MarketCategoriesScreen}
         options={{
           tabBarIcon: ({ color }) => (

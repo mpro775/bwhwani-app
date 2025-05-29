@@ -12,6 +12,8 @@ import AppNavigation from "./src/navigation";
 import { CartProvider } from "./src/context/CartContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OnboardingScreen from "screens/OnboardingScreen";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "utils/toastConfig";
 
 // ✅ إبقاء Splash ظاهرة لحين تهيئة التطبيق
 SplashScreen.preventAutoHideAsync();
@@ -64,6 +66,7 @@ if (!appIsReady || hasSeenOnboarding === null) return null;
         <SafeAreaProvider>
           <StatusBar style="dark" />
 <AppNavigation hasSeenOnboarding={hasSeenOnboarding} />
+    <Toast config={toastConfig} />
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </CartProvider>

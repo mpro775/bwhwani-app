@@ -1,13 +1,6 @@
 import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import MarketSlider from "../../components/market/MarketSlider";
@@ -18,13 +11,12 @@ import SpecialOffers from "../../components/market/SpecialOffers";
 
 const MarketHomeScreen = () => {
   return (
-    <SafeAreaView style={styles.safe}>
-      <LinearGradient colors={["#FFFFFF", "#FFFFFF"]} style={styles.background}>
-        {/* ✅ Header */}
-  
-
-        {/* ✅ Content */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safe} edges={['right', 'left']}>
+      <LinearGradient colors={["#FFFFFF", "#FFFFFF"]} style={styles.gradient}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+        >
           <MarketSlider />
           <MarketCategories />
           <MarketBanner />
@@ -38,24 +30,11 @@ const MarketHomeScreen = () => {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  background: { flex: 1 },
-
-  // ✅ Header Styles
-  header: {
-    flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-    elevation: 2,
+  gradient: {
+    flex: 1,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: "Cairo-Bold",
-    color: "#3E2723",
+  scrollContainer: {
+    paddingBottom: 40,
   },
 });
 

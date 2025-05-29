@@ -14,6 +14,10 @@ import { useNavigation } from "@react-navigation/native";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { fetchLatestProducts } from "api/productApi";
+import HorizontalProductCard from "./HorizontalProductCard";
+import { fetchUserProfile } from "api/userApi";
+import { addFavorite, isFavorite, removeFavorite } from "utils/favoratStorage";
+import { FavoriteItem } from "types/types";
 type Product = {
   _id: string;
   name: string;
@@ -45,6 +49,7 @@ const CARD_MARGIN = 12;
 
 const LatestProducts = () => {
 const [latestProducts, setLatestProducts] = useState<Product[]>([]);
+const [favoriteMap, setFavoriteMap] = useState<Record<string, boolean>>({});
 
 useEffect(() => {
   const load = async () => {
@@ -57,56 +62,42 @@ useEffect(() => {
   };
   load();
 }, []);
-const productsWithoutOffers = latestProducts;
+useEffect(() => {
+  const loadFavorites = async () => {
+    const user = await fetchUserProfile();
+    const map: Record<string, boolean> = {};
+
+    for (const item of latestProducts) {
+      map[item._id] = await isFavorite(item._id, "product");
+    }
+
+    setFavoriteMap(map);
+  };
+
+  if (latestProducts.length > 0) {
+    loadFavorites();
+  }
+}, [latestProducts]);
+const toggleFavorite = async (productId: string) => {
+  const user = await fetchUserProfile();
+  const current = favoriteMap[productId];
+ const item: FavoriteItem = {
+  itemId: productId,
+  itemType: "product", // ✅ صرّحت أنه من النوع الصحيح
+  userId: user.id,
+};
+
+  if (current) {
+    await removeFavorite(item);
+  } else {
+    await addFavorite(item);
+  }
+
+  setFavoriteMap((prev) => ({ ...prev, [productId]: !current }));
+};
 
   const navigation =
     useNavigation<NativeStackNavigationProp<MarketStackParamList>>();
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.9}
-onPress={() =>
-  navigation.navigate("ProductDetails", {
-    product: {
-      ...item,
-media: item.media?.map((m: { type: "image" | "video"; uri: string }) => ({
-    ...m,
-    uri: m.uri // ✅ رابط كامل
-  }))
-    },
-  })
-}     >
-      <View style={styles.imageContainer}>
-        <Image
-        source={{ uri: item.media?.[0]?.uri}}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <TouchableOpacity style={styles.favoriteButton}>
-          <MaterialIcons name="favorite-border" size={24} color="#D32F2F" />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.detailsContainer}>
-        <Text style={styles.name} numberOfLines={2}>
-          {item.name}
-        </Text>
-
-        <View style={styles.priceContainer}>
-          <Text style={styles.price}>{item.price.toLocaleString()} ر.ي</Text>
-          <View style={styles.ratingContainer}>
-            <MaterialIcons name="star" size={16} color="#FFC107" />
-            <Text style={styles.ratingText}>4.8</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.addToCartButton}>
-          <Text style={styles.addToCartText}>التفاصيل</Text>
-          <MaterialIcons name="add" size={18} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={styles.container}>
@@ -118,20 +109,21 @@ media: item.media?.map((m: { type: "image" | "video"; uri: string }) => ({
         >
           <Text style={styles.seeAll}>عرض الكل</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>🆕 الأحدث في المتجر</Text>
+        <Text style={styles.title}> الأحدث في المتجر</Text>
       </View>
 
-      <FlatList
-        data={productsWithoutOffers}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id }
-        horizontal
-        inverted={I18nManager.isRTL}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_MARGIN}
-        decelerationRate="fast"
-        contentContainerStyle={styles.listContent}
-      />
+<FlatList
+ horizontal
+  data={latestProducts}
+  renderItem={({ item }) => (
+    <HorizontalProductCard
+      product={item}
+      isFavorited={favoriteMap[item._id]}
+      onToggleFavorite={toggleFavorite}
+      onPress={() => navigation.navigate("ProductDetails", { product: item })}
+    />
+      )}
+/>
     </View>
   );
 };
@@ -142,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   header: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -169,6 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
     marginRight: CARD_MARGIN,
+    marginBottom: CARD_MARGIN,
     elevation: 6,
     shadowColor: "#2D3436",
     shadowOffset: { width: 0, height: 8 },
@@ -204,7 +197,6 @@ const styles = StyleSheet.create({
     color: "#2D3436",
     lineHeight: 22,
     height: 44,
-    textAlign: "right",
   },
   priceContainer: {
     flexDirection: "row",

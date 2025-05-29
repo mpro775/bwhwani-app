@@ -1,6 +1,7 @@
+// axiosInstance.ts
 import axios from "axios";
 import { API_URL } from "./config";
-import { getToken } from "./token";
+import { refreshIdToken } from "api/authService";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -9,10 +10,24 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const token = await getToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const publicEndpoints = [
+      "/market/slider",
+      "/market/categories",
+      "/market/products",
+      "/market/offers",
+    ];
+
+    const isPublic = publicEndpoints.some((path) =>
+      config.url?.includes(path)
+    );
+
+    if (!isPublic) {
+      const token = await refreshIdToken();
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
+
     return config;
   },
   (error) => Promise.reject(error)

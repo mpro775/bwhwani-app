@@ -84,6 +84,7 @@ export async function fetchWithAuth(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
+  
   const token = await refreshIdToken();
   return fetch(url, {
     ...options,

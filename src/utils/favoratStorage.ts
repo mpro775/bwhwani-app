@@ -1,59 +1,66 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { FavoriteItem } from '../types/types';
 import { getUserProfile } from '../storage/userStorage';
+import axiosInstance from './api/axiosInstance';
+import Toast from 'react-native-toast-message';
 
-const FAVORITES_KEY = 'user_favorites';
+const API_URL = '/users/favorites';
 
-export const getFavorites = async (): Promise<FavoriteItem[]> => {
-  const json = await AsyncStorage.getItem(FAVORITES_KEY);
-  return json ? JSON.parse(json) : [];
+export const getAllUserFavorites = async (): Promise<FavoriteItem[]> => {
+  const user = await getUserProfile();
+  if (!user?.id) return [];
+  const res = await axiosInstance.get(`${API_URL}?userId=${user.id}`);
+  return res.data;
 };
 
-export const addFavorite = async (item: FavoriteItem) => {
-  const current = await getFavorites();
-  const exists = current.find(
-    (f) => f.id === item.id && f.type === item.type && f.userId === item.userId
-  );
-  if (!exists) {
-    const updated = [...current, item];
-    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+export const addFavorite = async (item: FavoriteItem): Promise<boolean> => {
+  try {
+    await axiosInstance.post(API_URL, item);
+Toast.show({
+  type: "success",
+  text1: "تمت الإضافة",
+  text2: "تمت إضافة المنتج إلى المفضلة بنجاح 🎉",
+  position: "bottom",
+  visibilityTime: 2000,
+});
+    return true;
+  } catch (error) {
+    console.error('Add favorite error', error);
+    return false;
   }
 };
 
-export const removeFavorite = async (item: FavoriteItem) => {
-  const current = await getFavorites();
-  const updated = current.filter(
-    (f) =>
-      !(
-        f.id === item.id &&
-        f.type === item.type &&
-        f.userId === item.userId
-      )
-  );
-  await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+export const removeFavorite = async (item: FavoriteItem): Promise<boolean> => {
+  try {
+    await axiosInstance.delete(API_URL, { data: item });
+    Toast.show({
+  type: "error",
+  text1: "تمت الحذف ",
+  text2: "تم حذف المنتج من المفضلة بنجاح ",
+  position: "bottom",
+  visibilityTime: 2000,
+});
+    return true;
+  } catch (error) {
+    console.error('Remove favorite error', error);
+    return false;
+  }
 };
 
 export const isFavorite = async (
-  id: string,
-  type: FavoriteItem['type']
+  itemId: string,
+  itemType: FavoriteItem['itemType']
 ): Promise<boolean> => {
   const user = await getUserProfile();
   if (!user?.id) return false;
 
-  const current = await getFavorites();
-  return current.some(
-    (f) => f.id === id && f.type === type && f.userId === user.id
-  );
+  const all = await getAllUserFavorites();
+  return all.some((f) => f.itemId === itemId && f.itemType === itemType);
 };
 
-export const getFavoritesByType = async (type: FavoriteItem['type']) => {
-  const user = await getUserProfile();
-  const all = await getFavorites();
-  return all.filter((f) => f.type === type && f.userId === user?.id);
-};
-
-export const getAllUserFavorites = async (): Promise<FavoriteItem[]> => {
-  const user = await getUserProfile();
-  const all = await getFavorites();
-  return all.filter((f) => f.userId === user?.id);
+export const getFavoritesByType = async (
+  type: FavoriteItem['itemType']
+): Promise<FavoriteItem[]> => {
+  const all = await getAllUserFavorites();
+  return all.filter((f) => f.itemType === type);
 };

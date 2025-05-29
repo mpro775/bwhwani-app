@@ -14,16 +14,18 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
 import { fetchSpecialOffers } from "../../api/productApi"; // حسب المسار الصحيح
+import HorizontalProductCard from "./HorizontalProductCard";
+import { addFavorite, isFavorite, removeFavorite } from "utils/favoratStorage";
+import { fetchUserProfile } from "api/userApi";
+import { FavoriteItem } from "types/types";
 type Product = {
   _id: string;
   name: string;
   price: number;
   offerPrice?: number;
   hasOffer: boolean;
-  images: string[]; // 
-  // ✅ بدلاً من image
-    media?: { type: "image"; uri: string }[];
-
+  images: string[]; //
+  media?: { type: "image"; uri: string }[];
   description: string;
   category: string;
   categoryId: string;
@@ -38,7 +40,6 @@ type Product = {
   comments: { user: string; text: string }[];
 };
 
-
 type MarketStackParamList = {
   AllProducts: { showOffersOnly: boolean };
   ProductDetails: { product: Product };
@@ -47,39 +48,64 @@ const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.75;
 const CARD_MARGIN = 16;
 
-const formatCurrency = (value: number) =>
-  value.toLocaleString("ar-YE") + " ر.ي";
-
-const calculateSavings = (price: number, offerPrice: number | null) => {
-  if (offerPrice === null) return { discount: "", saved: "" };
-  const discount = 100 - (offerPrice / price) * 100;
-  const saved = price - offerPrice;
-  return {
-    discount: `${Math.round(discount)}% خصم`,
-    saved: `${saved.toLocaleString()} ر.ي`,
-  };
-};
 
 
 const SpecialOffers = () => {
-
   const [offers, setOffers] = useState<Product[]>([]);
+const [favoriteMap, setFavoriteMap] = useState<Record<string, boolean>>({});
 
-useEffect(() => {
-  const load = async () => {
-    try {
-      const data = await fetchSpecialOffers();
-      setOffers(data);
-    } catch (err) {
-      console.error("فشل تحميل العروض", err);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchSpecialOffers();
+        setOffers(data);
+      } catch (err) {
+        console.error("فشل تحميل العروض", err);
+      }
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+  const loadFavorites = async () => {
+    const map: Record<string, boolean> = {};
+    for (const item of offers) {
+      map[item._id] = await isFavorite(item._id, "product");
     }
+    setFavoriteMap(map);
   };
-  load();
-}, []);
 
-    const navigation =
+  if (offers.length > 0) {
+    loadFavorites();
+  }
+}, [offers]);
+const toggleFavorite = async (productId: string) => {
+  const user = await fetchUserProfile();
+  const current = favoriteMap[productId];
+  const item: FavoriteItem = {
+    itemId: productId,
+    itemType: "product",
+    userId: user.id,
+  };
+
+  if (current) {
+    await removeFavorite(item);
+  } else {
+    await addFavorite(item);
+  }
+
+  setFavoriteMap((prev) => ({ ...prev, [productId]: !current }));
+};
+
+  const navigation =
     useNavigation<NativeStackNavigationProp<MarketStackParamList>>();
-
+  if (!offers.length) {
+    return (
+      <View style={styles.noOffersContainer}>
+        <Text style={styles.noOffersText}>لا توجد عروض حالياً</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -95,94 +121,35 @@ useEffect(() => {
         <Text style={styles.title}> العروض الحصرية</Text>
       </View>
 
-      <FlatList
-        horizontal
-        inverted={I18nManager.isRTL}
-        data={offers}
-        keyExtractor={(item) => item._id}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_MARGIN}
-        decelerationRate="fast"
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => {
-        const { discount, saved } = calculateSavings(item.price, item.offerPrice ?? null);
+     <FlatList
+  horizontal
+  inverted={I18nManager.isRTL}
+  data={offers}
+  keyExtractor={(item) => item._id}
+  showsHorizontalScrollIndicator={false}
+  snapToInterval={CARD_WIDTH + CARD_MARGIN}
+  decelerationRate="fast"
+  contentContainerStyle={styles.listContent}
+  renderItem={({ item }) => (
+    <HorizontalProductCard
+      product={item}
+      isFavorited={favoriteMap[item._id]}
+      onToggleFavorite={toggleFavorite}
+      onPress={() =>
+        navigation.navigate("ProductDetails", {
+          product: {
+            ...item,
+            media: item.images?.map((img: string) => ({
+              type: "image",
+              uri: img,
+            })),
+          },
+        })
+      }
+    />
+  )}
+/>
 
-          return (
-            <TouchableOpacity
-              style={styles.card}
-              activeOpacity={0.9}
-         onPress={() =>
-  navigation.navigate("ProductDetails", {
-    product: {
-      ...item,
-media: item.images?.map((img: string) => ({ type: "image", uri: img }))
-    },
-  })
-}
-
-            >
-              <View style={styles.discountRibbon}>
-                <Text style={styles.discountText}>{discount}</Text>
-              </View>
-
-              <View style={styles.imageContainer}>
-                <Image 
-        source={{ uri: `http://192.168.1.102:3000${item.media?.[0]?.uri}` }}
-                
-                style={styles.image} />
-                <TouchableOpacity style={styles.favoriteButton}>
-                  <MaterialCommunityIcons
-                    name="heart-outline"
-                    size={24}
-                    color="#FFF"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.details}>
-                <Text style={styles.name} numberOfLines={2}>
-                  {item.name}
-                </Text>
-
-                <View style={styles.priceContainer}>
-                  <View>
-                    <Text style={styles.oldPrice}>
-                      {formatCurrency(item.price)}
-                    </Text>
-                    <Text style={styles.newPrice}>
-                      {item.offerPrice !== null && (
-                        <Text style={styles.newPrice}>
-                        {formatCurrency(item.offerPrice ?? 0)}
-                        </Text>
-                      )}
-                    </Text>
-                  </View>
-                  <Text style={styles.saveText}>وفر {saved}</Text>
-                </View>
-
-                <View style={styles.ratingContainer}>
-                  <MaterialCommunityIcons
-                    name="star"
-                    size={16}
-                    color="#FFC107"
-                  />
-                  <Text style={styles.ratingText}>4.8 (127 تقييم)</Text>
-                </View>
-
-                <TouchableOpacity
-                  style={styles.addButton}
-                  onPress={() =>
-                    navigation.navigate("ProductDetails", { product: item })
-                  }
-                >
-                  <Text style={styles.addButtonText}>التفاصيل</Text>
-                  <MaterialCommunityIcons name="plus" size={20} color="#FFF" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          );
-        }}
-      />
     </View>
   );
 };
@@ -191,7 +158,7 @@ const styles = StyleSheet.create({
   // نفس تنسيقك السابق، لم أغير شيء فيه
   container: { marginVertical: 32, backgroundColor: "#F8F9FA" },
   header: {
-    flexDirection: "row",
+    flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -208,6 +175,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
+  noOffersContainer: {
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    backgroundColor: "#F8F9FA",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noOffersText: {
+    fontSize: 16,
+    fontFamily: "Cairo-SemiBold",
+    color: "#999",
+    marginTop: 20,
+    textAlign: "center",
+  },
+
   seeAllText: {
     color: "#E53935",
     fontFamily: "Cairo-SemiBold",

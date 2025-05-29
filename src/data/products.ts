@@ -2,6 +2,8 @@
 
 export type Product = {
   _id: string;
+    id: string; // ✅ أضف هذا
+
   name: string;
   price: number;
   offerPrice?: number | null;

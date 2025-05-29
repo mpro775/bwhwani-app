@@ -6,11 +6,10 @@ import {
   FlatList,
   Dimensions,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import axios from "axios";
+import { LinearGradient } from 'expo-linear-gradient';
 import axiosInstance from "utils/api/axiosInstance";
+import SkeletonBox from "components/SkeletonBox";
 
 const SLIDER_WIDTH = Dimensions.get("window").width;
 const ITEM_WIDTH = SLIDER_WIDTH * 0.88;
@@ -35,6 +34,7 @@ const MarketSlider = () => {
     });
   }, []);
 
+  
   useEffect(() => {
     if (slides.length === 0) return;
     const interval = setInterval(() => {
@@ -46,10 +46,26 @@ const MarketSlider = () => {
 
     return () => clearInterval(interval);
   }, [currentIndex, slides.length]);
-
-  if (loading) {
-    return <ActivityIndicator size="large" color="#D84315" style={{ marginVertical: 30 }} />;
-  }
+if (loading) {
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={[1, 2, 3]}
+        horizontal
+        keyExtractor={(item) => item.toString()}
+        renderItem={() => (
+          <SkeletonBox
+            width={ITEM_WIDTH}
+            height={200}
+            borderRadius={20}
+            style={{ marginHorizontal: ITEM_SPACING / 2 }}
+          />
+        )}
+        showsHorizontalScrollIndicator={false}
+      />
+    </View>
+  );
+}
 
   return (
     <View style={styles.container}>

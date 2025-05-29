@@ -16,6 +16,7 @@ import {
 } from "@react-navigation/native-stack";
 import { fetchCategories } from "api/categoryApi";
 import { RootStackParamList } from "types/navigation";
+import SkeletonBox from "components/SkeletonBox";
 
 const COLORS = {
   primary: "#D84315",
@@ -26,7 +27,7 @@ const COLORS = {
 };
 
 const { width } = Dimensions.get("window");
-const CARD_SIZE = (width - 48) / 4;
+const CARD_SIZE = (width - 48) / 3; // ← فقط 3 أعمدة
 
 type Category = {
   _id: string;
@@ -80,12 +81,13 @@ const MarketCategories = () => {
       <View style={styles.iconContainer}>
         <Image
           source={{ uri: item.image }}
-          style={{ width: 36, height: 36, resizeMode: "contain" }}
+        style={styles.image}
         />
       </View>
-      <Text style={styles.label}>{item.name}</Text>
+    <Text style={styles.label}>{item.name}</Text>
     </TouchableOpacity>
   );
+  
 
   return (
     <View style={styles.container}>
@@ -96,22 +98,36 @@ const MarketCategories = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={categories}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id}
-        numColumns={4}
-        columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={loadCategories} />
-        }
-        ListEmptyComponent={
-          !loading ? (
-            <Text style={styles.emptyText}>لا توجد فئات حالياً</Text>
-          ) : null
-        }
-      />
+    {loading ? (
+  <View style={styles.row}>
+    {[...Array(4)].map((_, index) => (
+      <View key={index} style={styles.card}>
+        <SkeletonBox width={78} height={78} borderRadius={39} />
+        <SkeletonBox width={52} height={12} borderRadius={6} style={{ marginTop: 8 }} />
+      </View>
+    ))}
+  </View>
+) : (
+  <FlatList
+    data={categories}
+    scrollEnabled={false}
+    renderItem={renderItem}
+    keyExtractor={(item) => item._id}
+    numColumns={4}
+    columnWrapperStyle={styles.row}
+    contentContainerStyle={styles.listContent}
+    refreshControl={
+      <RefreshControl refreshing={loading} onRefresh={loadCategories} />
+    }
+    ListEmptyComponent={
+      !loading ? (
+        <Text style={styles.emptyText}>لا توجد فئات حالياً</Text>
+      ) : null
+    }
+  />
+)}
+
+
     </View>
   );
 };
@@ -152,27 +168,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
   },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: "#FFF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 6,
-    elevation: 2,
-    shadowColor: COLORS.secondary,
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-  },
-  label: {
-    fontSize: 12,
-    fontFamily: "Cairo-SemiBold",
-    color: COLORS.text,
-    textAlign: "center",
-    lineHeight: 16,
-  },
+iconContainer: {
+  width: 78,
+  height: 78,
+  borderRadius: 39, // دائرة
+  backgroundColor: "#FFF",
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: 8,
+  elevation: 3,
+  shadowColor: "#000",
+  shadowOpacity: 0.15,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 3 },
+},
+image: {
+  width: 52,
+  height: 52,
+  resizeMode: "cover", // تغطية
+  borderRadius: 26, // الشكل ناعم حتى لو كانت الصورة مربعة
+},
+label: {
+  fontSize: 14,
+  fontFamily: "Cairo-Bold",
+  color: COLORS.text,
+  textAlign: "center",
+  marginTop: 4,
+},
+
+
   emptyText: {
     textAlign: "center",
     fontFamily: "Cairo-Regular",

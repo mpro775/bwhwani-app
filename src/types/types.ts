@@ -10,6 +10,7 @@ export type Address = {
     longitude: number;
   };
 };
+
 export type Booking = {
   id: string;
   title: string;
@@ -79,20 +80,23 @@ export type LostAndFoundStats = {
 export type FavoriteType = "restaurant" | "product" | "service" | "haraj";
 
 export type FavoriteItem = {
-  id: string; // ID العنصر الأصلي (مثلاً ID المنتج أو المطعم)
-  userId: string; // معرف المستخدم الذي أضافه للمفضلة
-  type: FavoriteType;
-  title: string; // العنوان الظاهر
-  image?: string; // رابط الصورة المصغرة للعرض
-  data?: {
-    price?: number;
-    description?: string;
-    [key: string]: any;
-  }; // بيانات إضافية حسب النوع
-  addedAt: string; // وقت الإضافة (ISO string)
+  _id?: string;
+  itemId: string;
+  itemType: 'product' | 'store' | 'freelancer' | 'opportunity' | 'blood' | 'lostItem' | 'foundItem';
+  userId: string;
+  createdAt?: string;
 };
 
-
+export type CommentType = {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+  text: string;
+  createdAt: string;
+};
 
 export type UserProfile = {
   id: string;

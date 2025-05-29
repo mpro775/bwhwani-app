@@ -18,6 +18,10 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { fetchProducts } from "../../api/productApi";
 import { Product } from "data/products";
 import { fetchCategories } from "api/categoryApi";
+import { isFavorite, addFavorite, removeFavorite } from "../../utils/favoratStorage";
+import { fetchUserProfile } from "api/userApi";
+import { FavoriteItem } from "types/types";
+import ProductCard from "components/market/ProductCard";
 
 const COLORS = {
   primary: "#D84315",
@@ -36,6 +40,8 @@ const AllProductsScreen = () => {
 const [products, setProducts] = useState<Product[]>([]);
 const [categories, setCategories] = useState<{ id: string; title: string }[]>([]);
 const [loading, setLoading] = useState(false);
+const [favoriteMap, setFavoriteMap] = useState<Record<string, boolean>>({});
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showOffersOnly, setShowOffersOnly] = useState(
@@ -76,6 +82,13 @@ useEffect(() => {
         limit: 6,
       });
       setProducts(data);
+      const user = await fetchUserProfile();
+const map: Record<string, boolean> = {};
+for (const item of data) {
+  map[item._id] = await isFavorite(item._id, "product");
+}
+setFavoriteMap(map);
+
     } catch (err) {
       console.error("خطأ في التحميل", err);
     } finally {
@@ -87,61 +100,76 @@ useEffect(() => {
 }, [selectedCategoryId, searchQuery, showOffersOnly, currentPage]);
 
 
+const renderCategoryFilter = () => (
+  <FlatList
+    horizontal
+    data={[{ id: "all", title: "الكل" }, ...categories]}
+    renderItem={({ item }) => (
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedCategoryId(item.id);
+          setCurrentPage(1);
+        }}
+        style={[
+          styles.category,
+          selectedCategoryId === item.id && styles.categoryActive,
+        ]}
+      >
+        <Text
+          style={[
+            styles.categoryText,
+            selectedCategoryId === item.id && styles.categoryTextActive,
+          ]}
+        >
+          {item.title}
+        </Text>
+      </TouchableOpacity>
+    )}
+    keyExtractor={(item) => item.id}
+    contentContainerStyle={styles.categories}
+    showsHorizontalScrollIndicator={false}
+  />
+);
+
  
 
   const start = (currentPage - 1) * itemsPerPage;
   const end = start + itemsPerPage;
+const toggleFavorite = async (productId: string) => {
+  const user = await fetchUserProfile();
+  const current = favoriteMap[productId];
+const item: FavoriteItem = {
+  itemId: productId,
+  itemType: "product",
+  userId: user.id,
+};
 
-  const renderProduct = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.9}
-onPress={() =>
- navigation.navigate("ProductDetails", {
-  product: {
-    ...item,
-    media: item.media?.map((m: { type: string; uri: string }) => ({
-      ...m,
-      uri: m.uri.startsWith("http") ? m.uri : `http://192.168.1.102:3000${m.uri}`,
-    })) || [],
-  },
-})
-}    >
+  if (current) {
+    await removeFavorite(item);
+  } else {
+    await addFavorite(item);
+  }
 
-  
-      <View style={styles.imageContainer}>
-        {item.hasOffer && item.offerPrice !== null && (
-          <View style={styles.offerBadge}>
-            <Text style={styles.offerBadgeText}>
-              خصم {Math.round(100 - (item.offerPrice / item.price) * 100)}٪
-            </Text>
-          </View>
-        )}
-<Image
-  source={{ uri: item.media?.[0]?.uri.startsWith("http") ? item.media[0].uri : `http://192.168.1.102:3000${item.media?.[0]?.uri}` }}
-  style={styles.image}
-/>
-        <TouchableOpacity style={styles.favoriteButton}>
-          <MaterialIcons name="favorite-border" size={24} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.details}>
-        <Text style={styles.name} numberOfLines={2}>
-          {item.name}
-        </Text>
-        <View style={styles.priceRow}>
-          <Text style={styles.price}>{item.price.toLocaleString()} ر.ي</Text>
-          {item.hasOffer && (
-            <Text style={styles.originalPrice}>
-              {item.offerPrice?.toLocaleString()} ر.ي
-            </Text>
-          )}
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
+  setFavoriteMap((prev) => ({ ...prev, [productId]: !current }));
+};
+ const renderProduct = ({ item }: any) => (
+  <ProductCard
+    product={item}
+    isFavorited={favoriteMap[item._id]}
+    onToggleFavorite={toggleFavorite}
+    onPress={() =>
+      navigation.navigate("ProductDetails", {
+        product: {
+          ...item,
+          media: item.media?.map((m: any) => ({
+            ...m,
+            uri: m.uri.startsWith("http") ? m.uri : `http://192.168.1.102:3000${m.uri}`,
+          })) || [],
+        },
+      })
+    }
+  />
+);
   return (
     <View style={styles.container}>
       {/* Filters */}
@@ -169,63 +197,40 @@ onPress={() =>
         </View>
       </View>
 
-      <FlatList
-        horizontal
-        data={[{ id: "all", title: "الكل" }, ...categories]}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedCategoryId(item.id);
-              setCurrentPage(1);
-            }}
-            style={[
-              styles.category,
-              selectedCategoryId === item.id && styles.categoryActive,
-            ]}
-          >
-            <Text
-              style={[
-                styles.categoryText,
-                selectedCategoryId === item.id && styles.categoryTextActive,
-              ]}
-            >
-              {item.title}
-            </Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.categories}
-        showsHorizontalScrollIndicator={false}
-      />
+   
 
-      {products.length === 0 ? (
-        <View style={{ alignItems: "center", marginTop: 50 }}>
-          <Image
-            source={require("../../../assets/empty-box.png")}
-            style={{ width: 120, height: 120, marginBottom: 16 }}
-          />
-          <Text
-            style={{ fontFamily: "Cairo-Bold", fontSize: 16, color: "#999" }}
-          >
-            لا توجد منتجات مطابقة
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={products}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item._id}
-          columnWrapperStyle={{ justifyContent: "space-between", gap: 16 }}
-          numColumns={2}
-          contentContainerStyle={styles.productsContainer}
-        />
-      )}
+ <FlatList
+  data={products.length === 0 ? [] : products}
+  renderItem={products.length === 0 ? undefined : renderProduct}
+  keyExtractor={(item) => item._id}
+  numColumns={2}
+  columnWrapperStyle={
+    products.length > 1
+      ? { justifyContent: "space-between", gap: 16 }
+      : { justifyContent: "center" }
+  }
+  contentContainerStyle={styles.productsContainer}
+  ListHeaderComponent={renderCategoryFilter}
+  ListEmptyComponent={() => (
+    <View style={{ alignItems: "center", marginTop: 50 }}>
+      <Image
+        source={require("../../../assets/empty-box.png")}
+        style={{ width: 120, height: 120, marginBottom: 16 }}
+      />
+      <Text
+        style={{ fontFamily: "Cairo-Bold", fontSize: 16, color: "#999" }}
+      >
+        لا توجد منتجات مطابقة
+      </Text>
+    </View>
+  )}
+/>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFF", marginVertical: 50 },
+  container: { flex: 1, backgroundColor: "#FFF" },
   header: {
     flexDirection: "row-reverse",
     alignItems: "center",
@@ -308,7 +313,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.text,
     marginBottom: 4,
-    textAlign: "right",
   },
   priceRow: { flexDirection: "row-reverse", alignItems: "center", gap: 8 },
   price: { fontFamily: "Cairo-Bold", fontSize: 14, color: COLORS.primary },

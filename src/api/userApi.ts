@@ -11,8 +11,15 @@ const getAuthHeaders = async () => {
 export const fetchUserProfile = async () => {
   const headers = await getAuthHeaders();
   const response = await axiosInstance.get(`/users/me`, { headers });
-  return response.data;
+
+  const user = response.data;
+
+  return {
+    ...user,
+    id: user.id || user._id,
+  };
 };
+
 
 // ✅ 2. تحديث بيانات المستخدم (الاسم، الصورة، الهاتف...)
 // الصورة يتم رفعها من الفرونت إلى Bunny، ثم يرسل الرابط هنا
