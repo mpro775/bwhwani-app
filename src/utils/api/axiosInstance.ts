@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     const publicEndpoints = [
-      "/market/slider",
+      "/market/sliders",
       "/market/categories",
       "/market/products",
       "/market/offers",
