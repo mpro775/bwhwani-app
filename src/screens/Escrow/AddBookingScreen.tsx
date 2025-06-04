@@ -17,6 +17,8 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Picker } from "@react-native-picker/picker";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { uploadFileToBunny } from "utils/api/uploadFileToBunny";
+import axiosInstance from "utils/api/axiosInstance";
 
 const { width } = Dimensions.get("window");
 
@@ -125,22 +127,53 @@ const handlePickUnavailableDates = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    if (!form.title || !form.price || form.media.length === 0) {
-      Alert.alert("خطأ", "الرجاء إدخال الاسم والسعر وإضافة وسائط على الأقل");
-      return;
+const handleSubmit = async () => {
+  if (!form.title || !form.price || form.media.length === 0) {
+    Alert.alert("خطأ", "الرجاء إدخال الاسم والسعر وإضافة وسائط على الأقل");
+    return;
+  }
+
+  try {
+    const uploadedMedia: string[] = [];
+
+    for (const file of form.media) {
+      const response = await fetch(file.uri);
+      const blob = await response.blob();
+      const url = await uploadFileToBunny(blob);
+      uploadedMedia.push(url);
     }
 
-    const newBooking = {
-      ...form,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+    const availability = form.availableHours.map((hour) => ({
+      day: "All", // يمكن تغييره لاحقًا لربط أيام مختلفة
+      slots: [{ start: hour, end: hour }],
+    }));
+
+    const payload = {
+      title: form.title,
+      description: form.description,
+      type: form.type || "hall",
+      categories: [form.type],
+      price: parseFloat(form.price),
+      media: uploadedMedia,
+      location: {
+        city: form.governorate,
+        region: "",
+        coordinates: { lat: 0, lng: 0 }, // يمكن تحديثها لاحقًا بالـ GPS
+      },
+      contactNumber: form.contactNumber,
+      initialDeposit: 0,
+      availability,
+      allowMultipleBookings: form.allowMultipleBookings,
     };
 
-    console.log("✅ تم إنشاء الحجز:", newBooking);
-    Alert.alert("تم", "تم حفظ الحجز بنجاح!");
-    // يمكنك تخزينه في AsyncStorage أو إرساله للخادم
-  };
+    const res = await axiosInstance.post("/booking-services", payload);
+    Alert.alert("نجاح", "تم نشر الحجز بنجاح!");
+  } catch (err) {
+    console.error("❌ خطأ:", err);
+    Alert.alert("خطأ", "فشل حفظ الحجز. حاول مرة أخرى");
+  }
+};
+
 
   const hoursOptions = [
     "10:00 ص", "12:00 م", "2:00 م", "4:00 م", "6:00 م", "8:00 م", "10:00 م",

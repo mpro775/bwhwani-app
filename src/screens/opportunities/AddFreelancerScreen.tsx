@@ -16,67 +16,34 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { getUserProfile, updateUserProfile } from "../../storage/userStorage";
+import Toast from "react-native-toast-message";
+import { updateFreelancerProfile } from "api/freelancerApi";
+import { getToken } from "utils/api/token";
+import axiosInstance from "utils/api/axiosInstance";
+
 
 const services = ["برمجة", "تصميم", "كتابة", "تسويق"];
-const governorates = ["أمانة العاصمة", "عدن", "تعز"];
 
 const AddFreelancerScreen = ({ navigation }: any) => {
-  const [savedAddresses, setSavedAddresses] = useState<string[]>([]);
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [label, city, street] = selectedAddress.split(" - ");
-
   const [form, setForm] = useState({
-    name: "",
     service: "",
-    governorate: "",
-    phone: "",
     description: "",
     portfolio: [] as string[],
   });
-  const scaleAnim = useState(new Animated.Value(1))[0];
+const scaleAnim = useState(new Animated.Value(1))[0];
+
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
-    const loadData = async () => {
-      const user = await getUserProfile();
-      if (user) {
-        const addresses =
-          user.addresses?.map((a) => `${a.label} - ${a.city} - ${a.street}`) ||
-          [];
+    const fetchProfile = async () => {
+      const token = await getToken();
+      if (!token) return;
 
-        setForm((prev) => ({
-          ...prev,
-          name: user.fullName || "",
-          phone: user.phoneNumber || "",
-          service: user.freelanceData?.serviceCategory || "",
-          governorate: user.freelanceData?.city || "",
-          description: user.freelanceData?.bio || "",
-          portfolio: user.freelanceData?.portfolioImages || [],
-        }));
-
-        setSavedAddresses(addresses);
-        if (addresses.length > 0) {
-          setSelectedAddress(addresses[0]);
-        }
-      }
+      const res = await axiosInstance.get("/auth/me"); // فرضاً هذا endpoint موجود
+      setUserId(res.data._id);
     };
-    loadData();
+    fetchProfile();
   }, []);
-  
-
-  const animatePress = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
 
   const handleChange = (key: string, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -91,7 +58,6 @@ const AddFreelancerScreen = ({ navigation }: any) => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
       quality: 0.8,
     });
 
@@ -101,42 +67,41 @@ const AddFreelancerScreen = ({ navigation }: any) => {
     }
   };
 
-  const removeImage = (index: number) => {
-    const updatedPortfolio = [...form.portfolio];
-    updatedPortfolio.splice(index, 1);
-    handleChange("portfolio", updatedPortfolio);
-  };
-
   const handleSubmit = async () => {
-    animatePress();
-
-    if (!form.name || !form.service || !selectedAddress || !form.phone) {
-      Alert.alert("تنبيه", "الرجاء تعبئة جميع الحقول المطلوبة");
+    if (!form.service || !form.description) {
+      Alert.alert("يرجى تعبئة جميع الحقول");
       return;
     }
 
     try {
-      const updatedFreelanceData = {
-        bio: form.description,
-        serviceCategory: form.service,
-        city,
-        skills: [form.service],
-        portfolioImages: form.portfolio,
-      };
+    await updateFreelancerProfile({
+  isFreelancer: true,
+  service: form.service,
+  bio: form.description,
+  portfolioImages: form.portfolio,
+});
 
-      await updateUserProfile({
-        fullName: form.name,
-        phoneNumber: form.phone,
-        freelanceData: updatedFreelanceData,
+
+      Toast.show({
+        type: "success",
+        text1: "تم تحديث الملف بنجاح",
       });
 
-      Alert.alert("تم بنجاح", "✅ تم حفظ بيانات الفريلانسر بنجاح", [
-        { text: "حسناً", onPress: () => navigation.goBack() },
-      ]);
+      navigation.goBack();
     } catch (error) {
-      Alert.alert("خطأ", "حدث خطأ أثناء حفظ البيانات");
+      Toast.show({
+        type: "error",
+        text1: "فشل في التحديث",
+        text2: "حدث خطأ أثناء حفظ البيانات",
+      });
     }
   };
+  const removeImage = (index: number) => {
+  const updated = [...form.portfolio];
+  updated.splice(index, 1);
+  handleChange("portfolio", updated);
+};
+
 
   return (
     <KeyboardAvoidingView
@@ -170,14 +135,7 @@ const AddFreelancerScreen = ({ navigation }: any) => {
             onChange={(v: string) => handleChange("service", v)}
           />
 
-          <FormDropdown
-            icon="place"
-            label="اختر عنوانك"
-            options={savedAddresses}
-            value={selectedAddress}
-            onChange={(v: string) => setSelectedAddress(v)}
-          />
-
+      
           {/* Bio Section */}
           <SectionTitle icon="info" title="نبذة عنك" />
 

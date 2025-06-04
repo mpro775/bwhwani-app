@@ -30,7 +30,7 @@ const ProductCard: React.FC<Props> = ({ product, isFavorited, onToggleFavorite, 
           source={{
             uri: product.media?.[0]?.uri.startsWith("http")
               ? product.media[0].uri
-              : `http://192.168.1.102:3000${product.media?.[0]?.uri}`,
+              : `http://192.168.1.3:3000${product.media?.[0]?.uri}`,
           }}
           style={styles.image}
         />

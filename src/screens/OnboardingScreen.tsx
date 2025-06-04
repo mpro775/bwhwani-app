@@ -1,29 +1,35 @@
 import React from "react";
 import Onboarding from "react-native-onboarding-swiper";
-import { Image, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, StyleSheet, View, Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { RootStackParamList } from "types/navigation";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import LottieView from "lottie-react-native"; // استيراد Lottie
+
+// استبدل هذا النوع بنوع الملاحة لديك
+import { RootStackParamList } from "types/navigation";
 
 // ألوان التطبيق
 const COLORS = {
   primary: "#D84315",
-  text: "#4E342E",
+  text: "#1A3052",
   background: "#FFFFFF",
 };
 
+// زر "Done" مخصص
 const Done = ({ ...props }) => (
   <TouchableOpacity style={{ marginHorizontal: 10 }} {...props}>
-    <Text style={{ fontFamily: "Cairo-Bold", fontSize: 16, color: "#D84315" }}>
+    <Text style={{ fontFamily: "Cairo-Bold", fontSize: 16, color: COLORS.primary }}>
       ابدأ
     </Text>
   </TouchableOpacity>
 );
 
+const { width, height } = Dimensions.get("window");
+
 const OnboardingScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const handleDone = async () => {
     await AsyncStorage.setItem("hasSeenOnboarding", "true");
     navigation.reset({
@@ -32,6 +38,7 @@ const OnboardingScreen = () => {
     });
   };
 
+  // دالة مساعدة لإنشاء نص عربي
   const ArabicText = (
     text: string,
     size = 18,
@@ -57,13 +64,11 @@ const OnboardingScreen = () => {
       bottomBarColor={COLORS.background}
       bottomBarHeight={200}
       nextLabel={
-        <Text style={{ fontFamily: "Cairo-Bold", color: "#D84315",marginBottom:30 }}>
+        <Text style={{ fontFamily: "Cairo-Bold", color: COLORS.primary, marginBottom: 30 }}>
           التالي
         </Text>
       }
-      skipLabel={
-        <Text style={{ fontFamily: "Cairo-Bold", color: "#999" }}>تخطي</Text>
-      }
+      skipLabel={<Text style={{ fontFamily: "Cairo-Bold", color: "#999" }}>تخطي</Text>}
       DoneButtonComponent={Done}
       titleStyles={{
         fontFamily: "Cairo-Bold",
@@ -75,29 +80,34 @@ const OnboardingScreen = () => {
         fontSize: 16,
         color: COLORS.text,
       }}
-      controlStatusBar={false}
       containerStyles={{ direction: "rtl" }} // لدعم RTL
       pages={[
         {
           backgroundColor: COLORS.background,
           image: (
-            <Image
-              source={require("../../assets/onboarding.png")}
-              style={{ width: 300, height: 300, resizeMode: "contain" }}
-            />
+            <View style={styles.lottieContainer}>
+              <LottieView
+                source={require("../../assets/animations/onboarding1.json")}
+                autoPlay
+                loop
+                style={styles.lottie}
+              />
+            </View>
           ),
           title: ArabicText("مرحبًا بك في بثواني", 24, "bold"),
-          subtitle: ArabicText(
-            "تطبيق شامل للسوق، التوصيل، المفقودات والمزيد..."
-          ),
+          subtitle: ArabicText("تطبيق شامل للسوق، التوصيل، المفقودات والمزيد..."),
         },
         {
           backgroundColor: COLORS.background,
           image: (
-            <Image
-              source={require("../../assets/onboarding.png")}
-              style={{ width: 300, height: 300, resizeMode: "contain" }}
-            />
+            <View style={styles.lottieContainer}>
+              <LottieView
+                source={require("../../assets/animations/onboarding2.json")}
+                autoPlay
+                loop
+                style={styles.lottie}
+              />
+            </View>
           ),
           title: ArabicText("اطلب وتابع بثواني", 24, "bold"),
           subtitle: ArabicText("منتجات، عروض، توصيل سريع حسب موقعك."),
@@ -105,10 +115,14 @@ const OnboardingScreen = () => {
         {
           backgroundColor: COLORS.background,
           image: (
-            <Image
-              source={require("../../assets/onboarding.png")}
-              style={{ width: 300, height: 300, resizeMode: "contain" }}
-            />
+            <View style={styles.lottieContainer}>
+              <LottieView
+                source={require("../../assets/animations/onboarding3.json")}
+                autoPlay
+                loop
+                style={styles.lottie}
+              />
+            </View>
           ),
           title: ArabicText("جاهز لتجربتنا؟", 24, "bold"),
           subtitle: ArabicText("سجل وابدأ الآن!"),
@@ -117,5 +131,18 @@ const OnboardingScreen = () => {
     />
   );
 };
+
+// أنماط خاصة بمحاذاة وحجم Lottie
+const styles = StyleSheet.create({
+  lottieContainer: {
+    width: width * 0.8,
+    height: height * 0.4,
+    alignSelf: "center",
+  },
+  lottie: {
+    width: "100%",
+    height: "100%",
+  },
+});
 
 export default OnboardingScreen;

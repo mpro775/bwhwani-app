@@ -41,27 +41,25 @@ export const sendPasswordReset = async (email: string) => {
   return response.data;
 };
 
-
 export async function refreshIdToken(): Promise<string> {
-  // اقرأ الـrefreshToken ووقت الانتهاء
-  const [[, refreshToken], [, expiryTimeStr]] =
-    await AsyncStorage.multiGet(["firebase-refreshToken", "firebase-expiryTime"]);
+  const [[, refreshToken], [, expiryTimeStr]] = await AsyncStorage.multiGet([
+    "firebase-refreshToken",
+    "firebase-expiryTime",
+  ]);
 
   if (!refreshToken) {
     throw new Error("No refresh token");
   }
 
-  // إذا لم تنتهِ بعد
   const now = Date.now();
   if (expiryTimeStr && now < parseInt(expiryTimeStr, 10) - 5000) {
-    const idToken = await AsyncStorage.getItem("firebase-idToken");
+    const idToken = await AsyncStorage.getItem("firebase-idToken"); // ✅
     if (idToken) return idToken;
   }
 
-  // انتهت الصلاحية أو قاربت على الانتهاء: اطلب توكن جديد
   const params = new URLSearchParams({
-    grant_type:    "refresh_token",
-    refresh_token: refreshToken
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
   });
 
   const { data } = await axios.post(
@@ -70,21 +68,20 @@ export async function refreshIdToken(): Promise<string> {
     { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
   );
 
-  // خزّن التوكن الجديدة ووقت الانتهاء
   const newExpiry = Date.now() + parseInt(data.expires_in, 10) * 1000;
   await AsyncStorage.multiSet([
-    ["firebase-idToken",      data.id_token],
+    ["firebase-idToken", data.id_token], // ✅ اسم موحّد
     ["firebase-refreshToken", data.refresh_token],
-    ["firebase-expiryTime",   newExpiry.toString()],
+    ["firebase-expiryTime", newExpiry.toString()],
   ]);
 
   return data.id_token;
 }
+
 export async function fetchWithAuth(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  
   const token = await refreshIdToken();
   return fetch(url, {
     ...options,
@@ -94,3 +91,11 @@ export async function fetchWithAuth(
     },
   });
 }
+export const storeFirebaseTokens = async (idToken: string, refreshToken: string, expiresIn: number) => {
+  const expiryTime = Date.now() + expiresIn * 1000;
+  await AsyncStorage.multiSet([
+    ["firebase-idToken", idToken],
+    ["firebase-refreshToken", refreshToken],
+    ["firebase-expiryTime", expiryTime.toString()],
+  ]);
+};

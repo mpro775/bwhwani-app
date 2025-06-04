@@ -1,5 +1,5 @@
 // screens/opportunities/AddOpportunityScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,15 +9,13 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
-import {
-  storeOpportunities,
-  getStoredOpportunities,
-} from "../../utils/opportunitiesStorage";
+import { createOpportunity } from "api/opportunityApi";
 
 const categories = ["برمجة", "تصميم", "تسويق", "كتابة"];
 const types = ["توظيف", "خدمة"];
@@ -25,21 +23,23 @@ const governorates = ["أمانة العاصمة", "عدن", "تعز", "حضرم
 
 const AddOpportunityScreen = () => {
   const navigation = useNavigation();
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    category: "",
-    type: "",
-    governorate: "",
-  });
+
+ const [form, setForm] = useState({
+  title: "",
+  description: "",
+  category: "",
+  type: "",
+  governorate: "",
+});
+// ثم في useEffect نحدثها عند توفر user
 
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const validateForm = () => {
-    return Object.values(form).every((field) => field.trim());
-  };
+const validateForm = () => {
+  return form.title && form.description && form.category && form.type && form.governorate;
+};
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -52,15 +52,8 @@ const AddOpportunityScreen = () => {
     }
 
     try {
-      const newOpportunity = {
-        id: Date.now().toString(),
-        ...form,
-        createdAt: new Date().toISOString(),
-      };
-
-      const existingData = await getStoredOpportunities();
-      await storeOpportunities([...existingData, newOpportunity]);
-
+    await createOpportunity(form);
+ 
       Toast.show({
         type: "success",
         text1: "تم النشر بنجاح",

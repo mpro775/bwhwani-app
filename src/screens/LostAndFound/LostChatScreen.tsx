@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,26 +10,73 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { io } from "socket.io-client";
+
+
+// إعداد الاتصال بـ Socket
+const socket = io("https://bthwani-backend.onrender.com", {
+  transports: ["websocket"],
+});
+type Message = {
+  id: string;
+  text: string;
+  sender: "user" | "owner";
+  time?: string;
+};
 
 const LostChatScreen = ({ route }: any) => {
   const { itemId } = route.params; // رقم المفقود المرتبط بالمحادثة
-
-  const [messages, setMessages] = useState([
-    { id: "1", text: "مرحبًا، هل لا زال مفقود؟", sender: "user" },
-    { id: "2", text: "نعم، لم أجد شيئًا حتى الآن", sender: "owner" },
-  ]);
-
+const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+const flatListRef = useRef<FlatList<Message>>(null);
+
+useEffect(() => {
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch(`https://bthwani-backend.onrender.com/api/messages/lost/${itemId}`);
+      const data = await res.json();
+      setMessages(data);
+    } catch (err) {
+      console.error("فشل تحميل الرسائل:", err);
+    }
+  };
+
+  fetchMessages();
+}, [itemId]);
+
+  useEffect(() => {
+    socket.emit("join", { roomId: `lost-${itemId}` });
+
+    socket.on("message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+      scrollToBottom();
+    });
+
+    return () => {
+      socket.emit("leave", { roomId: `lost-${itemId}` });
+      socket.off("message");
+    };
+  }, [itemId]);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
 
   const handleSend = () => {
     if (!input.trim()) return;
-    const newMessage = {
+const msg: Message = {
       id: Date.now().toString(),
       text: input,
-      sender: "user", // لاحقًا يمكن ربطها بهوية المستخدم
+      sender: "user", // يمكن ربطه بـ userId لاحقًا
+      time: new Date().toISOString(),
     };
-    setMessages((prev) => [...prev, newMessage]);
+
+    socket.emit("message", { roomId: `lost-${itemId}`, message: msg });
+    setMessages((prev) => [...prev, msg]);
     setInput("");
+    scrollToBottom();
   };
 
   const renderMessage = ({ item }: any) => (
@@ -49,6 +96,7 @@ const LostChatScreen = ({ route }: any) => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <FlatList
+        ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}

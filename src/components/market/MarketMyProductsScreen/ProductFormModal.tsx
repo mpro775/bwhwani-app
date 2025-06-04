@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   View,
@@ -45,6 +45,36 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
     }));
   };
 const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
+const sanitize = (text: string) => text.replace(/[<>]/g, "");
+const [loading, setLoading] = useState(false);
+
+const validateAndSave = async () => {
+    if (loading) return;
+  setLoading(true);
+
+if (!editingProductId) {
+  if (!newProduct.name || !newProduct.price || !newProduct.categoryId || !newProduct.governorate) {
+    Alert.alert("تنبيه", "يرجى تعبئة جميع الحقول المطلوبة");
+    return;
+  }
+}
+
+
+  if (isNaN(Number(newProduct.price))) {
+    Alert.alert("تنبيه", "السعر غير صالح");
+    return;
+  }
+
+  if (newProduct.hasOffer && (!newProduct.offerPrice || Number(newProduct.offerPrice) >= Number(newProduct.price))) {
+    Alert.alert("تنبيه", "سعر العرض يجب أن يكون أقل من السعر الأصلي");
+    return;
+  }
+
+ try {
+    await onSave();
+  } finally {
+    setLoading(false);
+  }};
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -63,7 +93,7 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
             <TextInput
               placeholder="اسم المنتج"
               value={newProduct.name}
-              onChangeText={(text) => setNewProduct({ ...newProduct, name: text })}
+              onChangeText={(text) => setNewProduct({ ...newProduct, name: sanitize(text) })}
               style={styles.input}
               placeholderTextColor="#999"
             />
@@ -71,7 +101,7 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
             <TextInput
               placeholder="الوصف"
               value={newProduct.description}
-              onChangeText={(text) => setNewProduct({ ...newProduct, description: text })}
+              onChangeText={(text) => setNewProduct({ ...newProduct, description:  sanitize(text) })}
               style={[styles.input, { height: 100 }]}
               multiline
               placeholderTextColor="#999"
@@ -80,9 +110,10 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
             <TextInput
               placeholder="السعر الأساسي"
               keyboardType="numeric"
-              value={newProduct.price}
-              onChangeText={(text) => setNewProduct({ ...newProduct, price: text })}
-              style={styles.input}
+            value={newProduct.price.toString()}
+onChangeText={(text) =>
+  setNewProduct({ ...newProduct, price: Number(text) })
+}              style={styles.input}
               placeholderTextColor="#999"
             />
 
@@ -101,9 +132,10 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
               <TextInput
                 placeholder="سعر العرض"
                 keyboardType="numeric"
-                value={newProduct.offerPrice}
-                onChangeText={(text) => setNewProduct({ ...newProduct, offerPrice: text })}
-                style={styles.input}
+                value={newProduct.offerPrice?.toString()}
+onChangeText={(text) =>
+  setNewProduct({ ...newProduct, offerPrice: Number(text) })
+}                style={styles.input}
                 placeholderTextColor="#999"
               />
             )}
@@ -121,12 +153,21 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
               ))}
             </Picker>
 
-            <TextInput
-              placeholder="الموقع"
-              value={newProduct.location}
-              onChangeText={(text) => setNewProduct({ ...newProduct, location: text })}
-              style={styles.input}
-            />
+            <Picker
+  selectedValue={newProduct.governorate}
+  onValueChange={(val) => setNewProduct({ ...newProduct, governorate: val })}
+  style={styles.picker}
+>
+  <Picker.Item label="اختر المحافظة" value="" />
+  {[
+    "صنعاء", "عدن", "تعز", "الحديدة", "إب", "ذمار", "حجة", "المكلا",
+    "مأرب", "الجوف", "عمران", "صعدة", "شبوة", "لحج", "الضالع",
+    "المهرة", "ريمة", "البيضاء"
+  ].map((gov) => (
+    <Picker.Item key={gov} label={gov} value={gov} />
+  ))}
+</Picker>
+
 
             <View style={styles.checkboxRow}>
               <Text style={styles.checkboxLabel}>حالة المنتج</Text>
@@ -228,7 +269,7 @@ const [showAdvancedFields, setShowAdvancedFields] = React.useState(false);
           <View style={styles.modalFooter}>
             <TouchableOpacity
               style={[styles.footerButton, styles.saveButton]}
-              onPress={onSave}
+              onPress={validateAndSave}
             >
               <Text style={styles.footerButtonText}>حفظ التغييرات</Text>
             </TouchableOpacity>

@@ -12,7 +12,12 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-import { Ionicons, Feather, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  Feather,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import ProductDetailsScreen from "../screens/market/ProductDetailsScreen";
 import DeliveryTabNavigation from "../navigation/DeliveryTabNavigation";
@@ -64,9 +69,7 @@ import AddBookingScreen from "../screens/Escrow/AddBookingScreen";
 import ForgotPasswordScreen from "screens/Auth/ForgotPasswordScreen";
 import OnboardingScreen from "screens/OnboardingScreen";
 import { ScrollView } from "react-native-gesture-handler";
-
-
-
+import OTPVerificationScreen from "screens/Auth/OTPVerificationScreen";
 
 // أنواع التنقل
 
@@ -78,26 +81,27 @@ type RootStackParamList = {
   UniversalProductDetails: { product: any };
   CartScreen: undefined;
   InvoiceScreen: { items: any[] };
-    AddBookingScreen:undefined;
-ForgotPassword:undefined;
+  AddBookingScreen: undefined;
+  OTPVerification: { email: string };
+  ForgotPassword: undefined;
   MyOrdersScreen: undefined;
   OrderDetailsScreen: { order: any };
   FavoritesScreen: undefined;
-  Onboarding:undefined;
+  Onboarding: undefined;
   EditProfile: undefined;
-AddLostItemScreen:undefined;
-BookingsStack: undefined;
-BecomeDonor:undefined;
-MyBookingsScreen:undefined;
+  AddLostItemScreen: undefined;
+  BookingsStack: undefined;
+  BecomeDonor: undefined;
+  MyBookingsScreen: undefined;
   ManageBookingAvailability: { bookingId: string };
 
-BookingFormScreen: {
-  bookingId: string;
-  title: string;
-  price: number;
-  availableHours: string[];
-};
-AddFoundItemScreen:undefined;
+  BookingFormScreen: {
+    bookingId: string;
+    title: string;
+    price: number;
+    availableHours: string[];
+  };
+  AddFoundItemScreen: undefined;
   DeliveryAddresses: {
     selectedLocation?: { latitude: number; longitude: number };
   };
@@ -105,9 +109,9 @@ AddFoundItemScreen:undefined;
   GroceryDetails: undefined;
   MyFreelancerProfile: undefined;
   DeliveryTab: undefined;
-    BookingTabs: undefined; 
-    BookingDetailsScreen: undefined;
-    BookingChatScreen: undefined;
+  BookingTabs: undefined;
+  BookingDetailsScreen: undefined;
+  BookingChatScreen: undefined;
 
   CategoryDetails: undefined;
   BusinessDetails: { business: any };
@@ -122,7 +126,6 @@ type DrawerParamList = {
   LostAndFound: undefined;
   Settings: undefined;
   BookingsStack: undefined;
-  
 };
 
 type BloodStackParamList = {
@@ -140,11 +143,13 @@ const MarketStack = createNativeStackNavigator<MarketStackParamList>();
 
 const MarketStackNavigator = () => (
   <MarketStack.Navigator screenOptions={{ headerShown: false }}>
+    <MarketStack.Screen name="MarketTabs" component={MarketTabNavigation} />
 
-  <MarketStack.Screen name="MarketTabs" component={MarketTabNavigation} />
-
-<MarketStack.Screen name="AllProducts" component={AllProductsScreen} />
-  <MarketStack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+    <MarketStack.Screen name="AllProducts" component={AllProductsScreen} />
+    <MarketStack.Screen
+      name="ProductDetails"
+      component={ProductDetailsScreen}
+    />
   </MarketStack.Navigator>
 );
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -184,22 +189,21 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
-  const checkLogin = async () => {
-    try {
-      const user = await getUserProfile();
-      if (user && user.fullName) {
-        setIsLoggedIn(true);
-        setUserName(user.fullName);
-      } else {
-        // لا تفعل أي شيء، فقط لا تعرض الزر
+    const checkLogin = async () => {
+      try {
+        const user = await getUserProfile();
+        if (user && user.fullName) {
+          setIsLoggedIn(true);
+          setUserName(user.fullName);
+        } else {
+          // لا تفعل أي شيء، فقط لا تعرض الزر
+        }
+      } catch (error) {
+        console.warn("لم يتم استرجاع المستخدم:", error);
       }
-    } catch (error) {
-      console.warn("لم يتم استرجاع المستخدم:", error);
-    }
-  };
-  checkLogin();
-}, []);
-
+    };
+    checkLogin();
+  }, []);
 
   return (
     <ScrollView contentContainerStyle={{ paddingTop: 40, paddingBottom: 20 }}>
@@ -300,30 +304,29 @@ const MainTabs = () => {
 const AppDrawer = () => (
   <Drawer.Navigator
     initialRouteName="HomeStack"
-
-  screenOptions={({ navigation }) => ({
+    screenOptions={({ navigation }) => ({
       headerShown: true,
       drawerActiveTintColor: "#D84315",
       drawerPosition: "right",
       drawerInactiveTintColor: "#B0BEC5",
-          headerRight: () => null, // إلغاء الزر من اليسار
- headerLeft: () => (
-      <TouchableOpacity
-        style={{ marginLeft: 16 }}
-        onPress={() => navigation.toggleDrawer()}
-      >
-        <Ionicons name="menu" size={24} color="#3E2723" />
-      </TouchableOpacity>
-    ),
+      headerRight: () => null, // إلغاء الزر من اليسار
+      headerLeft: () => (
+        <TouchableOpacity
+          style={{ marginLeft: 16 }}
+          onPress={() => navigation.toggleDrawer()}
+        >
+          <Ionicons name="menu" size={24} color="#3E2723" />
+        </TouchableOpacity>
+      ),
       drawerLabelStyle: {
         fontFamily: "Cairo-SemiBold",
         fontSize: 16,
         writingDirection: "rtl",
-        paddingHorizontal:50,
+        paddingHorizontal: 50,
       },
       drawerStyle: {
         backgroundColor: "#FFFFFF",
-  width: "85%",
+        width: "85%",
       },
       headerStyle: {
         backgroundColor: "#FFFFFF",
@@ -335,8 +338,7 @@ const AppDrawer = () => (
         textAlign: "center",
         writingDirection: "rtl",
       },
-     })}
-
+    })}
     drawerContent={(props) => <CustomDrawerContent {...props} />}
   >
     <Drawer.Screen
@@ -351,7 +353,7 @@ const AppDrawer = () => (
         ),
       }}
     />
-       <Drawer.Screen
+    <Drawer.Screen
       name="MarketStack"
       component={MarketStackNavigator}
       options={{
@@ -387,17 +389,17 @@ const AppDrawer = () => (
       }}
     />
     <Drawer.Screen
-  name="BookingsStack"
-  component={BookingTabNavigation}
-  options={{
-    drawerLabel: "الحجوزات",
-    headerTitle: "إدارة الحجوزات",
-    headerTitleAlign: "center",
-    drawerIcon: ({ color, size }) => (
-      <Ionicons name="calendar" size={size} color={color} />
-    ),
-  }}
-/>
+      name="BookingsStack"
+      component={BookingTabNavigation}
+      options={{
+        drawerLabel: "الحجوزات",
+        headerTitle: "إدارة الحجوزات",
+        headerTitleAlign: "center",
+        drawerIcon: ({ color, size }) => (
+          <Ionicons name="calendar" size={size} color={color} />
+        ),
+      }}
+    />
 
     <Drawer.Screen
       name="LostAndFound"
@@ -427,20 +429,22 @@ const AppDrawer = () => (
   </Drawer.Navigator>
 );
 
-const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) => (
+const AppNavigation = ({
+  hasSeenOnboarding,
+}: {
+  hasSeenOnboarding: boolean;
+}) => (
   <NavigationContainer>
-  <RootStack.Navigator
-    initialRouteName={hasSeenOnboarding ? "MainApp" : "Onboarding"}
-    screenOptions={{ headerShown: false }}
-  >
-    <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
-    <RootStack.Screen name="MainApp" component={AppDrawer} />
+    <RootStack.Navigator
+      initialRouteName={hasSeenOnboarding ? "MainApp" : "Onboarding"}
+      screenOptions={{ headerShown: false }}
+    >
+      <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
+      <RootStack.Screen name="MainApp" component={AppDrawer} />
 
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
       <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
-
-
 
       <RootStack.Screen name="DeliveryTab" component={DeliveryTabNavigation} />
       <RootStack.Screen
@@ -451,61 +455,59 @@ const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) =>
       <RootStack.Screen name="InvoiceScreen" component={InvoiceScreen} />
       <RootStack.Screen name="MyOrdersScreen" component={MyOrdersScreen} />
       <RootStack.Screen
+        name="OTPVerification"
+        component={OTPVerificationScreen}
+      />
+      <RootStack.Screen
         name="UniversalProductDetails"
         component={CommonProductDetailsScreen}
       />
       <RootStack.Screen name="FavoritesScreen" component={FavoritesScreen} />
-     <RootStack.Screen
-  name="BookingFormScreen"
-  component={BookingFormScreen}
-/>
-<RootStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <RootStack.Screen
+        name="BookingFormScreen"
+        component={BookingFormScreen}
+      />
+      <RootStack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+      />
 
-     <RootStack.Screen
-  name="ManageBookingAvailability"
-  component={ManageBookingAvailabilityScreen}
-/>
-     <RootStack.Screen
-  name="AddBookingScreen"
-  component={AddBookingScreen}
-/>
+      <RootStack.Screen
+        name="ManageBookingAvailability"
+        component={ManageBookingAvailabilityScreen}
+      />
+      <RootStack.Screen name="AddBookingScreen" component={AddBookingScreen} />
 
-     <RootStack.Screen
-  name="MyBookingsScreen"
-  component={MyBookingsScreen}
-/>
+      <RootStack.Screen name="MyBookingsScreen" component={MyBookingsScreen} />
 
       <RootStack.Screen
         name="EditProfile"
         component={EditProfileScreen}
         options={{ title: "تعديل الملف الشخصي" }}
       />
+      <RootStack.Screen name="BookingTabs" component={BookingTabNavigation} />
       <RootStack.Screen
-  name="BookingTabs"
-  component={BookingTabNavigation}
-/>
+        name="BookingChatScreen"
+        component={BookingChatScreen}
+      />
       <RootStack.Screen
-  name="BookingChatScreen"
-  component={BookingChatScreen}
-/>
-          <RootStack.Screen
         name="AddLostItemScreen"
         component={AddLostItemScreen}
       />
-<RootStack.Screen
-  name="BookingDetailsScreen"
-  component={BookingDetailsScreen}
-/>
+      <RootStack.Screen
+        name="BookingDetailsScreen"
+        component={BookingDetailsScreen}
+      />
 
-           <RootStack.Screen
+      <RootStack.Screen
         name="AddFoundItemScreen"
         component={AddFoundItemScreen}
       />
-         <RootStack.Screen
-      name="BecomeDonor"
-      component={BecomeDonorScreen}
-      options={{ title: "تعديل بيانات التبرع" }}
-    />
+      <RootStack.Screen
+        name="BecomeDonor"
+        component={BecomeDonorScreen}
+        options={{ title: "تعديل بيانات التبرع" }}
+      />
       <RootStack.Screen
         name="CategoryDetails"
         component={CategoryDetailsScreen}
@@ -515,7 +517,6 @@ const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) =>
         component={DeliveryAddressesScreen}
         options={{ title: "عناويني" }}
       />
- 
 
       <RootStack.Screen
         name="SelectLocation"
@@ -527,12 +528,12 @@ const AppNavigation = ({ hasSeenOnboarding }: { hasSeenOnboarding: boolean }) =>
         component={MyFreelancerProfileScreen}
         options={{ title: "بيانات الفريلانسر" }}
       />
-      
+
       <RootStack.Screen
         name="GroceryDetails"
         component={GroceryDetailsScreen}
       />
-      
+
       <RootStack.Screen
         name="OrderDetailsScreen"
         component={OrderDetailsScreen}

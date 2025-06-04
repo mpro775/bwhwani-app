@@ -17,11 +17,17 @@
       "supportsTablet": true,
       "runtimeVersion": {
         "policy": "appVersion"
+      },
+         "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "نحتاج إلى موقعك لتحديد مكانك الحالي"
       }
+
     },
     "android": {
       "permissions": [
-        "READ_EXTERNAL_STORAGE"
+        "READ_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",

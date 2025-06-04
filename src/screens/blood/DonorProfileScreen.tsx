@@ -8,26 +8,31 @@ import { updateUserProfile } from "../../storage/userStorage";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
 import { UserProfile } from "../../types/types";
+import { deleteBloodData } from "api/bloodApi";
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 const DonorProfileScreen = () => {
   const [donor, setDonor] = useState<any>(null);
   const navigation = useNavigation<Nav>();
-  const handleDelete = async () => {
-    Alert.alert("تأكيد الحذف", "هل أنت متأكد أنك تريد حذف بياناتك كمتبرع؟", [
-      { text: "إلغاء", style: "cancel" },
-      {
-        text: "حذف",
-        style: "destructive",
-        onPress: async () => {
-          await updateUserProfile({ bloodData: undefined });
+
+const handleDelete = async () => {
+  Alert.alert("تأكيد الحذف", "هل أنت متأكد أنك تريد حذف بياناتك كمتبرع؟", [
+    { text: "إلغاء", style: "cancel" },
+    {
+      text: "حذف",
+      style: "destructive",
+      onPress: async () => {
+        try {
+          await deleteBloodData();
           Alert.alert("✅ تم الحذف", "تم حذف بياناتك كمتبرع بالدم.");
           navigation.goBack();
-        },
+        } catch (err) {
+          Alert.alert("خطأ", "حدثت مشكلة أثناء حذف البيانات.");
+        }
       },
-    ]);
-  };
-  
+    },
+  ]);
+};
   useEffect(() => {
     const loadData = async () => {
       try {

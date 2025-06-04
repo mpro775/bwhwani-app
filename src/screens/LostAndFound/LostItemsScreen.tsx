@@ -18,12 +18,17 @@ const locations = ["الكل", "أمانة العاصمة", "عدن", "تعز"];
 const statuses = ["الكل", "مفقود", "تم العثور عليه"];
 
 type LostItem = {
-  id: string;
+  _id: string;
   title: string;
-  date: string;
-  location: string;
-  type: string;
-  status: string;
+  description: string;
+  dateLostOrFound: string;
+  status: "مفقود" | "تم العثور عليه";
+  category: string;
+  location: {
+    governorate: string;
+    city?: string;
+  };
+  images?: string[];
 };
 
 const LostItemsScreen = ({ navigation }: any) => {
@@ -33,26 +38,31 @@ const LostItemsScreen = ({ navigation }: any) => {
   const [selectedStatus, setSelectedStatus] = useState("الكل");
   const [loading, setLoading] = useState(true);
 
-  const loadLostItems = async () => {
-    try {
-      const data = await AsyncStorage.getItem("lost-items");
-      if (data) setLostItems(JSON.parse(data));
-    } finally {
-      setLoading(false);
-    }
-  };
+const loadLostItems = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("https://bthwani-backend.onrender.com/api/lostfound?type=lost");
+    const data = await res.json();
+    setLostItems(data);
+  } catch (error) {
+    console.error("فشل في تحميل المفقودات:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", loadLostItems);
     return unsubscribe;
   }, [navigation]);
 
-  const filtered = lostItems.filter(
-    (item: LostItem) =>
-      (selectedType === "الكل" || item.type === selectedType) &&
-      (selectedLocation === "الكل" || item.location === selectedLocation) &&
-      (selectedStatus === "الكل" || item.status === selectedStatus)
-  );
+const filtered = lostItems.filter(
+  (item) =>
+    (selectedType === "الكل" || item.category === selectedType) &&
+    (selectedLocation === "الكل" || item.location?.governorate === selectedLocation) &&
+    (selectedStatus === "الكل" || item.status === selectedStatus)
+);
 
   const renderStatusIndicator = (status: string) => {
     const statusColors: Record<"مفقود" | "تم العثور عليه", string> = {
@@ -69,7 +79,7 @@ const LostItemsScreen = ({ navigation }: any) => {
   const renderItem = ({ item }: { item: LostItem }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("LostAndFoundDetailsScreen", { item })}
+onPress={() => navigation.navigate("LostAndFoundDetailsScreen", { item })}
     >
       <View style={styles.cardHeader}>
         <Text style={styles.title}>{item.title}</Text>
@@ -79,17 +89,18 @@ const LostItemsScreen = ({ navigation }: any) => {
       <View style={styles.metaContainer}>
         <View style={styles.metaItem}>
           <Ionicons name="pricetag" size={16} color="#D84315" />
-          <Text style={styles.metaText}>{item.type}</Text>
+          <Text style={styles.metaText}>{item.category}</Text>
         </View>
 
         <View style={styles.metaItem}>
           <Ionicons name="location" size={16} color="#D84315" />
-          <Text style={styles.metaText}>{item.location}</Text>
+          <Text style={styles.metaText}>{item.location.governorate}</Text>
         </View>
       </View>
 
       <Text style={styles.date}>
-        {new Date(item.date).toLocaleDateString("ar-EG", {
+        {new Date(item.dateLostOrFound
+).toLocaleDateString("ar-EG", {
           year: "numeric",
           month: "long",
           day: "numeric",
@@ -161,7 +172,7 @@ const LostItemsScreen = ({ navigation }: any) => {
       {/* Items List */}
       <FlatList
         data={filtered}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={

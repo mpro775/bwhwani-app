@@ -16,6 +16,7 @@ import { useRoute } from "@react-navigation/native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { format } from "date-fns";
+import axiosInstance from "utils/api/axiosInstance";
 
 type Message = {
   id: string;
@@ -39,6 +40,7 @@ export default function BookingChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const [inputHeight, setInputHeight] = useState(40);
   const fadeAnim = useState(new Animated.Value(0))[0];
+const [userId, setUserId] = useState<string>("");
 
   // بيانات وهمية للحجز
   const [booking, setBooking] = useState<BookingDetails>({
@@ -81,6 +83,26 @@ export default function BookingChatScreen() {
   const [input, setInput] = useState("");
 
   useEffect(() => {
+  const loadMessages = async () => {
+    try {
+      const { data } = await axiosInstance.get(`/bookings/${booking.id}/messages`);
+      const formatted = data.map((msg: any) => ({
+        id: msg._id,
+        text: msg.text,
+        sender: msg.sender === userId ? "user" : "owner",
+        time: new Date(msg.createdAt),
+        read: msg.read,
+      }));
+      setMessages(formatted.reverse());
+    } catch (err) {
+      console.error("فشل تحميل الرسائل:", err);
+    }
+  };
+
+  loadMessages();
+}, [booking.id]);
+
+  useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 500,
@@ -88,30 +110,31 @@ export default function BookingChatScreen() {
     }).start();
   }, []);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    
-    const newMsg: Message = {
-      id: Date.now().toString(),
-      text: input,
-      sender: "user",
-      time: new Date(),
-    };
-    
-    setMessages((prev) => [newMsg, ...prev]);
-    setInput("");
-    
-    // محاكاة رد المالك بعد ثانيتين
-    setTimeout(() => {
-      const replyMsg: Message = {
-        id: Date.now().toString(),
-        text: "شكرًا لاستفسارك، سنرد عليك قريبًا",
-        sender: "owner",
-        time: new Date(),
-      };
-      setMessages((prev) => [replyMsg, ...prev]);
-    }, 2000);
+const sendMessage = async () => {
+  if (!input.trim()) return;
+
+  const newMsg: Message = {
+    id: Date.now().toString(), // مؤقتًا حتى يعود ID من السيرفر
+    text: input,
+    sender: "user",
+    time: new Date(),
   };
+
+  setMessages((prev) => [newMsg, ...prev]);
+  setInput("");
+
+  try {
+    const { data } = await axiosInstance.post(`/bookings/${booking.id}/messages`, {
+      text: input,
+    });
+
+    // تحديث ID بناءً على السيرفر إن أردت:
+    // newMsg.id = data._id;
+  } catch (err) {
+    console.error("فشل إرسال الرسالة:", err);
+  }
+};
+
 
   const formatTime = (date: Date) => {
     return format(date, "h:mm a") 

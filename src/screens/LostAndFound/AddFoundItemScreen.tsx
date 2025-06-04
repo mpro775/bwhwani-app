@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserProfile, updateUserProfile } from "../../storage/userStorage";
+import axiosInstance from "utils/api/axiosInstance";
 
 const AddFoundItemScreen = ({ navigation }: any) => {
   const [item, setItem] = useState({
@@ -43,46 +44,36 @@ const AddFoundItemScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleSave = async () => {
-    if (!item.title || !item.description || !item.location) {
-      Alert.alert("الحقول المطلوبة", "يرجى تعبئة اسم العنصر، الوصف، والموقع");
-      return;
-    }
+const handleSave = async () => {
+  if (!item.title || !item.description || !item.location) {
+    Alert.alert("الحقول المطلوبة", "يرجى تعبئة اسم العنصر، الوصف، والموقع");
+    return;
+  }
 
-    try {
-      const user = await getUserProfile();
-      if (!user) throw new Error("User not found");
+  try {
+    const token = await AsyncStorage.getItem("firebase-token"); // تأكد من حفظ JWT هنا
+    const payload = {
+      type: "found",
+      title: item.title,
+      description: item.description,
+      location: { city: item.location }, // lat/lng لاحقًا
+      dateLostOrFound: item.date,
+      images: [item.image], // يجب أن يكون رابط إذا كنت تستخدم رفع للصور
+    };
 
-      const newItem = {
-        ...item,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        contactPhone: user.phoneNumber,
-        postedBy: user.fullName,
-        status: "موجود",
-      };
+    const res = await axiosInstance.post("/api/lostfound", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      const existing = await AsyncStorage.getItem("found-items");
-      const updatedItems = existing
-        ? [newItem, ...JSON.parse(existing)]
-        : [newItem];
-      await AsyncStorage.setItem("found-items", JSON.stringify(updatedItems));
-
-      await updateUserProfile({
-        lostAndFoundPosts: {
-          ...user.lostAndFoundPosts,
-          foundCount: (user.lostAndFoundPosts?.foundCount || 0) + 1,
-          lostCount: user.lostAndFoundPosts?.lostCount || 0, // لتجنب خطأ undefined
-        },
-      });
-
-      Alert.alert("تم الحفظ", "تم إضافة البلاغ بنجاح");
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert("خطأ", "حدث خطأ أثناء الحفظ، يرجى المحاولة لاحقًا");
-    }
-  };
-
+    Alert.alert("تم", "تم رفع البلاغ بنجاح");
+    navigation.goBack();
+  } catch (err) {
+    console.error(err);
+    Alert.alert("خطأ", "فشل إرسال البلاغ");
+  }
+};
   return (
     <LinearGradient colors={["#f8f9fa", "#fff"]} style={styles.container}>
       <KeyboardAvoidingView

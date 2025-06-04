@@ -16,6 +16,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { fetchUserProfile, updateUserAvatar, updateUserProfileAPI } from "../../api/userApi";
 import { useNavigation } from "@react-navigation/native";
+import COLORS from "constants/colors";
 
 const EditProfileScreen = () => {
   const [username, setUsername] = useState("");
@@ -164,7 +165,7 @@ const handleSave = async () => {
           <MaterialIcons
             name="person"
             size={20}
-            color="#5D4037"
+            color={COLORS.blue}
             style={styles.inputIcon}
           />
           <TextInput
@@ -176,7 +177,8 @@ const handleSave = async () => {
           />
         </View>
 <View style={styles.inputContainer}>
-  <MaterialIcons name="person-outline" size={20} color="#5D4037" style={styles.inputIcon} />
+  <MaterialIcons name="person-outline" size={20}             color={COLORS.blue}
+ style={styles.inputIcon} />
   <TextInput
     style={styles.input}
     value={username}
@@ -190,7 +192,7 @@ const handleSave = async () => {
           <MaterialIcons
             name="phone"
             size={20}
-            color="#5D4037"
+            color={COLORS.blue}
             style={styles.inputIcon}
           />
           <TextInput
@@ -204,7 +206,7 @@ const handleSave = async () => {
         </View>
       </View>
 <View style={[styles.inputContainer, { justifyContent: "space-between" }]}>
-  <Text style={{ fontFamily: "Cairo-Regular", color: "#555", fontSize: 16 }}>
+  <Text style={{ fontFamily: "Cairo-Regular", color: COLORS.blue, fontSize: 16 }}>
     الاسم الظاهر في الملف:
   </Text>
   <TouchableOpacity onPress={() => setDisplayFullName(!displayFullName)}>
@@ -287,7 +289,7 @@ const styles = StyleSheet.create({
   },
   changePhotoText: {
     fontFamily: "Cairo-SemiBold",
-    color: "#5D4037",
+    color: COLORS.blue,
     marginTop: 10,
     fontSize: 16,
   },
@@ -311,7 +313,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontFamily: "Cairo-Regular",
-    color: "#333",
+    color: COLORS.blue,
     textAlign: "right",
     fontSize: 16,
     height: "100%",

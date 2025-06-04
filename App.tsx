@@ -3,7 +3,7 @@ import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import React, { useEffect, useState } from "react";
-import { I18nManager } from "react-native";
+import { Alert, I18nManager } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as Font from "expo-font";
@@ -14,6 +14,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import OnboardingScreen from "screens/OnboardingScreen";
 import Toast from "react-native-toast-message";
 import { toastConfig } from "utils/toastConfig";
+import { ThemeProvider } from "./src/context/ThemeContext";
+import { queueOfflineRequest, retryQueuedRequests } from "utils/offlineQueue";
+import { isConnected } from "utils/network";
+import axiosInstance from "utils/api/axiosInstance";
+import TestLottie from "screens/TestLottie";
 
 // ✅ إبقاء Splash ظاهرة لحين تهيئة التطبيق
 SplashScreen.preventAutoHideAsync();
@@ -57,18 +62,23 @@ export default function App() {
 
     prepareApp();
   }, []);
+  useEffect(() => {
+    retryQueuedRequests();
+  }, []);
 
-if (!appIsReady || hasSeenOnboarding === null) return null;
+  if (!appIsReady || hasSeenOnboarding === null) return null;
 
   return (
-    <CartProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider>
-          <StatusBar style="dark" />
-<AppNavigation hasSeenOnboarding={hasSeenOnboarding} />
-    <Toast config={toastConfig} />
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
-    </CartProvider>
+    <ThemeProvider>
+      <CartProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <SafeAreaProvider>
+            <StatusBar style="auto" />
+            <AppNavigation hasSeenOnboarding={hasSeenOnboarding} />
+            <Toast config={toastConfig} />
+          </SafeAreaProvider>
+        </GestureHandlerRootView>
+      </CartProvider>
+    </ThemeProvider>
   );
 }

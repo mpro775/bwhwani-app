@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { inlineStyles } from "react-native-svg";
+import COLORS from "constants/colors";
 
 type ValidIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 type ValidScreenName = keyof DrawerParamList;
@@ -73,15 +74,7 @@ const isSmallScreen = width < 375;
 type MaterialIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 // نظام الألوان الموحد
-const COLORS = {
-  primary: "#D84315",
-  secondary: "#5D4037",
-  background: "#FFFFFF",
-  accent: "#8B4B47",
-  text: "#4E342E",
-  lightText: "#9E9E9E",     // ✅ لون نص رمادي فاتح
-  lightGray: "#F3F3F3",     // ✅ لون خلفية رمادية ناعمة
-};
+
 
 type RootStackParamList = {
   Store: undefined;
@@ -287,7 +280,7 @@ searchInput: {
   welcomeTitle: {
     fontFamily: "Cairo-Bold",
     fontSize: isSmallScreen ? 22 : 26,
-    color: COLORS.text,
+    color: COLORS.blue,
     lineHeight: isSmallScreen ? 28 : 34,
         marginBottom: 2,
 
@@ -298,7 +291,7 @@ searchInput: {
   welcomeSubtitle: {
     fontFamily: "Cairo-Regular",
     fontSize: isSmallScreen ? 14 : 16,
-    color: COLORS.secondary,
+    color: COLORS.blue,
     marginTop: 2,
   },
   statsRow: {
@@ -320,7 +313,7 @@ searchInput: {
   statLabel: {
     fontFamily: "Cairo-SemiBold",
     fontSize: isSmallScreen ? 12 : 14,
-    color: COLORS.text,
+    color: COLORS.blue,
     marginTop: 4,
   },
   divider: {
@@ -335,12 +328,13 @@ searchInput: {
   sectionHeader: {
     marginBottom: isSmallScreen ? 12 : 16,
     alignItems: "flex-start",
+
   },
   sectionTitle: {
     fontFamily: "Cairo-Bold",
     textAlign:"center",
     fontSize: isSmallScreen ? 18 : 20,
-    color: COLORS.text,
+    color: COLORS.blue,
   },
   titleUnderline: {
     width: 60,
@@ -377,8 +371,8 @@ searchInput: {
   },
   cardText: {
     fontFamily: "Cairo-SemiBold",
-    fontSize: isSmallScreen ? 10 : 14,
-    color: COLORS.text,
+    fontSize: isSmallScreen ? 12 : 14,
+    color: COLORS.blue,
     textAlign: "center",
     lineHeight: 20,
   },

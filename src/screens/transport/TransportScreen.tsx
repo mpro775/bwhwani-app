@@ -1,65 +1,61 @@
 // screens/TransportScreen.tsx
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "types/navigation";
 
 const TransportScreen = () => {
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TransportBooking'>;
+
+const navigation = useNavigation<NavigationProp>();
+
+const handleSelect = (category: 'waslni' | 'heavy') => {
+  navigation.navigate("TransportBooking", { category });
+};
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Ionicons
-          name="construct-outline"
-          size={80}
-          color="#D84315"
-          style={styles.icon}
-        />
-        <Text style={styles.title}>قيد التطوير</Text>
-        <Text style={styles.message}>نعمل على تجهيز هذه الخدمة</Text>
-        <Text style={styles.details}>
-          سنكون متاحين قريباً بفضل الله
-          {"\n"}
-          شكراً لتفهمكم
-        </Text>
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.title}>اختر نوع النقل</Text>
+
+      <Pressable style={styles.option} onPress={() => handleSelect("waslni")}>
+        <Ionicons name="woman-outline" size={36} color="#e91e63" />
+        <Text style={styles.optionText}>نقل نسائي</Text>
+      </Pressable>
+
+      <Pressable style={styles.option} onPress={() => handleSelect("heavy")}>
+        <MaterialIcons name="local-shipping" size={36} color="#3f51b5" />
+        <Text style={styles.optionText}>نقل أثاث ومعدات</Text>
+      </Pressable>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 32,
-  },
-  icon: {
-    marginBottom: 24,
-    opacity: 0.8,
+    backgroundColor: "#fff",
+    paddingTop: 40,
+    paddingHorizontal: 20,
   },
   title: {
     fontFamily: "Cairo-Bold",
-    fontSize: 32,
-    color: "#2C3E50",
-    marginBottom: 12,
+    fontSize: 24,
     textAlign: "center",
+    marginBottom: 24,
   },
-  message: {
-    fontFamily: "Cairo-SemiBold",
-    fontSize: 20,
-    color: "#D84315",
+  option: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f4f4f4",
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 16,
-    textAlign: "center",
   },
-  details: {
-    fontFamily: "Cairo-Regular",
-    fontSize: 16,
-    color: "#7F8C8D",
-    textAlign: "center",
-    lineHeight: 24,
+  optionText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 18,
+    marginLeft: 16,
   },
 });
 

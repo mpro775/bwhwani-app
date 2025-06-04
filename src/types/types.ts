@@ -101,7 +101,7 @@ export type CommentType = {
 export type UserProfile = {
   id: string;
   fullName: string;
-  phoneNumber: string;
+  phone: string;
   email?: string;
   aliasName?:string;
   profileImage?: string;

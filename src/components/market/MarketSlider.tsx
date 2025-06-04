@@ -28,7 +28,7 @@ const MarketSlider = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axiosInstance.get("/market/sliders").then((res) => {
+    axiosInstance.get("/haraj/sliders").then((res) => {
       setSlides(res.data);
       setLoading(false);
     });

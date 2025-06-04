@@ -18,6 +18,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
+import axiosInstance from "utils/api/axiosInstance";
 
 const { width } = Dimensions.get("window");
 
@@ -62,83 +63,42 @@ const MyBookingsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
 const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const loadData = async () => {
+  setRefreshing(true);
+  try {
+    const bookingRes = await axiosInstance.get("/bookings/my");
+    setBookings(bookingRes.data);
 
-  const loadData = () => {
-    setRefreshing(true);
-    
-    const dummyBookings: Booking[] = [
-      {
-        id: "1",
-        title: "قاعة أفراح النجوم",
-        type: "صالة",
-        governorate: "صنعاء",
-        views: 125,
-        comments: 5,
-        media: ["https://source.unsplash.com/random/600x400/?wedding"],
-        status: "active",
-      },
-      {
-        id: "2",
-        title: "فندق الراحة",
-        type: "فندق",
-        governorate: "عدن",
-        views: 94,
-        comments: 2,
-        media: ["https://source.unsplash.com/random/600x400/?hotel"],
-        status: "pending",
-      },
-      {
-        id: "3",
-        title: "منتجع الشاطئ الذهبي",
-        type: "منتجع",
-        governorate: "المكلا",
-        views: 210,
-        comments: 12,
-        media: ["https://source.unsplash.com/random/600x400/?resort"],
-        status: "expired",
-      },
-    ];
-
-    const dummyMessages: Message[] = [
-      {
-        id: "m1",
-        bookingId: "1",
-        from: "محمد أحمد",
-        text: "هل القاعة متاحة يوم الجمعة؟",
-        time: "10:00 ص",
-        read: false,
-      },
-      {
-        id: "m2",
-        bookingId: "2",
-        from: "أحمد علي",
-        text: "هل يوجد خصم للحجز لمدة يومين؟",
-        time: "11:20 ص",
-        read: true,
-      },
-      {
-        id: "m3",
-        bookingId: "1",
-        from: "سارة محمد",
-        text: "ما هي الخدمات الإضافية المتوفرة؟",
-        time: "02:30 م",
-        read: true,
-      },
-    ];
-
-    setTimeout(() => {
-      setBookings(dummyBookings);
-      setMessages(dummyMessages);
-      setRefreshing(false);
-      
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }, 1000);
-  };
-
+    const messagesData: Message[] = [];
+    for (const booking of bookingRes.data) {
+      const msgRes = await axiosInstance.get(`/bookings/${booking._id}/messages`);
+      if (msgRes.data.length > 0) {
+        msgRes.data.forEach((msg: any) => {
+          messagesData.push({
+            id: msg._id,
+            bookingId: booking._id,
+            from: msg.senderName || "غير معروف",
+            text: msg.text,
+            time: new Date(msg.createdAt).toLocaleTimeString("ar-SA", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            read: msg.read || false,
+          });
+        });
+      }
+    }
+    setMessages(messagesData);
+  } catch (error) {
+    console.error("فشل تحميل بيانات الحجوزات:", error);
+  }
+  setRefreshing(false);
+  Animated.timing(fadeAnim, {
+    toValue: 1,
+    duration: 500,
+    useNativeDriver: true,
+  }).start();
+};
   useEffect(() => {
     loadData();
   }, []);

@@ -11,21 +11,22 @@ export type ProductUser = {
   phone: string;
   profileImage: string;
     firebaseUID: string; // ✅ أضف هذا
-
+_id:string;
+id:string;
 };
 export type outProduct = {
   _id?: string; // Optional for new products, present for existing
   name: string;
     id?: string;
-
+firebaseUID?:string;
   description: string;
-  price: string;
+  price: number;         // ✅ عدلناه من string
   hasOffer: boolean;
-  offerPrice: string;
+  offerPrice?: number;   // ✅ عدلناه من string وجعلناه اختياريًا (مناسب للمنتجات بدون عرض)
   media: ProductMedia[];
   category: string;
   categoryId: string;
-  location: string;
+  governorate: string;
   user: {
     name: string;
     phone: string;
@@ -80,6 +81,7 @@ export type Product = {
   price: number;
   offerPrice?: number;
   hasOffer: boolean;
+  firebaseUID:string;
   media: ProductMedia[];
   description: string;
   category: string;
@@ -87,6 +89,7 @@ export type Product = {
   user: ProductUser;
   createdAt: string;
   viewsCount: number;
+
   location: string;
   comments: ProductComment[];
   condition: "new" | "used";

@@ -1,5 +1,4 @@
-// screens/BloodTypesScreen.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { bloodDonors } from "../../data/bloodDonors";
+import { fetchAllDonors } from "../../api/bloodApi";
 
 const GovernorateDropdown = ({
   selected,
@@ -75,12 +74,29 @@ const GovernorateDropdown = ({
 const BloodTypesScreen = ({ navigation }: any) => {
   const [selectedGovernorate, setSelectedGovernorate] = useState("الكل");
   const [selectedType, setSelectedType] = useState("الكل");
+  const [donors, setDonors] = useState([]);
   const bloodTypes = ["الكل", "A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"];
 
-  const filteredDonors = bloodDonors.filter(
-    (d) =>
-      (selectedGovernorate === "الكل" ||
-        d.governorate === selectedGovernorate) &&
+useEffect(() => {
+  fetchDonors();
+}, [selectedGovernorate, selectedType]);
+
+const fetchDonors = async () => {
+  try {
+    const allDonors = await fetchAllDonors({
+      governorate: selectedGovernorate,
+      bloodType: selectedType,
+    });
+    setDonors(allDonors);
+  } catch (err) {
+    console.error("Failed to fetch donors", err);
+  }
+};
+
+
+  const filteredDonors = donors.filter(
+    (d: any) =>
+      (selectedGovernorate === "الكل" || d.governorate === selectedGovernorate) &&
       (selectedType === "الكل" || d.bloodType === selectedType)
   );
 
@@ -91,17 +107,17 @@ const BloodTypesScreen = ({ navigation }: any) => {
     >
       <View style={styles.cardContent}>
         <View>
-          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.name}>{item.fullName}</Text>
           <Text style={styles.governorate}>{item.governorate}</Text>
           <Text style={styles.bloodType}>{item.bloodType}</Text>
         </View>
         <Text
           style={[
             styles.status,
-            { color: item.status === "متاح" ? "#4CAF50" : "#9E9E9E" },
+            { color: item.isAvailableToDonate ? "#4CAF50" : "#9E9E9E" },
           ]}
         >
-          {item.status}
+          {item.isAvailableToDonate ? "متاح" : "غير متاح"}
         </Text>
       </View>
     </TouchableOpacity>
@@ -145,7 +161,7 @@ const BloodTypesScreen = ({ navigation }: any) => {
       <FlatList
         data={filteredDonors}
         renderItem={renderDonor}
-        keyExtractor={(item) => item.id}
+keyExtractor={(item: any) => item._id || item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
@@ -163,6 +179,8 @@ const BloodTypesScreen = ({ navigation }: any) => {
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {

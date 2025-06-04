@@ -5,6 +5,13 @@ export type RootStackParamList = {
   UserProfile: undefined;
   MainApp: undefined;
   EditProfile: undefined;
+  AbsherCategory:undefined;
+  ReviewScreen: { freelancerId: string };
+  TransportBooking: { category: string };
+  SelectLocation: undefined;
+    TransportBooking: { category: 'waslni' | 'heavy' | 'findme' }; // أضف الأنواع المتوقعة هنا
+  RateDriver: { id: string };
+  MyTransportOrders: undefined;
   AddBookingScreen:undefined;
   DeliveryAddresses: {
     selectedLocation?: { latitude: number; longitude: number };
@@ -37,7 +44,7 @@ MyBookingsScreen:undefined;
   BecomeDonor: undefined;
   DonorProfile: undefined;
   BloodChatScreen: { donorId: string };
-
+  LostAndFoundDetails: { item: any }; 
   // المفقودات والموجودات
   AddLostItemScreen: undefined;
   AddFoundItemScreen:undefined;
@@ -45,7 +52,6 @@ MyBookingsScreen:undefined;
   LostAndFoundProfile: undefined;
   LostChatScreen: { itemId: string };
   FoundChatScreen: { itemId: string };
-LostAndFoundDetails:{ itemId: string };
   // السوق المفتوح
   MarketStack: NavigatorScreenParams<MarketStackParamList>;
   UniversalProductDetails: { product: any };

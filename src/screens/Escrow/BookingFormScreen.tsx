@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { CheckBox } from "react-native-elements";
 import { RootStackParamList } from "../../types/navigation";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ألوان التصميم
 const COLORS = {
@@ -67,28 +68,56 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
     }).start();
   }, []);
 
-  const handleConfirm = () => {
-    if (!selectedHour) {
-      Alert.alert("خطأ", "يرجى اختيار وقت الحجز");
-      return;
-    }
+ const handleConfirm = async () => {
+  if (!selectedHour) {
+    Alert.alert("خطأ", "يرجى اختيار وقت الحجز");
+    return;
+  }
 
-    if (!agreedToTerms) {
-      Alert.alert("خطأ", "يجب الموافقة على الشروط والأحكام");
-      return;
-    }
+  if (!agreedToTerms) {
+    Alert.alert("خطأ", "يجب الموافقة على الشروط والأحكام");
+    return;
+  }
 
-    Alert.alert(
-      "تم الحجز بنجاح ✅", 
-      `تم تأكيد حجزك لـ ${title} في الساعة ${selectedHour}\n\nسيتم التواصل معك قريباً لتأكيد التفاصيل`,
-      [
-        { 
-          text: "حسناً", 
-          onPress: () => navigation.navigate("MyBookingsScreen") 
-        }
-      ]
-    );
-  };
+  try {
+    const token = await AsyncStorage.getItem('firebase-token'); // تأكد من تخزين التوكن عند تسجيل الدخول
+
+    const response = await fetch('https://api.bthwani.com/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        bookingId: route.params.bookingId,
+        hour: selectedHour,
+        phone,
+        notes,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      Alert.alert(
+        "تم الحجز بنجاح ✅",
+        `تم تأكيد حجزك لـ ${title} في الساعة ${selectedHour}`,
+        [
+          {
+            text: "حسناً",
+            onPress: () => navigation.navigate("MyBookingsScreen"),
+          },
+        ]
+      );
+    } else {
+      Alert.alert("خطأ", data.message || "حدث خطأ أثناء الحجز.");
+    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert("خطأ", "حدث خطأ أثناء الاتصال بالخادم.");
+  }
+};
+
   const isHourAvailable = (hour: string) => {
   return !unavailableHours.includes(hour);
 };

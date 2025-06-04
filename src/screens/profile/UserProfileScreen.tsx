@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -26,16 +26,11 @@ import { UserProfile } from "../../types/types";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker"; // تأكد من الاستيراد
 import { uploadFileToBunny } from "utils/api/uploadFileToBunny";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "utils/api/axiosInstance";
+import COLORS from "constants/colors";
 
-const COLORS = {
-  primary: "#D84315",
-  secondary: "#5D4037",
-  background: "#FFFFFF",
-  accent: "#8B4B47",
-  text: "#4E342E",
-  lightText: "#9E9E9E",     // ✅ لون نص رمادي فاتح
-  lightGray: "#F3F3F3",     // ✅ لون خلفية رمادية ناعمة
-};
+
 
 const UserProfileScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -95,6 +90,7 @@ const pickImage = async () => {
 
       const url = await uploadFileToBunny(blob); // ← هنا نمرر الـ Blob
       console.log("✅ رابط الصورة المرفوعة:", url);
+console.log("🚀 رفع إلى:", axiosInstance.defaults.baseURL + "/users/avatar");
 
       await updateUserAvatar(url);
       await loadProfile();
@@ -182,7 +178,7 @@ const pickImage = async () => {
             : "لا يوجد وصف حالياً"}
         </Text>
 
-        <Text style={styles.phone}>{profile.phoneNumber}</Text>
+        <Text style={styles.phone}>{profile.phone}</Text>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>الرصيد في المحفظة</Text>
@@ -224,11 +220,11 @@ const pickImage = async () => {
           onPress={() => setModalVisible(true)}
         />
 
-        <SectionButton
-          icon="account-edit"
-          label="تعديل الملف الشخصي"
-          onPress={() => navigation.navigate("EditProfile")}
-        />
+      <SectionButton
+  icon="person-circle-outline" // بديل مناسب لـ "account-edit"
+  label="تعديل الملف الشخصي"
+  onPress={() => navigation.navigate("EditProfile")}
+/>
         <SectionButton
           icon="settings"
           label="الإعدادات"
@@ -244,7 +240,7 @@ const pickImage = async () => {
             });
           }}
         >
-          <Ionicons name="log-out" size={24} color={COLORS.accent} />
+          <Ionicons name="log-out" size={24} color={COLORS.primary} />
           <Text style={styles.logoutText}>تسجيل الخروج</Text>
         </TouchableOpacity>
       </View>
@@ -285,64 +281,15 @@ const pickImage = async () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>تفاصيل المساهمات</Text>
-            <View style={styles.statsRow}>
-              <StatBox
-                value={profile.lostAndFoundPosts?.lostCount ?? 0}
-                label="مفقودات"
-                icon="alert-circle-outline"
-              />
-              <StatBox
-                value={profile.lostAndFoundPosts?.foundCount ?? 0}
-                label="موجودات"
-                icon="checkmark-circle-outline"
-              />
-            </View>
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.modalCloseButton}
-            >
-              <Text style={{ color: "#FFF", fontFamily: "Cairo-Bold" }}>
-                إغلاق
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+       
       </Modal>
     </Animated.ScrollView>
   );
 };
 
-// --- Components ---
-const StatBox = ({ value, label, icon }: any) => (
-  <View style={styles.statBox}>
-    <Ionicons name={icon} size={28} color={COLORS.primary} />
-    <Text style={styles.statNumber}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </View>
-);
-
-const AddressCard = ({ label, city, onPress }: any) => (
-  <TouchableOpacity style={styles.addressCard} onPress={onPress}>
-    <Ionicons name="location" size={20} color={COLORS.primary} />
-    <View style={styles.addressTextContainer}>
-      <Text style={styles.addressLabel}>{label}</Text>
-      <Text style={styles.addressCity}>{city}</Text>
-    </View>
-  </TouchableOpacity>
-);
-
-const EmptyState = ({ message }: any) => (
-  <View style={styles.emptyState}>
-    <Text style={styles.emptyStateText}>{message}</Text>
-  </View>
-);
-
 const SectionButton = ({ icon, label, onPress }: any) => (
   <TouchableOpacity style={styles.sectionButton} onPress={onPress}>
-    <Ionicons name={icon} size={24} color={COLORS.text} />
+    <Ionicons name={icon} size={24} color={COLORS.blue} />
     <Text style={styles.sectionButtonText}>{label}</Text>
     <Ionicons name="chevron-forward" size={20} color={COLORS.lightGray} />
   </TouchableOpacity>
@@ -387,12 +334,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontFamily: "Cairo-Bold",
-    color: COLORS.text,
+    color: COLORS.blue,
     marginBottom: 16,
   },
   modalCloseButton: {
     marginTop: 24,
-    backgroundColor: COLORS.accent,
+    backgroundColor: COLORS.blue,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -437,7 +384,7 @@ const styles = StyleSheet.create({
   bio: {
     fontFamily: "Cairo-Regular",
     fontSize: 14,
-    color: COLORS.text,
+    color: COLORS.blue,
     textAlign: "center",
     marginBottom: 6,
   },
@@ -452,7 +399,7 @@ const styles = StyleSheet.create({
 
     fontSize: 24, // بدلاً من 28
 
-    color: COLORS.text,
+    color: COLORS.blue,
 
     textAlign: "center",
 
@@ -464,7 +411,7 @@ const styles = StyleSheet.create({
 
     fontSize: 14,
     fontWeight: "bold",
-    color: "#000000",
+    color: COLORS.blue,
 
     textAlign: "center",
 
@@ -497,7 +444,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "right",
 
-    color: COLORS.text,
+    color: COLORS.blue,
 
     marginBottom: 16,
   },
@@ -643,7 +590,7 @@ const styles = StyleSheet.create({
 
     fontSize: 16,
 
-    color: COLORS.text,
+    color: COLORS.blue,
 
     marginHorizontal: 12,
   },
@@ -665,7 +612,7 @@ const styles = StyleSheet.create({
 
     fontSize: 16,
 
-    color: COLORS.accent,
+    color: COLORS.primary,
 
     marginRight: 8,
   },

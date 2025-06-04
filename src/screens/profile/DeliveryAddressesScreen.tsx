@@ -24,6 +24,7 @@ import { Modal } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import COLORS from "constants/colors";
 
 type Address = {
   _id: string;
@@ -78,7 +79,6 @@ const closeCitySheet = () => {
     null
   );
   const [formVisible, setFormVisible] = useState(false);
-  const [cityDropdownVisible, setCityDropdownVisible] = useState(false);
 
   const [label, setLabel] = useState("");
   const [city, setCity] = useState("");
@@ -134,24 +134,19 @@ const handleAddAddress = async () => {
   }
 
   try {
-   const newAddr = {
-  label,
-  city,
-  street,
-  location: location ? {
-    lat: location.lat,
-    lng: location.lng,
-  } : undefined,
-};
-
+    const newAddr = {
+      label,
+      city,
+      street,
+      location: location ? { lat: location.lat, lng: location.lng } : undefined,
+    };
 
     await addUserAddress(newAddr);
-  console.log("📍 العنوان أُرسل:", newAddr);
+    console.log("📍 العنوان أُرسل:", newAddr);
 
-    // تحديث القائمة
     const user = await fetchUserProfile();
     setAddresses(user.addresses);
-  console.log("📥 تم جلب المستخدم:", user);
+    console.log("📥 تم جلب المستخدم:", user);
 
     setLabel("");
     setCity("");
@@ -162,12 +157,15 @@ const handleAddAddress = async () => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
 
-        Alert.alert("تم", "تمت إضافة العنوان بنجاح");
+    Alert.alert("تم", "تمت إضافة العنوان بنجاح");
+
     Keyboard.dismiss();
+
+    // ✅ أغلق المودال بعد النجاح
+    setFormVisible(false);
   } catch (err) {
     Alert.alert("خطأ", "فشل حفظ العنوان");
-      console.error("❌ فشل حفظ العنوان:", err);
-
+    console.error("❌ فشل حفظ العنوان:", err);
   }
 };
 
@@ -312,10 +310,10 @@ backgroundColor: selectedAddressId === item._id ? "#4CAF50" : "#E0E0E0",
 
                 {/* الحقول */}
                 <View style={styles.inputContainer}>
-                  <MaterialIcons name="label" size={20} color="#5D4037" style={styles.inputIcon} />
+                  <MaterialIcons name="label" size={20} color={COLORS.blue} style={styles.inputIcon} />
                   <TextInput
                     placeholder="اسم العنوان"
-                    placeholderTextColor="#888"
+                    placeholderTextColor={COLORS.blue}
                     value={label}
                     onChangeText={setLabel}
                     style={styles.input}
@@ -323,7 +321,7 @@ backgroundColor: selectedAddressId === item._id ? "#4CAF50" : "#E0E0E0",
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <MaterialIcons name="location-city" size={20} color="#5D4037" style={styles.inputIcon} />
+                  <MaterialIcons name="location-city" size={20} color={COLORS.blue} style={styles.inputIcon} />
            <TouchableOpacity
   style={styles.dropdownInput}
   onPress={() => {
@@ -331,17 +329,19 @@ backgroundColor: selectedAddressId === item._id ? "#4CAF50" : "#E0E0E0",
     setCityPickerVisible(true);
   }}
 >
-  <Text style={{ color: city ? '#333' : '#999' }}>
+  <Text style={{ color: city ? COLORS.blue : COLORS.blue,    fontFamily: "Cairo-Regular",textAlign:"right",
+
+ }}>
     {city || 'اختر محافظة...'}
   </Text>
 </TouchableOpacity>
 
                 </View>
                 <View style={styles.inputContainer}>
-                  <MaterialIcons name="map" size={20} color="#5D4037" style={styles.inputIcon} />
+                  <MaterialIcons name="map" size={20} color={COLORS.blue} style={styles.inputIcon} />
                   <TextInput
                     placeholder="وصف الشارع"
-                    placeholderTextColor="#888"
+                    placeholderTextColor={COLORS.blue}
                     value={street}
                     onChangeText={setStreet}
                     style={styles.input}
@@ -358,7 +358,7 @@ backgroundColor: selectedAddressId === item._id ? "#4CAF50" : "#E0E0E0",
                   }}
                 >
                   <LinearGradient
-                    colors={location ? ["#4CAF50", "#2E7D32"] : ["#2196F3", "#1976D2"]}
+                    colors={location ? ["2E7D32", "#2E7D32"] : [COLORS.blue, "#1976D2"]}
                     style={styles.buttonGradient}
                   >
                     <MaterialIcons
@@ -468,6 +468,8 @@ const styles = StyleSheet.create({
 cityItem: {
   paddingVertical: 12,
   borderBottomWidth: 1,
+    fontFamily: "Cairo-Regular",
+
   borderColor: "#eee",
 },
 cityText: {
@@ -478,9 +480,8 @@ cityText: {
 dropdownInput: {
   flex: 1,
   padding: 12,
-  backgroundColor: "#FFF",
-  borderWidth: 1,
-  borderColor: "#DDD",
+    fontFamily: "Cairo-Regular",
+textAlign:"right",
   borderRadius: 10,
   justifyContent: "center",
 },
@@ -602,7 +603,9 @@ dropdownInput: {
   sectionTitle: {
     fontFamily: "Cairo-SemiBold",
     fontSize: 18,
-    color: "#D84315",
+    color: COLORS.primary,
+    textAlign:"center",
+
     marginBottom: 15,
   },
   inputContainer: {
@@ -616,11 +619,12 @@ dropdownInput: {
   },
   inputIcon: {
     marginLeft: 10,
+
   },
   input: {
     flex: 1,
     fontFamily: "Cairo-Regular",
-    color: "#333",
+    color: COLORS.blue,
     textAlign: "right",
     height: "100%",
   },

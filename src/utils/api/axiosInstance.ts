@@ -13,8 +13,9 @@ axiosInstance.interceptors.request.use(
     const publicEndpoints = [
       "/market/sliders",
       "/market/categories",
-      "/market/products",
+  "/market/products?page", // فقط الصفحة العامة
       "/market/offers",
+
     ];
 
     const isPublic = publicEndpoints.some((path) =>

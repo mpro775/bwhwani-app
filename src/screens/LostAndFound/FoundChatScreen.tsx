@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,19 +8,36 @@ import {
   FlatList,
   StyleSheet,
 } from "react-native";
+import axiosInstance from "utils/api/axiosInstance";
 
 const FoundChatScreen = ({ route }: any) => {
   const { item } = route.params;
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    const newMsg = { text: input, fromUser: true, time: new Date() };
-    setMessages((prev) => [...prev, newMsg]);
-    setInput("");
+  const fetchMessages = async () => {
+  const res = await axiosInstance.get(`/api/messages/${item._id}`);
+  setMessages(res.data);
+};
+
+const sendMessage = async () => {
+  if (!input.trim()) return;
+  const token = await AsyncStorage.getItem("firebase-token");
+  const message = {
+    text: input,
+    itemId: item._id,
   };
 
+    const res = await axiosInstance.post("/api/messages", message, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+    setMessages((prev) => [...prev, res.data]);
+  setInput("");
+
+  };
+  useEffect(() => {
+  fetchMessages();
+}, []);
   const renderItem = ({ item }: any) => (
     <View
       style={[

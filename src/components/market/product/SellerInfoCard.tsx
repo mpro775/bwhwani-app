@@ -10,19 +10,19 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../../constants/colors";
-import { ProductUser } from "../../../types/product";
+import { outProduct, Product, ProductUser } from "../../../types/product";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "utils/api/axiosInstance";
 
 interface SellerInfoCardProps {
-  user: ProductUser;
+  product: Product;
   location: string;
   currentUID: string | null;
   onShowUserModal: () => void;
 }
 
 const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
-  user,
+  product,
   location,
   currentUID,
   onShowUserModal,
@@ -31,31 +31,29 @@ const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
   const [followersCount, setFollowersCount] = useState(0);
 
   useEffect(() => {
-    if (user?.firebaseUID) {
+    if (product?.firebaseUID) {
       fetchFollowData();
     }
-  }, [user?.firebaseUID]);
+  }, [product]);
 
   const fetchFollowData = async () => {
     try {
-      const token = await AsyncStorage.getItem("authToken");
-      if (!token || !currentUID) return;
+      if (!product?.firebaseUID) {
+        console.warn("⚠️ لا يوجد firebaseUID للمستخدم");
+        return;
+      }
 
-      const followersRes = await axiosInstance.get(
-        `/users/${user.firebaseUID}/followers`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res = await axiosInstance.get(
+        `/users/${product.firebaseUID}/follow-stats`
       );
+      setFollowersCount(res.data.followersCount || 0);
 
-      const followers: string[] = followersRes.data;
-      setFollowersCount(followers.length);
-      setIsFollowing(followers.includes(currentUID));
+      // يمكنك أيضًا التحقق من حالة المتابعة هنا إذا كان لديك endpoint لذلك
+      // setIsFollowing(res.data.isFollowing || false);
     } catch (err) {
-      console.error("❌ خطأ في جلب بيانات المتابعين:", err);
+      console.error("❌ خطأ أثناء جلب المتابعين:", err);
     }
   };
-
   const handleFollow = async () => {
     if (!currentUID) {
       Alert.alert("عذرًا", "يجب تسجيل الدخول للمتابعة.");
@@ -63,11 +61,11 @@ const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
     }
 
     try {
-      const token = await AsyncStorage.getItem("authToken");
+      const token = await AsyncStorage.getItem("firebase-token");
       if (!token) return;
 
       await axiosInstance.post(
-        `/users/follow/${user.firebaseUID}`,
+        `/users/follow/${product.firebaseUID}`,
         {},
         {
           headers: {
@@ -94,9 +92,9 @@ const SellerInfoCard: React.FC<SellerInfoCardProps> = ({
   return (
     <>
       <TouchableOpacity style={styles.sellerCard} onPress={onShowUserModal}>
-        <Image source={{ uri: user.profileImage }} style={styles.avatar} />
+        <Image source={{ uri: product.user.profileImage }} style={styles.avatar} />
         <View style={styles.sellerInfo}>
-          <Text style={styles.sellerName}>{user.name}</Text>
+          <Text style={styles.sellerName}>{product.user.name}</Text>
           <Text style={styles.sellerLocation}>
             <Ionicons name="location" size={14} /> {location}
           </Text>

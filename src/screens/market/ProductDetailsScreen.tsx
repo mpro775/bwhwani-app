@@ -5,13 +5,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Alert,
   Linking,
   Share,
-  Dimensions,
 } from "react-native";
-import { RouteProp, useRoute } from "@react-navigation/native";
+import {  useRoute } from "@react-navigation/native";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import * as Clipboard from "expo-clipboard";
@@ -24,116 +22,56 @@ import ProductActions from "components/market/product/ProductActions";
 import ProductComments from "components/market/product/ProductComments";
 import UserModal from "components/market/product/UserModal";
 import COLORS from "constants/colors";
-import { refreshIdToken } from "api/authService";
-import { API_URL } from "utils/api/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import axiosInstance from "utils/api/axiosInstance";
 
 dayjs.extend(relativeTime);
-const { width } = Dimensions.get("window");
 
 const ProductDetailsScreen: React.FC = () => {
   const route = useRoute<ProductDetailsRouteProp>();
   const { product } = route.params;
-const [comments, setComments] = useState<ProductComment[]>([]);
-const [currentUID, setCurrentUID] = useState<string | null>(null);
+  const [comments, setComments] = useState<ProductComment[]>([]);
+  const [currentUID, setCurrentUID] = useState<string | null>(null);
 
-  const [followersCount, setFollowersCount] = useState<number>(0);
-  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+
   const [showDollar, setShowDollar] = useState<boolean>(false);
   const [negotiationPrice, setNegotiationPrice] = useState<string>("");
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
-useEffect(() => {
-  fetchComments();
-}, []);
-useEffect(() => {
-  AsyncStorage.getItem("userId").then(setCurrentUID);
-}, []);
-const isOwner = currentUID === product.user.firebaseUID;
+  useEffect(() => {
+    fetchComments();
+  }, []);
+  useEffect(() => {
+    AsyncStorage.getItem("userId").then(setCurrentUID);
+  }, []);
 
-const fetchComments = async () => {
-  try {
-    const response = await fetch(`${API_URL}/products/${product.id}/comments`);
-    const data = await response.json();
-
-    const transformed: ProductComment[] = data.map((comment: any) => ({
-      id: comment.id,
-      content: comment.text, // تحويل `text` إلى `content`
-      createdAt: comment.createdAt,
-      user: {
-        id: comment.user.id,
-        name: comment.user.name,
-        avatar: comment.user.avatar,
-      },
-    }));
-
-    setComments(transformed);
-  } catch (err) {
-    console.error("Error fetching comments:", err);
-  }
-};
-
-
-const incrementViews = async () => {
-  try {
-    await fetch(`${API_URL}/products/${product.id}/views`, {
-      method: "POST",
-    });
-  } catch (err) {
-    console.error("Error incrementing views:", err);
-  }
-};
-
-useEffect(() => {
-  fetchFollowData();
-  incrementViews(); // 👈
-}, []);
-
-  const fetchFollowData = async () => {
+  const fetchComments = async () => {
     try {
-      const token = await refreshIdToken();
-      const targetId = product.user.firebaseUID;
-
-      const response = await fetch(
-      `${API_URL}/users/${targetId}/followers`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await axiosInstance.get(
+        `/haraj/products/${product.id}/comments`
       );
+      const data = res.data;
 
-      const data = await response.json();
-      setFollowersCount(data.length || 0);
-      setIsFollowing(data.includes(product.user.firebaseUID));
+      const transformed: ProductComment[] = data.map((comment: any) => ({
+        id: comment.id,
+        content: comment.text,
+        createdAt: comment.createdAt,
+        user: {
+          id: comment.user.id,
+          name: comment.user.name,
+          avatar: comment.user.avatar,
+        },
+      }));
+
+      setComments(transformed);
     } catch (err) {
-      console.error("Error fetching follow data:", err);
+      console.error("Error fetching comments:", err);
     }
   };
 
-  const handleFollowUser = async () => {
-      if (!currentUID) {
-    Alert.alert("عذرًا", "يرجى تسجيل الدخول للمتابعة");
-    return;
-  }
-    try {
-      const token = await refreshIdToken();
-      await fetch(
-      `${API_URL}/users/follow/${product.user.firebaseUID}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setIsFollowing(true);
-      setFollowersCount((prev) => prev + 1);
-      Alert.alert("تمت المتابعة", "✨ ستصلك تحديثات هذا المستخدم، خلك قريب!");
-    } catch (err) {
-      console.error("Follow error:", err);
-    }
-  };
+ 
+
+
+ 
 
   const handleWhatsApp = (): void => {
     const phone = product.user.phone.startsWith("0")
@@ -160,30 +98,32 @@ useEffect(() => {
   };
 
   const handleNegotiate = async (): Promise<void> => {
-      if (!currentUID) {
-    Alert.alert("عذرًا", "يجب تسجيل الدخول لإرسال عرض تفاوض");
-    return;
-  }
-  const proposed = parseInt(negotiationPrice);
-  const current = product.offerPrice || product.price;
+    if (!currentUID) {
+      Alert.alert("عذرًا", "يجب تسجيل الدخول لإرسال عرض تفاوض");
+      return;
+    }
 
-  if (isNaN(proposed) || proposed >= current) {
-    Alert.alert("تنبيه", "يجب أن يكون السعر المقترح أقل من السعر الحالي.");
-    return;
-  }
+    const proposed = parseInt(negotiationPrice);
+    const current = product.offerPrice || product.price;
 
-  const token = await refreshIdToken(); // ✅
-  await fetch(`${API_URL}/products/${product.id}/negotiate`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ price: proposed }),
-  });
+    if (isNaN(proposed) || proposed >= current) {
+      Alert.alert("تنبيه", "يجب أن يكون السعر المقترح أقل من السعر الحالي.");
+      return;
+    }
 
-  Alert.alert("تم الإرسال", `تم إرسال عرضك: ${proposed.toLocaleString()} ر.ي`);
-};
+    try {
+      await axiosInstance.post(`/haraj/products/${product.id}/negotiate`, {
+        price: proposed,
+      });
+
+      Alert.alert(
+        "تم الإرسال",
+        `تم إرسال عرضك: ${proposed.toLocaleString()} ر.ي`
+      );
+    } catch (err) {
+      console.error("Negotiate error:", err);
+    }
+  };
 
   const handleShare = async (): Promise<void> => {
     const productUrl = `https://example.com/products/${product.id}`;
@@ -211,24 +151,19 @@ useEffect(() => {
     Linking.openURL(phone);
   };
 
- const handleReportUser = async () => {
+  const handleReportUser = async () => {
     if (!currentUID) {
-    Alert.alert("عذرًا", "يجب تسجيل الدخول للإبلاغ عن مستخدم");
-    return;
-  }
-  try {
-    const token = await refreshIdToken();
-    await fetch(`${API_URL}/users/${product.user.firebaseUID}/report`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    Alert.alert("تم الإبلاغ", "شكراً لإبلاغك، سيتم مراجعة المستخدم.");
-  } catch (err) {
-    console.error("Report error:", err);
-  }
-};
+      Alert.alert("عذرًا", "يجب تسجيل الدخول للإبلاغ عن مستخدم");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(`/users/${product.user.firebaseUID}/report`);
+      Alert.alert("تم الإبلاغ", "شكراً لإبلاغك، سيتم مراجعة المستخدم.");
+    } catch (err) {
+      console.error("Report error:", err);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -242,11 +177,10 @@ useEffect(() => {
             </Text>
           </View>
           <SellerInfoCard
-            user={product.user}
+            product={product}
             location={product.location}
             onShowUserModal={() => setShowUserModal(true)}
-              currentUID={currentUID}
-
+            currentUID={currentUID}
           />
           <ProductPriceSection
             product={product}
@@ -255,8 +189,7 @@ useEffect(() => {
             negotiationPrice={negotiationPrice}
             onNegotiationPriceChange={setNegotiationPrice}
             onNegotiate={handleNegotiate}
-                          currentUID={currentUID}
-
+            currentUID={currentUID}
           />
           <View style={styles.categoryBadge}>
             <Text style={styles.categoryText}>{product.category}</Text>
@@ -275,7 +208,7 @@ useEffect(() => {
               {product.description || "لا يوجد وصف متاح لهذا المنتج."}
             </Text>
           </View>
-<ProductComments currentUID={currentUID} comments={comments} />
+          <ProductComments currentUID={currentUID} comments={comments} />
         </View>
       </ScrollView>
       <UserModal

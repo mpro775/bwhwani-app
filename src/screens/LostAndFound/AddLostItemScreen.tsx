@@ -1,5 +1,5 @@
 // screens/LostAndFound/AddLostItemScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Switch,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +19,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getUserProfile, updateUserProfile } from "../../storage/userStorage";
+import axiosInstance from "utils/api/axiosInstance";
+import * as Location from "expo-location";
 
 type LostAndFoundStats = {
   lostCount: number;
@@ -31,7 +34,30 @@ const AddLostItemScreen = ({ navigation }: any) => {
     location: "",
     date: "",
     image: "",
+    reward:"",
   });
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+const [rewardOffered, setRewardOffered] = useState(false);
+const [rewardAmount, setRewardAmount] = useState("");
+const [rewardMethod, setRewardMethod] = useState<"cash" | "wallet">("cash");
+
+  const requestLocation = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== "granted") {
+    Alert.alert("تنبيه", "تم رفض إذن الموقع");
+    return;
+  }
+
+  const location = await Location.getCurrentPositionAsync({});
+  setCoordinates({
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+  });
+};
+useEffect(() => {
+  requestLocation();
+}, []);
+
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleChange = (key: string, value: string) => {
@@ -58,45 +84,49 @@ const AddLostItemScreen = ({ navigation }: any) => {
     }
   };
 
-  const handleSave = async () => {
-    if (!item.title || !item.description || !item.location) {
-      Alert.alert("الحقول المطلوبة", "يرجى تعبئة اسم العنصر، الوصف، والموقع");
-      return;
-    }
+const handleSave = async () => {
+  if (!item.title || !item.description || !item.location) {
+    Alert.alert("الحقول المطلوبة", "يرجى تعبئة اسم العنصر، الوصف، والموقع");
+    return;
+  }
 
-    try {
-      const user = await getUserProfile();
-      if (!user) throw new Error("User not found");
+  try {
+    const token = await AsyncStorage.getItem("firebase-token"); // تأكد من وجود JWT هنا
+const payload = {
+  type: "lost",
+  title: item.title,
+  description: item.description,
+  location: { city: item.location },
+  dateLostOrFound: item.date,
+  images: [item.image],
+    rewardOffered,
+  rewardAmount: rewardOffered ? Number(rewardAmount) : undefined,
+  rewardMethod: rewardOffered ? rewardMethod : undefined,
 
-      const newItem = {
-        ...item,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString(),
-        contactPhone: user.phoneNumber,
-        postedBy: user.fullName,
-        status: "مفقود",
-      };
+  reward: Number(item.reward || 0),
 
-      const existing = await AsyncStorage.getItem("lost-items");
-      const updatedItems = existing
-        ? [newItem, ...JSON.parse(existing)]
-        : [newItem];
-      await AsyncStorage.setItem("lost-items", JSON.stringify(updatedItems));
+  ...(coordinates && {
+    locationCoords: {
+      lat: coordinates.latitude,
+      lng: coordinates.longitude,
+    },
+  }),
+};
 
-      await updateUserProfile({
-        lostAndFoundPosts: {
-          lostCount: (user.lostAndFoundPosts?.lostCount || 0) + 1,
-          foundCount: user.lostAndFoundPosts?.foundCount || 0,
-        },
-      });
-      
 
-      Alert.alert("تم الحفظ", "تم إضافة البلاغ بنجاح");
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert("خطأ", "حدث خطأ أثناء الحفظ، يرجى المحاولة لاحقًا");
-    }
-  };
+    const res = await axiosInstance.post("/api/lostfound", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    Alert.alert("تم", "تم رفع البلاغ بنجاح");
+    navigation.goBack();
+  } catch (err) {
+    console.error(err);
+    Alert.alert("خطأ", "فشل إرسال البلاغ");
+  }
+};
 
   return (
     <LinearGradient colors={["#f8f9fa", "#fff"]} style={styles.container}>
@@ -150,6 +180,17 @@ const AddLostItemScreen = ({ navigation }: any) => {
                 onChangeText={(text) => handleChange("description", text)}
               />
             </View>
+<View style={styles.inputContainer}>
+  <Ionicons name="cash" size={20} color="#D84315" style={styles.inputIcon} />
+  <TextInput
+    style={styles.input}
+    keyboardType="numeric"
+    placeholder="مكافأة لمن يجدها (اختياري)"
+    placeholderTextColor="#999"
+    value={item.reward}
+    onChangeText={(text) => handleChange("reward", text)}
+  />
+</View>
 
             {/* Location Input */}
             <View style={styles.inputContainer}>
@@ -223,6 +264,53 @@ const AddLostItemScreen = ({ navigation }: any) => {
             )}
           </View>
 
+<View style={styles.rewardSection}>
+  <View style={styles.row}>
+    <Text style={styles.label}>هل ترغب بدفع مكافأة؟</Text>
+    <Switch
+      value={rewardOffered}
+      onValueChange={setRewardOffered}
+      trackColor={{ false: "#ccc", true: "#D84315" }}
+      thumbColor={rewardOffered ? "#fff" : "#f4f3f4"}
+    />
+  </View>
+
+  {rewardOffered && (
+    <>
+      <Text style={styles.label}>مبلغ المكافأة (اختياري)</Text>
+      <TextInput
+        keyboardType="numeric"
+        value={rewardAmount}
+        onChangeText={setRewardAmount}
+        style={styles.input}
+        placeholder="مثال: 5000"
+      />
+
+      <Text style={styles.label}>طريقة الدفع</Text>
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={[
+            styles.option,
+            rewardMethod === "cash" && styles.activeOption,
+          ]}
+          onPress={() => setRewardMethod("cash")}
+        >
+          <Text style={styles.optionText}>نقدًا</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.option,
+            rewardMethod === "wallet" && styles.activeOption,
+          ]}
+          onPress={() => setRewardMethod("wallet")}
+        >
+          <Text style={styles.optionText}>من المحفظة</Text>
+        </TouchableOpacity>
+      </View>
+    </>
+  )}
+</View>
+
           {/* Submit Button */}
           <TouchableOpacity
             style={styles.submitButton}
@@ -253,6 +341,57 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 40,
   },
+  rewardSection: {
+  backgroundColor: "#FFF",
+  padding: 16,
+  margin: 16,
+  borderRadius: 12,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.05,
+  shadowRadius: 4,
+  elevation: 2,
+},
+row: {
+  flexDirection: "row-reverse",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 12,
+},
+label: {
+  fontFamily: "Cairo-SemiBold",
+  fontSize: 16,
+  color: "#3E2723",
+  marginBottom: 8,
+  textAlign: "right",
+},
+input: {
+  backgroundColor: "#F5F5F5",
+  borderRadius: 8,
+  padding: 12,
+  fontFamily: "Cairo-Regular",
+  fontSize: 14,
+  marginBottom: 12,
+  textAlign: "right",
+},
+option: {
+  paddingVertical: 8,
+  paddingHorizontal: 16,
+  borderRadius: 20,
+  borderWidth: 1,
+  borderColor: "#CCC",
+  marginHorizontal: 6,
+},
+activeOption: {
+  backgroundColor: "#D84315",
+  borderColor: "#D84315",
+},
+optionText: {
+  fontFamily: "Cairo-Bold",
+  fontSize: 14,
+  color: "#FFF",
+},
+
   header: {
     flexDirection: "row-reverse",
     justifyContent: "space-between",
@@ -289,14 +428,7 @@ const styles = StyleSheet.create({
   inputIcon: {
     marginLeft: 12,
   },
-  input: {
-    flex: 1,
-    height: 48,
-    fontFamily: "Cairo-Regular",
-    fontSize: 16,
-    color: "#333",
-    textAlign: "right",
-  },
+ 
   imageButton: {
     borderRadius: 12,
     overflow: "hidden",

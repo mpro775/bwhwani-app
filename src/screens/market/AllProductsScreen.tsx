@@ -55,6 +55,7 @@ const [favoriteMap, setFavoriteMap] = useState<Record<string, boolean>>({});
   name: string;
   image?: string;
 };
+
   useEffect(() => {
   const loadCategories = async () => {
     try {
@@ -63,7 +64,14 @@ const [favoriteMap, setFavoriteMap] = useState<Record<string, boolean>>({});
         id: cat._id,
         title: cat.name,
       }));
+      
       setCategories(formatted);
+       console.log("📦 طلب المنتجات بالفلاتر:", {
+      mainCategory: selectedCategoryId,
+      hasOffer: showOffersOnly,
+      search: searchQuery,
+      page: currentPage,
+    });
     } catch (err) {
       console.error("فشل في تحميل الفئات", err);
     }
@@ -74,19 +82,22 @@ useEffect(() => {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await fetchProducts({
-        category: selectedCategoryId,
-        hasOffer: showOffersOnly,
-        search: searchQuery,
-        page: currentPage,
-        limit: 6,
-      });
+      
+  const data = await fetchProducts({
+  ...(selectedCategoryId !== "all" && { mainCategory: selectedCategoryId }),
+  hasOffer: showOffersOnly,
+  search: searchQuery,
+  page: currentPage,
+  limit: 6,
+});
       setProducts(data);
       const user = await fetchUserProfile();
+      
 const map: Record<string, boolean> = {};
 for (const item of data) {
   map[item._id] = await isFavorite(item._id, "product");
 }
+
 setFavoriteMap(map);
 
     } catch (err) {
@@ -157,17 +168,25 @@ const item: FavoriteItem = {
     product={item}
     isFavorited={favoriteMap[item._id]}
     onToggleFavorite={toggleFavorite}
-    onPress={() =>
-      navigation.navigate("ProductDetails", {
-        product: {
-          ...item,
-          media: item.media?.map((m: any) => ({
-            ...m,
-            uri: m.uri.startsWith("http") ? m.uri : `http://192.168.1.102:3000${m.uri}`,
-          })) || [],
-        },
-      })
-    }
+onPress={() =>
+  navigation.navigate("ProductDetails", {
+    product: {
+      ...item,
+      id: item._id,
+      user: {
+        ...item.user,
+        firebaseUID: item.user?.firebaseUID || "", // ✅ تأكيد وجوده
+      },
+      media: item.media?.map((m: any) => ({
+        ...m,
+        uri: m.uri.startsWith("http") ? m.uri : `http://192.168.1.102:3000${m.uri}`,
+      })) || [],
+    },
+  })
+}
+
+
+
   />
 );
   return (

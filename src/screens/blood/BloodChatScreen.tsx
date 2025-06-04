@@ -1,76 +1,59 @@
 // screens/blood/BloodChatScreen.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  SafeAreaView,
+  View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity,
+  KeyboardAvoidingView, Platform, SafeAreaView
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { fetchBloodMessages, sendBloodMessage } from "../../api/bloodApi";
+import { fetchUserProfile } from "../../api/userApi";
 
 const BloodChatScreen = () => {
   const navigation = useNavigation();
-  const [messages, setMessages] = useState<any[]>([
-    { fromMe: false, text: "مرحبًا، كيف يمكنني مساعدتك؟", time: "09:30" },
-  ]);
+  const route = useRoute();
+  const { requestId }: any = route.params;
+  const [messages, setMessages] = useState<any[]>([]);
   const [text, setText] = useState("");
+  const [userId, setUserId] = useState("");
 
-  const sendMessage = () => {
-    if (!text.trim()) return;
-    const newMessage = {
-      fromMe: true,
-      text,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  useEffect(() => {
+    const load = async () => {
+      const user = await fetchUserProfile();
+      setUserId(user.id);
+      const msgs = await fetchBloodMessages(requestId);
+      setMessages(msgs);
     };
-    setMessages((prev) => [...prev, newMessage]);
+    load();
+  }, [requestId]);
+
+  const sendMessage = async () => {
+    if (!text.trim()) return;
+    const newMessage = await sendBloodMessage(requestId, text);
+    setMessages(prev => [...prev, newMessage]);
     setText("");
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#D84315" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>محادثة المتبرع</Text>
         <View style={styles.headerIconPlaceholder} />
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 85 : 0}
-      >
+      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <FlatList
           data={messages}
-          keyExtractor={(_, index) => index.toString()}
+          keyExtractor={(item) => item._id}
           contentContainerStyle={styles.messagesContainer}
-          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <View
-              style={[
-                styles.messageContainer,
-                item.fromMe && styles.myMessageContainer,
-              ]}
-            >
-              <View
-                style={[
-                  styles.messageBubble,
-                  item.fromMe ? styles.myMessage : styles.theirMessage,
-                ]}
-              >
+            <View style={[styles.messageContainer, item.senderId === userId && styles.myMessageContainer]}>
+              <View style={[styles.messageBubble, item.senderId === userId ? styles.myMessage : styles.theirMessage]}>
                 <Text style={styles.messageText}>{item.text}</Text>
-                <Text style={styles.messageTime}>{item.time}</Text>
+                <Text style={styles.messageTime}>{new Date(item.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
               </View>
             </View>
           )}
@@ -90,11 +73,7 @@ const BloodChatScreen = () => {
             style={[styles.sendButton, !!text && styles.activeSendButton]}
             disabled={!text}
           >
-            <Ionicons
-              name="send"
-              size={20}
-              color={!!text ? "#FFF" : "#D84315"}
-            />
+            <Ionicons name="send" size={20} color={!!text ? "#FFF" : "#D84315"} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

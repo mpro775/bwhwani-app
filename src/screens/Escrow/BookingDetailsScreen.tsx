@@ -11,6 +11,8 @@ import {
   SafeAreaView,
   Animated,
   Platform,
+  Button,
+  TextInput,
 } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons, MaterialIcons, FontAwesome } from "@expo/vector-icons";
@@ -20,6 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { SharedElement } from "react-navigation-shared-element";
 import { Rating } from "react-native-ratings";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import axiosInstance from "utils/api/axiosInstance";
 
 const { width } = Dimensions.get("window");
 
@@ -43,14 +46,14 @@ type Booking = {
   governorate: string;
   price: number;
   description: string;
-  
+  status:string;
   availableHours: string[];
   contactNumber: string;
   media: { uri: string; type: "image" | "video" }[];
   rating: number;
   reviews: number;
     unavailableDates: { from: string; to: string }[];
-
+cancelReason:string;
   amenities: string[];
   owner: {
     name: string;
@@ -61,59 +64,35 @@ type Booking = {
 
 type RouteParams = RouteProp<RootStackParamList, "BookingDetailsScreen">;
 
-const dummyBookings: Booking[] = [
-  {
-    id: "1",
-    title: "قاعة أفراح الهناء",
-    type: "صالة أفراح",
-    governorate: "صنعاء",
-    price: 50000,
-    description: "قاعة فاخرة لحفلات الزفاف والمناسبات مع خدمات إضافية. تتسع لأكثر من 500 ضيف وتوفر جميع الخدمات اللازمة لحفل مميز.",
-    availableHours: ["4:00 م", "6:00 م", "8:00 م", "10:00 م"],
-    contactNumber: "777000111",
-    rating: 4.8,
-    reviews: 124,
-    unavailableDates: [
-  { from: "2025-05-20", to: "2025-05-21" },
-  { from: "2025-05-25", to: "2025-05-26" },
-],
-    amenities: ["واي فاي", "موقف سيارات", "قاعة طعام", "تكييف", "إضاءة متطورة", "خدمات إضافية"],
-    owner: {
-      name: "محمد أحمد",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      joined: "منذ 3 سنوات",
-    },
-    media: [
-      { uri: "https://source.unsplash.com/random/800x600/?wedding", type: "image" },
-      { uri: "https://source.unsplash.com/random/800x600/?hall", type: "image" },
-      { uri: "https://www.w3schools.com/html/mov_bbb.mp4", type: "video" },
-    ],
-  },
-];
+
 
 export default function BookingDetailsScreen() {
   const route = useRoute<RouteParams>();
+  const [cancelReason, setCancelReason] = useState("");
+
 const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { bookingId } = route.params;
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const [booking, setBooking] = useState<Booking | null>(null);
-
-  useEffect(() => {
-    const found = dummyBookings.find((b) => b.id === bookingId);
-    if (found) {
-      setBooking(found);
+useEffect(() => {
+  const fetchBooking = async () => {
+    try {
+      const response = await axiosInstance.get(`/api/bookings/${bookingId}`);
+      setBooking(response.data);
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }).start();
-    } else {
-      Alert.alert("خطأ", "لم يتم العثور على الحجز");
+    } catch (error) {
+      Alert.alert('خطأ', 'لم يتم العثور على الحجز');
     }
-  }, [bookingId]);
+  };
 
+  fetchBooking();
+}, [bookingId]);
   if (!booking) return null;
 
 const handleBookNow = () => {
@@ -145,7 +124,33 @@ const handleBookNow = () => {
       default: return <Ionicons name="checkmark" size={20} color={COLORS.primary} />;
     }
   };
-
+{booking.status === "cancelled" && (
+  <View style={{ backgroundColor: "#fee2e2", padding: 12, borderRadius: 8 }}>
+    <Text style={{ color: "#b91c1c", fontWeight: "bold" }}>تم إلغاء الحجز</Text>
+    <Text>السبب: {booking.cancelReason || "غير محدد"}</Text>
+  </View>
+)}
+{booking.status === "pending" && (
+  <>
+    <TextInput
+      placeholder="سبب الإلغاء"
+      value={cancelReason}
+      onChangeText={setCancelReason}
+      style={{ borderWidth: 1, padding: 10, borderRadius: 8, marginBottom: 8 }}
+    />
+    <Button
+      title="إلغاء الحجز"
+      onPress={async () => {
+        await axiosInstance.put(`/api/bookings/${booking.id}/status`, {
+          status: "cancelled",
+          reason: cancelReason
+        });
+        Alert.alert("تم الإلغاء");
+        navigation.goBack();
+      }}
+    />
+  </>
+)}
   return (
     <SafeAreaView style={styles.container}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>

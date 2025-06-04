@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
+import ScheduledDeliveryPicker from "components/ScheduledDeliveryPicker";
+import RadioGroup from "components/RadioGroup";
 
 const COLORS = {
   primary: "#D84315",
@@ -34,6 +36,11 @@ type NavProp = NativeStackNavigationProp<RootStackParamList, "CartScreen">;
 const CartScreen = () => {
   const { items, updateQuantity, removeFromCart, totalPrice, totalQuantity } =
     useCart();
+    const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+const cartItems = items || [];
+const [deliveryMode, setDeliveryMode] = useState<"unified" | "split">("split");
+const storeIds = [...new Set(cartItems.map((item: any) => item.storeId?.toString()))];
+
   const navigation = useNavigation<NavProp>();
 
   const scaleAnim = new Animated.Value(1);
@@ -135,6 +142,19 @@ const CartScreen = () => {
             colors={["rgba(255,245,242,0.9)", "rgba(255,245,242,1)"]}
             style={styles.footer}
           >
+            {storeIds.length > 1 && (
+  <View style={{ marginVertical: 10 }}>
+    <Text>اختر نوع التوصيل:</Text>
+    <RadioGroup
+      options={[
+        { label: "توصيل موحد (مندوب واحد)", value: "unified" },
+        { label: "توصيل منفصل لكل متجر", value: "split" }
+      ]}
+      selectedValue={deliveryMode}
+      onChange={setDeliveryMode}
+    />
+  </View>
+)}
             <TouchableOpacity
               style={styles.checkoutButton}
               onPress={() => navigation.navigate("InvoiceScreen", { items })}
@@ -152,6 +172,9 @@ const CartScreen = () => {
                   <Text style={styles.badgeText}>{totalQuantity}</Text>
                   <Ionicons name="arrow-forward" size={24} color="#fff" />
                 </View>
+                <ScheduledDeliveryPicker onChange={(date) => setScheduledDate(date)} />
+
+
               </View>
             </TouchableOpacity>
           </LinearGradient>

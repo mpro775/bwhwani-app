@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
+import axiosInstance from "utils/api/axiosInstance";
 
 // ألوان متطورة مع تدرجات
 const COLORS = {
@@ -72,46 +73,49 @@ export default function ManageBookingAvailabilityScreen() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  const handleAddPeriod = () => {
-    if (!start || !end) {
-      Alert.alert("خطأ", "يرجى تحديد وقت البدء ووقت الانتهاء");
-      return;
-    }
+const handleAddPeriod = async () => {
+  if (!start || !end) {
+    Alert.alert("خطأ", "يرجى تحديد وقت البدء والانتهاء");
+    return;
+  }
 
-    if (start >= end) {
-      Alert.alert("خطأ", "وقت الانتهاء يجب أن يكون بعد وقت البدء");
-      return;
-    }
-
-    const newPeriod: ReservedPeriod = {
-      id: Date.now().toString(),
+  try {
+    const res = await axiosInstance.post(`/booking-services/${bookingId}/unavailable`, {
       start,
       end,
-    };
-    setReserved((prev) => [...prev, newPeriod]);
+    });
+    fetchUnavailablePeriods(); // لإعادة التحميل
     setStart(null);
     setEnd(null);
-  };
+  } catch (err) {
+    Alert.alert("خطأ", "تعذر إضافة الفترة. حاول مرة أخرى");
+    console.error(err);
+  }
+};
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      "تأكيد الحذف",
-      "هل أنت متأكد من حذف هذه الفترة؟",
-      [
-        {
-          text: "إلغاء",
-          style: "cancel",
-        },
-        {
-          text: "حذف",
-          style: "destructive",
-          onPress: () =>
-            setReserved((prev) => prev.filter((item) => item.id !== id)),
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+
+  useEffect(() => {
+  fetchUnavailablePeriods();
+}, []);
+
+const fetchUnavailablePeriods = async () => {
+  try {
+    const res = await axiosInstance.get(`/booking-services/${bookingId}/unavailable`);
+    setReserved(res.data);
+  } catch (err) {
+    console.error("خطأ في تحميل الفترات:", err);
+  }
+};
+
+const handleDelete = async (id: string) => {
+  try {
+    await axiosInstance.delete(`/booking-services/${bookingId}/unavailable/${id}`);
+    fetchUnavailablePeriods();
+  } catch (err) {
+    Alert.alert("خطأ", "تعذر الحذف. حاول لاحقاً");
+    console.error(err);
+  }
+};
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("ar-SA", {

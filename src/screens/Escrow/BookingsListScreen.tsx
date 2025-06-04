@@ -46,41 +46,7 @@ type Booking = {
   amenities: string[];
 };
 
-const dummyBookings: Booking[] = [
-  {
-    id: "1",
-    title: "قاعة أفراح الهناء",
-    type: "صالة",
-    governorate: "صنعاء",
-    price: 50000,
-    rating: 4.8,
-    availableHours: ["4:00 م", "6:00 م", "8:00 م", "10:00 م"],
-    media: ["https://source.unsplash.com/random/600x400/?wedding"],
-    amenities: ["واي فاي", "موقف سيارات", "قاعة طعام", "تكييف"],
-  },
-  {
-    id: "2",
-    title: "فندق السلام",
-    type: "فندق",
-    governorate: "عدن",
-    price: 30000,
-    rating: 4.5,
-    availableHours: ["2:00 م", "4:00 م", "6:00 م"],
-    media: ["https://source.unsplash.com/random/600x400/?hotel"],
-    amenities: ["مسبح", "جيم", "مطعم", "واي فاي"],
-  },
-  {
-    id: "3",
-    title: "منتجع الشاطئ الذهبي",
-    type: "منتجع",
-    governorate: "المكلا",
-    price: 75000,
-    rating: 4.9,
-    availableHours: ["12:00 م", "2:00 م", "4:00 م", "6:00 م", "8:00 م"],
-    media: ["https://source.unsplash.com/random/600x400/?resort"],
-    amenities: ["شاطئ خاص", "سبا", "مطعم", "نادي أطفال"],
-  },
-];
+
 
 const BookingsListScreen = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -95,18 +61,24 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
     loadData();
   }, []);
 
-  const loadData = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setBookings(dummyBookings);
-      setRefreshing(false);
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }, 1000);
-  };
+const loadData = async () => {
+  setRefreshing(true);
+  try {
+    const response = await fetch('https://api.bthwani.com/bookings');
+    const data = await response.json();
+    setBookings(data);
+  } catch (error) {
+    console.error('حدث خطأ أثناء جلب البيانات:', error);
+  } finally {
+    setRefreshing(false);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }
+};
+
 
   const filteredBookings = activeFilter === "الكل" 
     ? bookings 

@@ -17,6 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import axiosInstance from "utils/api/axiosInstance";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { isConnected } from "utils/network";
+import { queueOfflineRequest } from "utils/offlineQueue";
 
 // تعريف الألوان
 const COLORS = {
@@ -134,6 +136,7 @@ const InvoiceScreen = () => {
       Alert.alert("تنبيه", "لا توجد عناصر في السلة");
       return;
     }
+      const connected = await isConnected();
 
     setLoading(true);
     try {
@@ -155,6 +158,13 @@ const InvoiceScreen = () => {
         items: payload.items,
         storeId: items[0]?.storeId,
       });
+
+  if (!connected) {
+    await queueOfflineRequest("POST", "/orders", payload);
+    Alert.alert("لا يوجد اتصال، سيتم إرسال الطلب تلقائيًا عند استعادة الشبكة.","تنبية");
+  } else {
+    await axiosInstance.post("/orders", payload);
+  }
 
       const response = await axiosInstance.post("/delivery/order", payload);
       clearCart();

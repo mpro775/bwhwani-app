@@ -1,7 +1,7 @@
 
 import axiosInstance from "utils/api/axiosInstance";
 
-const BASE_URL = `/market`;
+const BASE_URL = `/haraj`;
 
 interface FetchOptions {
   category?: string;
@@ -23,13 +23,15 @@ export const fetchProducts = async ({
     limit,
   };
 
-  if (category && category !== "all") params.category = category;
+  // ✅ التصحيح هنا
+  if (category && category !== "all") params.mainCategory = category;
   if (hasOffer) params.hasOffer = true;
   if (search) params.search = search;
 
   const res = await axiosInstance.get(`${BASE_URL}/products`, { params });
   return res.data;
 };
+
 
 export const fetchLatestProducts = async () => {
   const res = await axiosInstance.get(`${BASE_URL}/products`, {

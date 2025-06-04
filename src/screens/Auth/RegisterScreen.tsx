@@ -17,12 +17,18 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useGoogleLogin } from "../../utils/api/googleAuth";
-import { loginWithEmail, registerWithEmail } from "api/authService";
+import {
+  loginWithEmail,
+  registerWithEmail,
+  storeFirebaseTokens,
+} from "api/authService";
+import { API_URL } from "utils/api/config";
 
 type AuthStackParamList = {
   Login: undefined;
   MainApp: undefined;
   Register: undefined;
+  OTPVerification: { email: string ,userId:string};
 };
 
 const COLORS = {
@@ -33,7 +39,6 @@ const COLORS = {
   text: "#4E342E",
 };
 
-const API_URL = "http://192.168.1.105:3000";
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
@@ -92,45 +97,87 @@ const RegisterScreen = () => {
   }, [name, email, password, confirmPassword, showErrorAlert]);
 
   const handleRegister = async () => {
-    if (!validateForm()) return;
-    setLoading(true);
+    if (!email || !password || !name || !phone) {
+      Alert.alert("خطأ", "يرجى تعبئة جميع الحقول");
+      return;
+    }
 
     try {
+      // 1. تسجّل حساب Firebase
       const result = await registerWithEmail(email, password);
-      await AsyncStorage.setItem("firebase-token", result.idToken);
 
-      await axios.post(
-        `${API_URL}/users/init`,
-        { email: result.email, fullName: name, phone },
-        { headers: { Authorization: `Bearer ${result.idToken}` } }
+      // 2. خزّن التوكنات في AsyncStorage
+      await storeFirebaseTokens(
+        result.idToken,
+        result.refreshToken,
+        parseInt(result.expiresIn, 10)
       );
 
-      Alert.alert("🎉 مرحبًا!", `أهلًا بك يا ${name} في بثواني 💙`);
-      navigation.replace("MainApp");
-    } catch (error: any) {
-      const message = error?.response?.data?.error?.message;
+      // 3. أرسل طلب إنشاء الملف الشخصي
+      await axios.post(
+        `${API_URL}/users/init`,
+        { fullName: name, email, phone },
+        { headers: { Authorization: `Bearer ${result.idToken}` } }
+      );
+      await axios.post(
+        `${API_URL}/users/otp/send`,
+        { email }, // فقط البريد لأن الـ userId لم يُسجل بعد في DB
+        { headers: { Authorization: `Bearer ${result.idToken}` } }
+      );
+const userRes = await axios.get(`${API_URL}/users/me`, {
+  headers: { Authorization: `Bearer ${result.idToken}` },
+});
+const user = userRes.data;
 
-      if (message === "EMAIL_EXISTS") {
+navigation.navigate("OTPVerification", { email, userId: user._id.toString() });
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.error?.message || err.response?.data?.message;
+
+      if (msg === "EMAIL_EXISTS") {
         try {
-          const loginResult = await loginWithEmail(email, password);
-          await AsyncStorage.setItem("firebase-token", loginResult.idToken);
+          // تسجيل دخول تلقائي مؤقت
+          const loginData = await loginWithEmail(email, password);
+
+          // فحص حالة البريد
+          const userRes = await axios.get(`${API_URL}/users/me`, {
+            headers: { Authorization: `Bearer ${loginData.idToken}` },
+          });
+
+          const user = userRes.data;
+
+          if (!user.emailVerified) {
+            // إعادة إرسال OTP
+            await axios.post(
+              `${API_URL}/users/otp/send`,
+              { email },
+              { headers: { Authorization: `Bearer ${loginData.idToken}` } }
+            );
+
+            Alert.alert("تأكيد البريد", "يرجى تأكيد بريدك الإلكتروني أولًا.");
+navigation.navigate("OTPVerification", { email, userId: user._id.toString() });
+            return;
+          }
+
+          // المستخدم مفعل ✅
+          await storeFirebaseTokens(
+            loginData.idToken,
+            loginData.refreshToken,
+            parseInt(loginData.expiresIn, 10)
+          );
 
           await axios.post(
             `${API_URL}/users/init`,
-            { email: loginResult.email, fullName: name, phone },
-            { headers: { Authorization: `Bearer ${loginResult.idToken}` } }
+            { fullName: name, email, phone },
+            { headers: { Authorization: `Bearer ${loginData.idToken}` } }
           );
 
-          Alert.alert("🎉 أهلاً من جديد!", `تم تسجيل الدخول تلقائيًا كـ ${name}`);
+          Alert.alert("مرحبًا مجددًا", `تم تسجيل دخولك تلقائيًا يا ${name}`);
           navigation.replace("MainApp");
-        } catch (loginError: any) {
-          Alert.alert("تنبيه", "البريد موجود ولكن كلمة المرور غير صحيحة.");
+        } catch (loginErr: any) {
+          Alert.alert("خطأ", "كلمة المرور غير صحيحة أو فشل تسجيل الدخول.");
         }
-      } else {
-        Alert.alert("خطأ", "حدث خطأ أثناء التسجيل");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -155,7 +202,7 @@ const RegisterScreen = () => {
               setValue: setName,
               placeholder: "الاسم الكامل",
               key: "name",
-keyboardType: "default" as const,
+              keyboardType: "default" as const,
             },
             {
               icon: "mail-outline",
@@ -163,7 +210,7 @@ keyboardType: "default" as const,
               setValue: setEmail,
               placeholder: "البريد الإلكتروني",
               key: "email",
-                keyboardType: "email-address" as const,
+              keyboardType: "email-address" as const,
             },
             {
               icon: "call-outline",
@@ -188,7 +235,7 @@ keyboardType: "default" as const,
               setValue: setConfirmPassword,
               placeholder: "تأكيد كلمة المرور",
               key: "confirm",
-keyboardType: "default" as const,
+              keyboardType: "default" as const,
               secure: true,
             },
           ].map((field) => (
@@ -225,13 +272,18 @@ keyboardType: "default" as const,
               {loading ? "جارٍ التسجيل..." : "إنشاء الحساب"}
             </Text>
           </TouchableOpacity>
-{/* أضف هذا بعده مباشرة */}
-<View style={{ marginTop: 16 }}>
-  <TouchableOpacity style={styles.googleButton} onPress={() => promptAsync()}>
-    <Ionicons name="logo-google" size={20} color="#DB4437" />
-    <Text style={styles.googleButtonText}>الاشتراك باستخدام Google</Text>
-  </TouchableOpacity>
-</View>
+          {/* أضف هذا بعده مباشرة */}
+          <View style={{ marginTop: 16 }}>
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={() => promptAsync()}
+            >
+              <Ionicons name="logo-google" size={20} color="#DB4437" />
+              <Text style={styles.googleButtonText}>
+                الاشتراك باستخدام Google
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>هل لديك حساب؟ </Text>
@@ -240,7 +292,6 @@ keyboardType: "default" as const,
             </TouchableOpacity>
           </View>
         </View>
-        
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -252,30 +303,30 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 16,
     paddingBottom: 30,
-     justifyContent: "center", 
+    justifyContent: "center",
   },
-googleButton: {
-  flexDirection: "row-reverse",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#FFF",
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  borderRadius: 12,
-  borderWidth: 1,
-  borderColor: "#DDD",
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.05,
-  shadowRadius: 4,
-  elevation: 2,
-},
+  googleButton: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFF",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#DDD",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 
-googleButtonText: {
-  fontFamily: "Cairo-SemiBold",
-  color: "#444",
-  fontSize: 14,
-},
+  googleButtonText: {
+    fontFamily: "Cairo-SemiBold",
+    color: "#444",
+    fontSize: 14,
+  },
   inputContainer: {
     flexDirection: "row-reverse",
     alignItems: "center",

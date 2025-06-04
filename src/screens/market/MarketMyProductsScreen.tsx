@@ -25,18 +25,21 @@ import ProductHeader from "components/market/MarketMyProductsScreen/ProductHeade
 import ProductCard from "components/market/MarketMyProductsScreen/ProductCard";
 import EmptyState from "components/market/MarketMyProductsScreen/EmptyState";
 import ProductFormModal from "components/market/MarketMyProductsScreen/ProductFormModal";
+import axiosInstance from "utils/api/axiosInstance";
+import axios from "axios";
+import { getAuthHeaders } from "api/userApi";
 
 // Initial empty product structure
 const initialEmptyProduct: outProduct = {
   name: "",
   description: "",
-  price: "",
+  price: 0,
   hasOffer: false,
-  offerPrice: "",
+  offerPrice: 0,
   media: [],
   category: "",
   categoryId: "",
-  location: "",
+  governorate: "",
   user: {
     name: "",
     phone: "",
@@ -65,70 +68,78 @@ const MarketMyProductsScreen = () => {
   const [newProduct, setNewProduct] = useState<outProduct>(initialEmptyProduct);
   const [token, setToken] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [isError, setIsError] = useState(false); // Consider what this is used for
+  const [originalProduct, setOriginalProduct] = useState<outProduct | null>(
+    null
+  );
 
   // Load user profile from AsyncStorage
   const loadUserProfile = useCallback(async () => {
+    let user: any = { name: "", phone: "", profileImage: "" };
+
     const stored = await AsyncStorage.getItem("user-profile");
     if (stored) {
-      const user = JSON.parse(stored);
-      return {
-        name: user.name || "",
-        phone: user.phone || "",
-        profileImage: user.profileImage || "",
-      };
+      user = JSON.parse(stored);
     }
-    return { name: "", phone: "", profileImage: "" };
+
+    // مزامنة صامتة من الباك إند
+    try {
+      const headers = await getAuthHeaders();
+      const { data: freshUser } = await axiosInstance.get("/users/me", {
+        headers,
+      });
+      await AsyncStorage.setItem("user-profile", JSON.stringify(freshUser));
+
+      user = {
+        name: freshUser.fullName || freshUser.name || "",
+        phone: freshUser.phone || "",
+        profileImage: freshUser.profileImage || "",
+      };
+    } catch (err) {
+      console.warn("⚠️ فشل تحديث بيانات المستخدم من الباك إند", err);
+    }
+
+    return user;
   }, []);
 
   // Handle editing a product
   const handleEdit = useCallback((product: outProduct) => {
-    setNewProduct({
-      ...product, // Spread existing product data
-      // Ensure media is correctly typed if it comes from backend as stringified JSON
-      media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
-    });
+    const parsedMedia = Array.isArray(product.media)
+      ? product.media
+      : JSON.parse(product.media as unknown as string);
+
+    setOriginalProduct({ ...product, media: parsedMedia });
+    setNewProduct({ ...product, media: parsedMedia });
     setEditingProductId(product._id || null);
     setModalVisible(true);
   }, []);
-
   // Handle deleting a product
-  const handleDelete = useCallback(async (id: string) => {
-    // Implement API call for deletion here
-    try {
-      if (!token) {
-        Alert.alert("تنبيه", "يرجى تسجيل الدخول أولاً للحذف");
-        return;
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        if (!token) {
+          Alert.alert("تنبيه", "يرجى تسجيل الدخول أولاً للحذف");
+          return;
+        }
+        await axiosInstance.delete(`/haraj/products/${id}`);
+        setProducts((prev) => prev.filter((p) => p._id !== id));
+        Alert.alert("نجاح", "تم حذف المنتج بنجاح");
+      } catch (err: any) {
+        Alert.alert("خطأ", err.message || "فشل في حذف المنتج");
       }
-
-      const res = await fetch(`${API_URL}/market/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "فشل في حذف المنتج");
-      }
-
-      setProducts((prev) => prev.filter((p) => p._id !== id));
-      Alert.alert("نجاح", "تم حذف المنتج بنجاح");
-    } catch (err: any) {
-      Alert.alert("خطأ", err.message || "فشل في حذف المنتج");
-    }
-  }, [token]);
+    },
+    [token]
+  );
 
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${API_URL}/market/categories`);
-        const data = await res.json();
-
+        const res = await axiosInstance.get("/haraj/categories");
+        const data = res.data;
         if (Array.isArray(data) && data.length > 0) {
           setCategories(data);
         } else {
@@ -139,7 +150,6 @@ const MarketMyProductsScreen = () => {
         setIsError(true);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -149,33 +159,30 @@ const MarketMyProductsScreen = () => {
   }, []);
 
   // Fetch products on component mount or when token changes
-  useEffect(() => {
-    const fetchProducts = async () => {
-      if (!token) return;
-      try {
-        const res = await fetch(`${API_URL}/market/products/my-products`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const data = await res.json();
-        // Ensure media is parsed if it's stored as a string
-        const parsedProducts = data.map((p: any) => ({
-            ...p,
-            media: typeof p.media === 'string' ? JSON.parse(p.media) : p.media
-        }));
-        setProducts(parsedProducts);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        Alert.alert("خطأ", "فشل في تحميل منتجاتك");
-      }
-    };
-    fetchProducts();
-  }, [token]);
+const fetchProducts = useCallback(async () => {
+  try {
+    const res = await axiosInstance.get("/haraj/products/my-products");
+    const data = res.data;
+
+    const parsedProducts = data.map((p: any) => ({
+      ...p,
+      media: typeof p.media === "string" ? JSON.parse(p.media) : p.media,
+    }));
+
+    setProducts(parsedProducts);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      console.error("❌ Axios Error:", {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+    } else {
+      console.error("❌ Unknown Error:", error);
+    }
+  }
+}, []);
 
 
   // Handle adding or updating a product
@@ -184,77 +191,72 @@ const MarketMyProductsScreen = () => {
       Alert.alert("تنبيه", "يرجى تسجيل الدخول أولاً");
       return;
     }
-    if (!newProduct.name || !newProduct.price) {
-  Alert.alert("تنبيه", "يرجى تعبئة جميع الحقول المطلوبة");
-  return;
-}
 
-    try {
-      const uploadedMediaUrls: ProductMedia[] = [];
-      for (const item of newProduct.media) {
-        // Only upload if it's a local URI (starts with 'file://' or similar)
-        // If it's already a full URL (from BunnyCDN), assume it's already uploaded
-        if (item.uri.startsWith("file://") || item.uri.startsWith("content://") || item.uri.startsWith("ph://")) {
-            const response = await fetch(item.uri);
-            const blob = await response.blob();
-            const url = await uploadFileToBunny(blob); // This should return the full URL
-            uploadedMediaUrls.push({ type: item.type, uri: url });
-        } else {
-            uploadedMediaUrls.push(item); // Keep existing BunnyCDN URL
-        }
+    const payload: Partial<outProduct> = {} as Partial<outProduct>;
+    const keysToCompare = Object.keys(newProduct) as (keyof outProduct)[];
+
+    keysToCompare.forEach((key) => {
+      const newVal = newProduct[key];
+      const oldVal = originalProduct?.[key];
+
+      if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+        (payload as any)[key] = newVal;
       }
+    });
 
-      const payload = {
-        ...newProduct,
-        media: JSON.stringify(uploadedMediaUrls), // Send as stringified JSON
-        mainCategory: newProduct.categoryId,
-      };
-
-      const method = editingProductId ? "PUT" : "POST";
-      const url = editingProductId
-        ? `${API_URL}/market/products/${editingProductId}`
-        : `${API_URL}/market/products`;
-
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("❌ API error:", error);
-        throw new Error(error.message || "فشل في حفظ المنتج");
-      }
-
-      const savedProduct = await res.json();
-      // Ensure media is parsed for the saved product
-      const parsedSavedProduct = {
-          ...savedProduct,
-          media: typeof savedProduct.media === 'string' ? JSON.parse(savedProduct.media) : savedProduct.media
-      };
-
-
-      if (editingProductId) {
-        setProducts((prev) =>
-          prev.map((p) =>
-            p._id === editingProductId ? parsedSavedProduct : p
-          )
-        );
-        Alert.alert("نجاح", "تم تعديل المنتج بنجاح");
+    // رفع الوسائط إذا لزم
+    const uploadedMediaUrls: ProductMedia[] = [];
+    for (const item of newProduct.media) {
+      if (item.uri.startsWith("file://") || item.uri.startsWith("content://")) {
+        const response = await fetch(item.uri);
+        const blob = await response.blob();
+        const url = await uploadFileToBunny(blob);
+        uploadedMediaUrls.push({ type: item.type, uri: url });
       } else {
-        setProducts((prev) => [...prev, parsedSavedProduct]);
-        Alert.alert("نجاح", "تم إضافة المنتج بنجاح");
+        uploadedMediaUrls.push(item);
       }
-      setModalVisible(false);
-      setNewProduct(initialEmptyProduct);
-      setEditingProductId(null);
-    } catch (err: any) {
-      Alert.alert("خطأ", err.message || "فشل في حفظ المنتج");
     }
+
+    if (
+      JSON.stringify(uploadedMediaUrls) !==
+      JSON.stringify(originalProduct?.media)
+    ) {
+      payload.media = uploadedMediaUrls;
+    }
+
+    payload.price = Number(payload.price as any);
+    payload.offerPrice = Number(payload.offerPrice as any);
+
+    // ✅ إزالة بيانات المستخدم قبل الإرسال
+    delete (payload as any).user;
+
+    const method = editingProductId ? "PATCH" : "POST";
+    const url = editingProductId
+      ? `${API_URL}/haraj/products/${editingProductId}`
+      : `${API_URL}/haraj/products`;
+
+const finalPayload = editingProductId ? {
+  name: newProduct.name,
+  description: newProduct.description,
+  price: newProduct.price,
+  offerPrice: newProduct.offerPrice,
+  hasOffer: newProduct.hasOffer,
+  governorate: newProduct.governorate,
+  condition: newProduct.condition,
+  warranty: newProduct.warranty,
+  delivery: newProduct.delivery,
+  categoryId: newProduct.categoryId,
+  media: uploadedMediaUrls,
+  specs: newProduct.specs,
+} : payload;
+
+const res = await axiosInstance({ method, url, data: finalPayload });
+await fetchProducts(); // ⬅️ التحديث بعد الحفظ
+
+    // إعادة التهيئة بعد النجاح
+    setOriginalProduct(null);
+    setNewProduct(initialEmptyProduct);
+    setModalVisible(false);
   };
 
   // Pick media (images/videos) from device library
@@ -264,21 +266,23 @@ const MarketMyProductsScreen = () => {
       allowsMultipleSelection: true,
       quality: 0.7,
     });
-    
+
     if (!result.canceled && result.assets.length > 0) {
       const selected = result.assets.map((asset) => ({
         uri: asset.uri,
         type: asset.type === "video" ? "video" : "image",
       }));
       if (!result.assets.every((a) => a.uri)) {
-  Alert.alert("خطأ", "حدث خطأ أثناء تحديد الملفات");
-  return;
-}
+        Alert.alert("خطأ", "حدث خطأ أثناء تحديد الملفات");
+        return;
+      }
 
       setNewProduct((prev) => ({
         ...prev,
-        media: [...prev.media, ...selected as ProductMedia[]],
+        media: [...prev.media, ...(selected as ProductMedia[])],
       }));
+      await fetchProducts(); // ⬅️ التحديث بعد الحفظ
+
     }
   }, []);
 
@@ -286,15 +290,21 @@ const MarketMyProductsScreen = () => {
     <SafeAreaView style={styles.container}>
       <ProductHeader productCount={products.length} />
 
-      <FlatList
-        data={products}
-        renderItem={({ item }) => (
-          <ProductCard item={item} onEdit={handleEdit} onDelete={handleDelete} />
-        )}
-        keyExtractor={(item) => item._id || item.name + Math.random().toString()} // Fallback key if _id is missing
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<EmptyState />}
-      />
+     <FlatList
+  data={products}
+  renderItem={({ item }) => (
+    <ProductCard item={item} onEdit={handleEdit} onDelete={handleDelete} />
+  )}
+  keyExtractor={(item) => item._id || item.name + Math.random().toString()}
+  contentContainerStyle={styles.listContent}
+  ListEmptyComponent={<EmptyState />}
+  refreshing={refreshing}
+  onRefresh={async () => {
+    setRefreshing(true);
+    await fetchProducts();
+    setRefreshing(false);
+  }}
+/>
 
       <TouchableOpacity
         style={styles.addButton}

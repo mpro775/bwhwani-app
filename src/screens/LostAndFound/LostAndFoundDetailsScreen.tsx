@@ -8,12 +8,25 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../types/navigation";
+import axiosInstance from "utils/api/axiosInstance";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+type LostItem = {
+  _id: string;
+  title: string;
+  status: string;
+  location: { city: string };
+  // باقي الحقول حسب الحاجة
+};
+
+
 
 const LostAndFoundDetailsScreen = () => {
   const route =
@@ -21,15 +34,43 @@ const LostAndFoundDetailsScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { item } = route.params;
 
-  const handleChat = () => {
-    navigation.navigate("LostChatScreen", {
-      itemId: item.id,
+const handleDeliveryRequest = async (item: LostItem) => {
+  try {
+    const token = await AsyncStorage.getItem("firebase-token");
+    await axiosInstance.post("/delivery/request", {
+      itemId: item._id,
+      type: "found",
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
     });
+
+    Alert.alert("تم الطلب", "سيتم التواصل معك قريبًا من قبل المندوب");
+  } catch (err) {
+    Alert.alert("خطأ", "فشل في إرسال الطلب");
+  }
+};
+  const handleChat = () => {
+navigation.navigate("LostChatScreen", {
+  itemId: item._id,
+});
   };
 
   return (
+    
     <LinearGradient colors={["#FFF", "#FFF8F6"]} style={styles.container}>
       {/* Header */}
+      {item.status === "active" && (
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={() => handleDeliveryRequest(item)}
+        >
+          
+          <LinearGradient colors={["#1E88E5", "#1565C0"]} style={styles.gradient}>
+            <Ionicons name="bicycle" size={20} color="#FFF" />
+            <Text style={styles.chatText}>أرسل لي هذا العنصر</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={28} color="#D84315" />
@@ -39,32 +80,27 @@ const LostAndFoundDetailsScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {item.image ? (
-          <Image
-            source={{ uri: item.image }}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <Ionicons name="image" size={48} color="#D84315" />
-          </View>
-        )}
+          <View style={styles.detailsCard}>
 
-        <View style={styles.detailsCard}>
-          <Text style={styles.title}>{item.title}</Text>
+       {item.images?.[0] ? (
+  <Image
+    source={{ uri: item.images[0] }}
+    style={styles.image}
+    resizeMode="cover"
+  />
+) : (
+  <View style={styles.imagePlaceholder}>
+    <Ionicons name="image" size={48} color="#D84315" />
+  </View>
+)}
 
-          <View style={styles.metaContainer}>
-            <View style={styles.metaItem}>
-              <Ionicons name="calendar" size={18} color="#D84315" />
-              <Text style={styles.metaText}>{item.date}</Text>
-            </View>
+<Text style={styles.metaText}>
+  📍 {item.location?.city || "غير محدد"} • 🕒 {new Date(item.dateLostOrFound).toLocaleDateString("ar-EG")}
+</Text>
 
-            <View style={styles.metaItem}>
-              <Ionicons name="location" size={18} color="#D84315" />
-              <Text style={styles.metaText}>{item.location}</Text>
-            </View>
-          </View>
+<Text style={styles.userName}>
+  {item.postedBy?.fullName || "غير معروف"}
+</Text>
 
           <Text style={styles.sectionTitle}>وصف العنصر</Text>
           <Text style={styles.description}>{item.description}</Text>

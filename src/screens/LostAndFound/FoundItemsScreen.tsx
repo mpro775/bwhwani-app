@@ -18,28 +18,35 @@ const FoundItemsScreen = ({ navigation }: any) => {
   const [selectedCategory, setSelectedCategory] = useState("الكل");
   const [selectedGovernorate, setSelectedGovernorate] = useState("الكل");
 
-  const loadItems = async () => {
-    const stored = await AsyncStorage.getItem("found-items");
-    if (stored) setFoundItems(JSON.parse(stored));
-  };
+const loadItems = async () => {
+  try {
+    const res = await fetch("https://your-backend-api.com/api/lostfound?type=found");
+    const data = await res.json();
+    setFoundItems(data);
+  } catch (err) {
+    console.error("خطأ في جلب البيانات:", err);
+  }
+};
+
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", loadItems);
     return unsubscribe;
   }, [navigation]);
 
-  const filtered = foundItems.filter(
-    (item) =>
-      (selectedCategory === "الكل" || item.category === selectedCategory) &&
-      (selectedGovernorate === "الكل" ||
-        item.governorate === selectedGovernorate)
-  );
+ const filtered = foundItems.filter(
+  (item) =>
+    (selectedCategory === "الكل" || item.category === selectedCategory) &&
+    (selectedGovernorate === "الكل" ||
+      item.location?.governorate === selectedGovernorate)
+);
+
 
   const renderItem = ({ item }: any) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() =>
-        navigation.navigate("LostAndFoundDetails", { item, type: "found" })
+navigation.navigate("LostAndFoundDetails", { item })
       }
     >
       <Text style={styles.title}>{item.title}</Text>
@@ -47,7 +54,7 @@ const FoundItemsScreen = ({ navigation }: any) => {
         {item.category} • {item.governorate}
       </Text>
       <Text style={styles.date}>
-        {new Date(item.createdAt).toLocaleDateString("ar-EG")}
+        {new Date(item.createdAt).toLocaleDateString("ar-SA")}
       </Text>
     </TouchableOpacity>
   );
@@ -94,12 +101,15 @@ const FoundItemsScreen = ({ navigation }: any) => {
         ))}
       </ScrollView>
 
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-      />
+    <FlatList
+  data={filtered}
+  keyExtractor={(item) => item._id}
+  renderItem={renderItem}
+  contentContainerStyle={{ padding: 16 }}
+  refreshing={false}
+  onRefresh={loadItems}
+/>
+
     </ScrollView>
   );
 };

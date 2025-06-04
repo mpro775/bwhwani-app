@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGoogleLogin } from "../../utils/api/googleAuth";
 import { loginWithEmail } from "../../api/authService";
 import { useCart } from "context/CartContext";
+import * as LocalAuthentication from 'expo-local-authentication';
 
 type AuthStackParamList = {
   Login: undefined;
@@ -44,6 +45,7 @@ const LoginScreen = () => {
   const { promptAsync } = useGoogleLogin();
     const { mergeGuestCart } = useCart();
 
+    
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
@@ -62,6 +64,29 @@ const LoginScreen = () => {
       }),
     ]).start();
   }, [fadeAnim]);
+
+  const handleBiometricLogin = async () => {
+  const hasHardware = await LocalAuthentication.hasHardwareAsync();
+  const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+  if (!hasHardware || !isEnrolled) {
+    Alert.alert("البصمة غير مدعومة", "جهازك لا يدعم بصمة أو لم يتم إعدادها");
+    return;
+  }
+
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: "تأكيد الهوية بالبصمة",
+    fallbackLabel: "استخدم رمز المرور",
+  });
+
+  if (result.success) {
+    Alert.alert("✅ تم التحقق", "تم تسجيل الدخول بالبصمة (اختبار فقط)");
+    navigation.replace("MainApp");
+  } else {
+    Alert.alert("❌ فشل التحقق", "لم يتم التحقق من البصمة");
+  }
+};
+
 
   const validateForm = useCallback(() => {
     if (!email || !password) {
@@ -108,7 +133,7 @@ const handleLogin = async () => {
     }
 
     // 4) يمكنك أيضاً حفظ idToken/oauth token العام للتطبيق:
-    await AsyncStorage.setItem("firebase-idToken", token);
+    await AsyncStorage.setItem("firebase-token", token);
     await AsyncStorage.setItem("userId", userId);
 
     // 5) ادمج سلة الضيف مع حساب المستخدم
@@ -223,6 +248,12 @@ const handleLogin = async () => {
                 الدخول باستخدام Google
               </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+  style={[styles.button, { marginTop: 12, backgroundColor: "#607D8B" }]}
+  onPress={handleBiometricLogin}
+>
+  <Text style={styles.buttonText}>تسجيل الدخول بالبصمة</Text>
+</TouchableOpacity>
           </View>
 
           <View style={styles.footer}>

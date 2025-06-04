@@ -211,6 +211,8 @@ const SelectLocationScreen = () => {
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<Nav>();
 
+
+
   useEffect(() => {
     handleCurrentLocation();
   }, []);
@@ -234,17 +236,28 @@ const SelectLocationScreen = () => {
     }
   };
 
-  const handleCurrentLocation = async () => {
+const handleCurrentLocation = async () => {
   setLoading(true);
+
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("الإذن مرفوض", "يجب السماح بالوصول إلى الموقع");
+      Alert.alert("الإذن مرفوض", "يجب السماح بالوصول إلى الموقع.");
       return;
     }
 
+    const servicesEnabled = await Location.hasServicesEnabledAsync();
+    if (!servicesEnabled) {
+      Alert.alert("خدمات الموقع متوقفة", "يرجى تفعيل خدمات الموقع من إعدادات الجهاز.");
+      return;
+    }
+
+    // تأخير بسيط لضمان تهيئة GPS
+await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+
     const loc = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
+   
     });
 
     setLocation({
@@ -253,30 +266,46 @@ const SelectLocationScreen = () => {
     });
 
     reverseGeocode(loc.coords.latitude, loc.coords.longitude);
-  } catch (error) {
-    Alert.alert("خطأ", "تعذر تحديد الموقع. حاول مجددًا");
+  } catch (error: any) {
     console.error("❌ GPS Error:", error);
+
+    if (error.message?.includes("Current location is unavailable")) {
+      Alert.alert(
+        "تعذر تحديد الموقع",
+        "لم يتمكن الجهاز من تحديد موقعك الحالي. حاول الانتقال إلى مكان مفتوح أو تأكد من تشغيل GPS."
+      );
+    } else {
+      Alert.alert("خطأ", "حدث خطأ أثناء محاولة تحديد الموقع.");
+    }
   } finally {
     setLoading(false);
   }
 };
 
 
-  const handleConfirm = async () => {
-    if (location) {
-      setSaving(true);
-      try {
-        await AsyncStorage.setItem("temp_location", JSON.stringify(location));
-        setTimeout(() => {
-          setSaving(false);
-          navigation.goBack();
-        }, 300);
-      } catch (error) {
-        Alert.alert("خطأ", "تعذر حفظ الموقع. يرجى المحاولة مرة أخرى.");
+
+const handleConfirm = async () => {
+  if (location) {
+    setSaving(true);
+    try {
+      const mode = await AsyncStorage.getItem("map_mode");
+
+      // دعم كلا النظامين
+      await AsyncStorage.multiSet([
+        [`waslni_${mode}_location`, JSON.stringify(location)],
+        ["temp_location", JSON.stringify(location)]
+      ]);
+
+      setTimeout(() => {
         setSaving(false);
-      }
+        navigation.goBack();
+      }, 300);
+    } catch (error) {
+      Alert.alert("خطأ", "تعذر حفظ الموقع. يرجى المحاولة مرة أخرى.");
+      setSaving(false);
     }
-  };
+  }
+};
 
   return (
     <View style={styles.container}>

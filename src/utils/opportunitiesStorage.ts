@@ -1,20 +1,22 @@
-// utils/opportunitiesStorage.ts
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import axiosInstance from "./api/axiosInstance";
+import { API_URL } from "./api/config";
 
-export const storeOpportunities = async (data: any[]) => {
-  await AsyncStorage.setItem("opportunities", JSON.stringify(data));
+export const fetchOpportunities = async () => {
+  const res = await axiosInstance.get(`${API_URL}/opportunities`);
+  return res.data;
 };
 
-export const getStoredOpportunities = async (): Promise<any[]> => {
-  const data = await AsyncStorage.getItem("opportunities");
-  return data ? JSON.parse(data) : [];
+export const fetchFreelancers = async () => {
+  const res = await axios.get(`${API_URL}/freelancers`);
+  return res.data;
 };
 
-export const storeFreelancers = async (data: any[]) => {
-  await AsyncStorage.setItem("freelancers", JSON.stringify(data));
+export const createOpportunity = async (data: any) => {
+  return axios.post(`${API_URL}/opportunities`, data);
 };
 
-export const getStoredFreelancers = async (): Promise<any[]> => {
-  const data = await AsyncStorage.getItem("freelancers");
-  return data ? JSON.parse(data) : [];
+// api/freelancerApi.ts
+export const updateFreelancerProfile = async (userId: string, data: any) => {
+  return axios.put(`${API_URL}/user/${userId}/freelancer-profile`, data);
 };
