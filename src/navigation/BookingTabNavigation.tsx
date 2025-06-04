@@ -6,20 +6,22 @@ import { Ionicons } from "@expo/vector-icons";
 import BookingsListScreen from "../screens/Escrow/BookingsListScreen";
 import AddBookingScreen from "../screens/Escrow/AddBookingScreen";
 import MyBookingsScreen from "../screens/Escrow/MyBookingsScreen"; // شاشة الحجوزات الخاصة بي (اختياري لاحقًا)
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 const BookingTabNavigation = () => {
+      const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
         tabBarActiveTintColor: "#D84315",
         tabBarInactiveTintColor: "#B0BEC5",
         tabBarStyle: {
           backgroundColor: "#FFF",
-          height: 65,
-          paddingBottom: 8,
+              height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 6,
           borderTopColor: "#eee",
           elevation: 8,

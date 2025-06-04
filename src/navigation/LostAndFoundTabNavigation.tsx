@@ -3,20 +3,22 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import LostItemsScreen from "../screens/LostAndFound/LostItemsScreen";
 import FoundItemsScreen from "../screens/LostAndFound/FoundItemsScreen";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 const LostAndFoundTabNavigation = () => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
         tabBarActiveTintColor: "#D84315",
         tabBarInactiveTintColor: "#B0BEC5",
         tabBarStyle: {
           backgroundColor: "#FFF",
-          height: 65,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 6,
           borderTopColor: "#eee",
           elevation: 8,

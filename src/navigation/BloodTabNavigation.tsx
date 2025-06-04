@@ -7,10 +7,13 @@ import BloodTypesScreen from "../screens/blood/BloodTypesScreen";
 import BecomeDonorScreen from "../screens/blood/BecomeDonorScreen";
 import BloodChatScreen from "../screens/blood/BloodChatScreen";
 import DonorProfileScreen from "../screens/blood/DonorProfileScreen"; // ✅ شاشة ملف المتبرع
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 const BloodTabNavigation = () => {
+    const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -19,8 +22,8 @@ const BloodTabNavigation = () => {
         tabBarInactiveTintColor: "#B0BEC5",
         tabBarStyle: {
           backgroundColor: "#FFF",
-          height: 65,
-          paddingBottom: 8,
+           height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 6,
           borderTopColor: "#eee",
           elevation: 8,

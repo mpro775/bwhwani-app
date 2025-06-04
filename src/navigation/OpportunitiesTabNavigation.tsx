@@ -11,12 +11,14 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import OpportunitiesListScreen from "../screens/opportunities/OpportunitiesListScreen";
 import FreelancersListScreen from "../screens/opportunities/FreelancersListScreen";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
 
 const OpportunitiesTabNavigation = () => {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState("Opportunities");
+  const insets = useSafeAreaInsets();
 
   const handleAdd = () => {
     if (activeTab === "Opportunities") {
@@ -35,8 +37,8 @@ const OpportunitiesTabNavigation = () => {
           tabBarInactiveTintColor: "#B0BEC5",
           tabBarStyle: {
             backgroundColor: "#FFF",
-            height: Platform.OS === "ios" ? 80 : 65,
-            paddingBottom: Platform.OS === "ios" ? 20 : 8,
+             height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
             paddingTop: 6,
             borderTopColor: "#EEE",
             elevation: 8,

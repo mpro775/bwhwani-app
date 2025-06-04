@@ -12,6 +12,7 @@ export type RootStackParamList = {
     TransportBooking: { category: 'waslni' | 'heavy' | 'findme' }; // أضف الأنواع المتوقعة هنا
   RateDriver: { id: string };
   MyTransportOrders: undefined;
+  AddBooking:undefinedك
   AddBookingScreen:undefined;
   DeliveryAddresses: {
     selectedLocation?: { latitude: number; longitude: number };

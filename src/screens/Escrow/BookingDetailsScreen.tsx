@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -76,10 +76,34 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
   const fadeAnim = useState(new Animated.Value(0))[0];
 
   const [booking, setBooking] = useState<Booking | null>(null);
+  // نضيف زر في الهيدر للتنقل لشاشة إضافة الحجز
+useLayoutEffect(() => {
+  navigation.setOptions({
+    headerRight: () => (
+      <TouchableOpacity
+        onPress={() => navigation.navigate("AddBooking")}
+        style={{ marginRight: 16 }}
+      >
+        <Ionicons name="add-circle-outline" size={28} color={COLORS.white} />
+      </TouchableOpacity>
+    ),
+    headerStyle: {
+      backgroundColor: COLORS.primary,
+    },
+    headerTitleStyle: {
+      color: COLORS.white,
+      fontSize: 20,
+      fontWeight: "bold",
+    },
+    title: "الحجوزات المتاحة",
+    headerTintColor: COLORS.white,
+  });
+}, [navigation]);
+
 useEffect(() => {
   const fetchBooking = async () => {
     try {
-      const response = await axiosInstance.get(`/api/bookings/${bookingId}`);
+      const response = await axiosInstance.get(`/bookings/${bookingId}`);
       setBooking(response.data);
       Animated.timing(fadeAnim, {
         toValue: 1,

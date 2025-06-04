@@ -70,6 +70,12 @@ import ForgotPasswordScreen from "screens/Auth/ForgotPasswordScreen";
 import OnboardingScreen from "screens/OnboardingScreen";
 import { ScrollView } from "react-native-gesture-handler";
 import OTPVerificationScreen from "screens/Auth/OTPVerificationScreen";
+import SheinStackNavigation from "./SheinStack";
+import PaymentStack from "./PaymentStack";
+import CharityStack from "./CharityStack";
+import AbsherStack from "./AbsherStack";
+import WalletStack from "./WalletStack";
+import BookingsListScreen from "screens/Escrow/BookingsListScreen";
 
 // أنواع التنقل
 
@@ -85,16 +91,20 @@ type RootStackParamList = {
   OTPVerification: { email: string };
   ForgotPassword: undefined;
   MyOrdersScreen: undefined;
+  AbsherStack: undefined;
   OrderDetailsScreen: { order: any };
   FavoritesScreen: undefined;
   Onboarding: undefined;
+  PaymentStack: undefined;
+  WalletStack: undefined;
   EditProfile: undefined;
   AddLostItemScreen: undefined;
   BookingsStack: undefined;
   BecomeDonor: undefined;
+  SheinStack: undefined;
   MyBookingsScreen: undefined;
   ManageBookingAvailability: { bookingId: string };
-
+  CharityStack: undefined;
   BookingFormScreen: {
     bookingId: string;
     title: string;
@@ -105,12 +115,15 @@ type RootStackParamList = {
   DeliveryAddresses: {
     selectedLocation?: { latitude: number; longitude: number };
   };
+  BookingsList: undefined;
+  BookingDetailsScreen: { bookingId: string };
+  AddBooking: undefined;
+
   SelectLocation: undefined;
   GroceryDetails: undefined;
   MyFreelancerProfile: undefined;
   DeliveryTab: undefined;
   BookingTabs: undefined;
-  BookingDetailsScreen: undefined;
   BookingChatScreen: undefined;
 
   CategoryDetails: undefined;
@@ -155,32 +168,6 @@ const MarketStackNavigator = () => (
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator<DrawerParamList>();
 const TopTab = createMaterialTopTabNavigator();
-const BloodStack = createNativeStackNavigator<BloodStackParamList>();
-const BloodBankStackNavigator = () => (
-  <BloodStack.Navigator screenOptions={{ headerShown: true }}>
-    <BloodStack.Screen
-      name="BloodTypes"
-      component={BloodTypesScreen}
-      options={{ title: "فصائل الدم المتاحة" }}
-    />
-
-    <BloodStack.Screen
-      name="BloodChatScreen"
-      component={BloodChatScreen}
-      options={{ title: " المحادثات" }}
-    />
-    <BloodStack.Screen
-      name="BecomeDonor"
-      component={BecomeDonorScreen}
-      options={{ title: "تعديل بيانات التبرع" }}
-    />
-    <BloodStack.Screen
-      name="DonorProfile"
-      component={DonorProfileScreen}
-      options={{ title: "ملف المتبرع" }}
-    />
-  </BloodStack.Navigator>
-);
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const { navigation } = props;
@@ -445,7 +432,51 @@ const AppNavigation = ({
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
       <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
+      <RootStack.Screen
+        name="SheinStack"
+        component={SheinStackNavigation}
+        options={{ title: "شي إن" }}
+      />
+      <RootStack.Screen
+        name="PaymentStack"
+        component={PaymentStack}
+        options={{ title: "التسديد والشحن" }}
+      />
+      {/* شاشة قائمة الحجوزات */}
+      <RootStack.Screen
+        name="BookingsList"
+        component={BookingsListScreen}
+        options={{ headerShown: true, title: "الحجوزات المتاحة" }}
+      />
 
+      {/* شاشة إضافة حجز جديد */}
+      <RootStack.Screen
+        name="AddBooking"
+        component={AddBookingScreen}
+        options={{ headerShown: true, title: "إضافة حجز جديد" }}
+      />
+
+      {/* شاشة تفاصيل الحجز (مع برامتر bookingId) */}
+      <RootStack.Screen
+        name="BookingDetailsScreen"
+        component={BookingDetailsScreen}
+        options={{ headerShown: true, title: "تفاصيل الحجز" }}
+      />
+      <RootStack.Screen
+        name="CharityStack"
+        component={CharityStack}
+        options={{ title: "الأعمال الخيرية" }}
+      />
+      <RootStack.Screen
+        name="AbsherStack"
+        component={AbsherStack}
+        options={{ title: "أبشر" }}
+      />
+      <RootStack.Screen
+        name="WalletStack"
+        component={WalletStack}
+        options={{ title: "المعاملات المالية" }}
+      />
       <RootStack.Screen name="DeliveryTab" component={DeliveryTabNavigation} />
       <RootStack.Screen
         name="BusinessDetails"
@@ -493,10 +524,6 @@ const AppNavigation = ({
       <RootStack.Screen
         name="AddLostItemScreen"
         component={AddLostItemScreen}
-      />
-      <RootStack.Screen
-        name="BookingDetailsScreen"
-        component={BookingDetailsScreen}
       />
 
       <RootStack.Screen

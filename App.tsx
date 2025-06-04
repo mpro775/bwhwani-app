@@ -19,6 +19,7 @@ import { queueOfflineRequest, retryQueuedRequests } from "utils/offlineQueue";
 import { isConnected } from "utils/network";
 import axiosInstance from "utils/api/axiosInstance";
 import TestLottie from "screens/TestLottie";
+import { CartProviderShein } from "context/CartContextShein";
 
 // ✅ إبقاء Splash ظاهرة لحين تهيئة التطبيق
 SplashScreen.preventAutoHideAsync();
@@ -70,6 +71,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
+      <CartProviderShein>
       <CartProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <SafeAreaProvider>
@@ -79,6 +81,7 @@ export default function App() {
           </SafeAreaProvider>
         </GestureHandlerRootView>
       </CartProvider>
+      </CartProviderShein>
     </ThemeProvider>
   );
 }

@@ -64,7 +64,7 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
 const loadData = async () => {
   setRefreshing(true);
   try {
-    const response = await fetch('https://api.bthwani.com/bookings');
+    const response = await fetch('/bookings');
     const data = await response.json();
     setBookings(data);
   } catch (error) {
@@ -213,6 +213,7 @@ const loadData = async () => {
             onRefresh={loadData}
             colors={[COLORS.primary]}
           />
+          
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -221,6 +222,12 @@ const loadData = async () => {
           </View>
         }
       />
+                    <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate("AddBookingScreen")}
+      >
+        <Ionicons name="add" size={28} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -242,6 +249,24 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     textAlign: 'center',
   },
+    fab: {
+  position: 'absolute',
+  bottom: 30,
+  right: 20,
+  backgroundColor: COLORS.primary,
+  borderRadius: 30,
+  width: 60,
+  height: 60,
+  justifyContent: 'center',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  elevation: 5,
+  zIndex: 100,
+},
+
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

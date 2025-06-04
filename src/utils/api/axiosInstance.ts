@@ -11,12 +11,19 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     const publicEndpoints = [
-      "/market/sliders",
-      "/market/categories",
-  "/market/products?page", // فقط الصفحة العامة
-      "/market/offers",
+  "/market/sliders",
+  "/market/categories",
+  "/market/products?page", // الصفحة العامة فقط
+  "/market/offers",
 
-    ];
+  // 🟢 أضف هذه المسارات العامة لقسم التوصيل:
+  "/delivery/categories",
+  "/delivery/banners",
+  "/delivery/stores",
+  "/delivery/products/daily-offers",
+  "/delivery/products/nearby/new",
+];
+
 
     const isPublic = publicEndpoints.some((path) =>
       config.url?.includes(path)

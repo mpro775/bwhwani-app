@@ -56,6 +56,13 @@ const data = {
     { id: 5, name: " المفقودات", icon: "help-circle-outline", screen: "LostAndFound" },
     { id: 6, name: "وصلني", icon: "car", screen: "Transport" },
     { id: 7, name: "عروض وحجوزات", icon: "calendar", screen: "BookingTabs" },
+
+     // الأقسام الجديدة التي نريد إضافتها:
+    { id: 8, name: "شي إن",               icon: "shirt-outline",          screen: "SheinStack" },
+    { id: 9, name: "التسديد والشحن",      icon: "credit-card-outline",    screen: "PaymentStack" },
+    { id: 10, name: "الأعمال الخيرية",    icon: "heart-outline",          screen: "CharityStack" },
+    { id: 11, name: "أبشر",               icon: "id-card-outline",        screen: "AbsherStack" },
+    { id: 12, name: "المحفظة",            icon: "wallet-outline",         screen: "WalletStack" },
   ],
 };
 type DrawerParamList = {
