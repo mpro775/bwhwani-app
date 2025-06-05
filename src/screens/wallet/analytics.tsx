@@ -10,16 +10,18 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import axiosInstance from "utils/api/axiosInstance";
+import COLORS from "constants/colors";
 
-const AnalyticsScreen = () => {
+export default function AnalyticsScreen() {
   const [data, setData] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const screenWidth = Dimensions.get("window").width - 32; // نخصم حاشية الأعضاء
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const screenWidth = Dimensions.get("window").width - 32; // طرح الحاشية (16+16)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const res = await axiosInstance.get("/wallet/analytics/monthly");
         setData(res.data.monthly || []);
       } catch {
@@ -31,38 +33,59 @@ const AnalyticsScreen = () => {
     fetchData();
   }, []);
 
-  const labels = ["ينا", "فبر", "مار", "أبر", "ماي", "يون", "يول", "أغس", "سبت", "أكت", "نوف", "ديس"];
+  const labels = [
+    "ينا",
+    "فبر",
+    "مار",
+    "أبر",
+    "ماي",
+    "يون",
+    "يول",
+    "أغس",
+    "سبت",
+    "أكت",
+    "نوف",
+    "ديس",
+  ];
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>تحليلات المشتريات الشهرية</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#D84315" />
+        <ActivityIndicator
+          size="large"
+          color={COLORS.primary}
+          style={{ marginTop: 40 }}
+        />
       ) : error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingRight: 16 }}
+        >
           <LineChart
             data={{
               labels,
               datasets: [{ data }],
             }}
             width={screenWidth}
-            height={220}
+            height={240}
             yAxisSuffix=" ر.ي"
             chartConfig={{
-              backgroundColor: "#fff",
-              backgroundGradientFrom: "#fff",
-              backgroundGradientTo: "#fff",
+              backgroundColor: COLORS.background,
+              backgroundGradientFrom: COLORS.background,
+              backgroundGradientTo: COLORS.background,
               decimalPlaces: 0,
-              color: () => "#D84315",
-              labelColor: () => "#3E2723",
+              color: () => COLORS.primary,
+              labelColor: () => COLORS.text,
               style: { borderRadius: 12 },
               propsForDots: {
                 r: "4",
                 strokeWidth: "2",
-                stroke: "#D84315",
+                stroke: COLORS.primary,
               },
             }}
             style={styles.chartStyle}
@@ -71,20 +94,19 @@ const AnalyticsScreen = () => {
       )}
     </View>
   );
-};
-
-export default AnalyticsScreen;
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF8F0",
+    backgroundColor: "#FFF8F0", // نفس خلفية باقي شاشات المحفظة
     padding: 16,
   },
   title: {
     fontSize: 20,
+    fontFamily: "Cairo-Regular",
     fontWeight: "bold",
-    color: "#3E2723",
+    color: COLORS.text,
     marginBottom: 16,
     textAlign: "center",
   },
@@ -96,5 +118,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#B71C1C",
     fontSize: 16,
+    fontFamily: "Cairo-Regular",
   },
 });

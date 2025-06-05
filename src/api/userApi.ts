@@ -91,3 +91,13 @@ export const updateBloodSettings = async (bloodData: any) => {
   });
   return res.data;
 };
+
+export const fetchServerUserProfile = async () => {
+  // idToken موجود مسبقًا في AsyncStorage (تمّت حفظه أثناء loginWithEmail)
+  const idToken = await AsyncStorage.getItem("firebase-idToken");
+  if (!idToken) throw new Error("Missing token");
+  const res = await axiosInstance.get("/users/me", { // مثال: /api/v1/users/me
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+  return res.data.user; // لنفترض الاستجابة { user: { _id, fullName, ... } }
+};

@@ -1,49 +1,28 @@
 // navigation/AbsherStack.tsx
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import AbsherCategoryScreen from "screens/absher/AbsherCategoryScreen";
-import AbsherFormScreen from "screens/absher/AbsherFormScreen";
-import AbsherMyRequestsScreen from "screens/absher/AbsherMyRequestsScreen";
-import AbsherProviderScreen from "screens/absher/AbsherProviderScreen";
-import AbsherWithdrawScreen from "screens/absher/AbsherWithdrawScreen";
 
+import AbsherTopTabs from "./AbsherTopTabs";
+import AbsherFormScreen from "../screens/absher/AbsherFormScreen";
 
 export type AbsherStackParamList = {
-  AbsherCategory: undefined;
-  AbsherForm: { categoryId: string } | undefined;
-  AbsherMyRequests: undefined;
-  AbsherProvider: { providerId: string } | undefined;
-  AbsherWithdraw: undefined;
+  AbsherTabs: undefined;
+  AbsherForm: { category: string };
 };
 
 const Stack = createStackNavigator<AbsherStackParamList>();
 
 const AbsherStack = () => (
-  <Stack.Navigator initialRouteName="AbsherCategory">
+  <Stack.Navigator initialRouteName="AbsherTabs">
     <Stack.Screen
-      name="AbsherCategory"
-      component={AbsherCategoryScreen}
-      options={{ title: "أبشر - الأقسام" }}
+      name="AbsherTabs"
+      component={AbsherTopTabs}
+      options={{ headerShown: false }}
     />
     <Stack.Screen
       name="AbsherForm"
       component={AbsherFormScreen}
-      options={{ title: "نموذج أبشر" }}
-    />
-    <Stack.Screen
-      name="AbsherMyRequests"
-      component={AbsherMyRequestsScreen}
-      options={{ title: "طلباتي في أبشر" }}
-    />
-    <Stack.Screen
-      name="AbsherProvider"
-      component={AbsherProviderScreen}
-      options={{ title: "مقدم خدمة أبشر" }}
-    />
-    <Stack.Screen
-      name="AbsherWithdraw"
-      component={AbsherWithdrawScreen}
-      options={{ title: "سحب أبشر" }}
+      options={{ title: "طلب خدمة أبشر" }}
     />
   </Stack.Navigator>
 );

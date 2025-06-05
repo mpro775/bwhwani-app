@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import { getUserProfile } from "../../storage/userStorage";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { updateUserProfile } from "../../storage/userStorage";
@@ -14,7 +14,26 @@ type Nav = NativeStackNavigationProp<RootStackParamList>;
 const DonorProfileScreen = () => {
   const [donor, setDonor] = useState<any>(null);
   const navigation = useNavigation<Nav>();
+useFocusEffect(
+  React.useCallback(() => {
+    const loadData = async () => {
+      try {
+        const user = await getUserProfile();
+        if (user?.bloodData) {
+          setDonor(user.bloodData);
+        } else {
+          setDonor(null); // تفريغ في حال تم الحذف
+        }
+        console.log("🚀 Loaded user profile:", JSON.stringify(user, null, 2));
 
+      } catch (error) {
+        Alert.alert("خطأ", "حدث خطأ أثناء تحميل البيانات.");
+      }
+    };
+
+    loadData();
+  }, [])
+);
 const handleDelete = async () => {
   Alert.alert("تأكيد الحذف", "هل أنت متأكد أنك تريد حذف بياناتك كمتبرع؟", [
     { text: "إلغاء", style: "cancel" },
@@ -33,23 +52,7 @@ const handleDelete = async () => {
     },
   ]);
 };
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const user = await getUserProfile();
-        if (user?.bloodData) {
-          setDonor(user.bloodData);
-        } else {
-          Alert.alert("لا توجد بيانات", "يرجى التسجيل كمتبرع أولاً.");
-        }
-      } catch (error) {
-        Alert.alert("خطأ", "حدث خطأ أثناء تحميل البيانات.");
-      }
-    };
-
-    loadData();
-  }, []);
-
+ 
   if (!donor) return null;
 
   return (

@@ -5,6 +5,8 @@ export type RootStackParamList = {
   UserProfile: undefined;
   MainApp: undefined;
   EditProfile: undefined;
+  AbsherForm:{category:string};
+
   AbsherCategory:undefined;
   ReviewScreen: { freelancerId: string };
   TransportBooking: { category: string };

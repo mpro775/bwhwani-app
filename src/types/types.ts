@@ -47,6 +47,7 @@ export type Transaction = {
 export type BloodData = {
   name: string;
   age: string;
+  isAvailableToDonate:boolean;
   gender: string;
   bloodType: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
   governorate: string;
@@ -99,18 +100,19 @@ export type CommentType = {
 };
 
 export type UserProfile = {
-  id: string;
+  id?: string;
+  uid: string;
   fullName: string;
   phone: string;
   email?: string;
-  aliasName?:string;
+  aliasName?: string;
   profileImage?: string;
   gender?: "male" | "female";
   dateOfBirth?: string;
-  addresses: Address[];
-username?: string; // ← الاسم المستعار
-  displayFullName?: boolean; // ← هل يتم عرض الاسم الكامل
-  wallet: {
+  addresses?: Address[];         // أصبحت اختيارية
+  username?: string;
+  displayFullName?: boolean;
+  wallet?: {
     balance: number;
     lastRecharge?: string;
     transactions?: Transaction[];
@@ -124,13 +126,14 @@ username?: string; // ← الاسم المستعار
     defaultInstructions?: string;
   };
   settings?: {
-    notificationsEnabled: boolean;
-    language: "ar" | "en";
-    darkMode: boolean;
+    notificationsEnabled?: boolean;
+    language?: "ar" | "en";
+    darkMode?: boolean;
   };
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
+
 export interface DeliveryStore {
   _id: string;
   name: string;

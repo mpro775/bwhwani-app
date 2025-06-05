@@ -1,8 +1,20 @@
 // screens/CharityFormScreen.tsx
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert,  ScrollView } from "react-native";
-import axios from "axios";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import { Ionicons } from "@expo/vector-icons";
+import axiosInstance from "utils/api/axiosInstance";
+import COLORS from "constants/colors";
 
 export default function CharityFormScreen() {
   const [type, setType] = useState("ملابس");
@@ -11,15 +23,16 @@ export default function CharityFormScreen() {
   const [area, setArea] = useState("");
 
   const handleSubmit = async () => {
+    if (!content.trim() || !quantity.trim() || !area.trim()) {
+      Alert.alert("تنبيه", "يرجى ملء جميع الحقول");
+      return;
+    }
+
     try {
-      await axios.post("https://yourapi.com/charity/post", {
-        type,
-        content,
-        quantity,
-        area,
-      }, {
-        headers: { Authorization: "Bearer token" },
-      });
+      await axiosInstance.post(
+        "/charity/post",
+        { type, content, quantity, area },
+      );
       Alert.alert("تم النشر", "شكراً لمساهمتك");
       setContent("");
       setQuantity("");
@@ -30,45 +43,187 @@ export default function CharityFormScreen() {
   };
 
   return (
-    <ScrollView style={{ padding: 16 }}>
-      <Text style={{ fontSize: 20, marginBottom: 12 }}>نموذج عرض الخير</Text>
-
-      <Text style={{ marginBottom: 4 }}>نوع التبرع</Text>
-      <Picker
-        selectedValue={type}
-        style={{ height: 50, marginBottom: 12 }}
-        onValueChange={(itemValue) => setType(itemValue)}
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}
       >
-        <Picker.Item label="ملابس" value="ملابس" />
-        <Picker.Item label="طعام" value="طعام" />
-        <Picker.Item label="مستلزمات منزلية" value="مستلزمات" />
-        <Picker.Item label="مساهمة نقدية" value="نقدية" />
-        <Picker.Item label="خدمة تطوعية" value="خدمة" />
-      </Picker>
+        <Text style={styles.header}>نموذج عرض الخير</Text>
 
-      <TextInput
-        placeholder="تفاصيل المحتوى"
-        value={content}
-        onChangeText={setContent}
-        style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, marginBottom: 12 }}
-      />
+        {/* نوع التبرع */}
+        <Text style={styles.label}>نوع التبرع</Text>
+        <View style={styles.pickerContainer}>
+          <Ionicons
+            name="help-circle-outline"
+            size={20}
+            color={COLORS.primary}
+            style={styles.icon}
+          />
+          <Picker
+            selectedValue={type}
+            style={styles.picker}
+            onValueChange={(itemValue) => setType(itemValue)}
+            dropdownIconColor={COLORS.primary}
+          >
+            <Picker.Item label="ملابس" value="ملابس" />
+            <Picker.Item label="طعام" value="طعام" />
+            <Picker.Item label="مستلزمات منزلية" value="مستلزمات" />
+            <Picker.Item label="مساهمة نقدية" value="نقدية" />
+            <Picker.Item label="خدمة تطوعية" value="خدمة" />
+          </Picker>
+        </View>
 
-      <TextInput
-        placeholder="الكمية أو الكمية التقديرية"
-        value={quantity}
-        onChangeText={setQuantity}
-        keyboardType="numeric"
-        style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, marginBottom: 12 }}
-      />
+        {/* تفاصيل المحتوى */}
+        <Text style={styles.label}>تفاصيل المحتوى</Text>
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="document-text-outline"
+            size={20}
+            color={COLORS.primary}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="اكتب تفاصيل التبرع..."
+            value={content}
+            onChangeText={setContent}
+            style={[styles.input, styles.textArea]}
+            placeholderTextColor={COLORS.lightText}
+            multiline
+            textAlignVertical="top"
+          />
+        </View>
 
-      <TextInput
-        placeholder="المنطقة أو الحي"
-        value={area}
-        onChangeText={setArea}
-        style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, marginBottom: 12 }}
-      />
+        {/* الكمية */}
+        <Text style={styles.label}>الكمية أو الكمية التقديرية</Text>
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="calculator-outline"
+            size={20}
+            color={COLORS.primary}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="مثال: 10 حقائب"
+            value={quantity}
+            onChangeText={setQuantity}
+            keyboardType="numeric"
+            style={styles.input}
+            placeholderTextColor={COLORS.lightText}
+          />
+        </View>
 
-      <Button title="نشر الخير" onPress={handleSubmit} />
-    </ScrollView>
+        {/* المنطقة */}
+        <Text style={styles.label}>المنطقة أو الحي</Text>
+        <View style={styles.inputWrapper}>
+          <Ionicons
+            name="location-outline"
+            size={20}
+            color={COLORS.primary}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="مثال: حي الروضة"
+            value={area}
+            onChangeText={setArea}
+            style={styles.input}
+            placeholderTextColor={COLORS.lightText}
+          />
+        </View>
+
+        {/* زر الإرسال */}
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmit}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>نشر الخير</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  container: {
+    padding: 20,
+  },
+  header: {
+    fontFamily: "Cairo-Bold",
+    fontSize: 24,
+    color: COLORS.primary,
+    marginBottom: 24,
+    textAlign: "right",
+  },
+  label: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 16,
+    color: COLORS.text,
+    marginBottom: 8,
+    textAlign: "right",
+  },
+  pickerContainer: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  icon: {
+    marginHorizontal: 12,
+  },
+  picker: {
+    flex: 1,
+    height: 50,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+  },
+  inputWrapper: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontFamily: "Cairo-Regular",
+    fontSize: 16,
+    color: COLORS.text,
+  },
+  textArea: {
+    height: 100,
+  },
+  submitButton: {
+    marginTop: 30,
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    // ظل أندرويد
+    elevation: 3,
+    // ظل iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  submitButtonText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 18,
+    color: "#FFF",
+  },
+});

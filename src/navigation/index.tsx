@@ -76,6 +76,7 @@ import CharityStack from "./CharityStack";
 import AbsherStack from "./AbsherStack";
 import WalletStack from "./WalletStack";
 import BookingsListScreen from "screens/Escrow/BookingsListScreen";
+import TransportStack from "./TransportStack";
 
 // أنواع التنقل
 
@@ -87,9 +88,11 @@ type RootStackParamList = {
   UniversalProductDetails: { product: any };
   CartScreen: undefined;
   InvoiceScreen: { items: any[] };
+  Charity:undefined;
   AddBookingScreen: undefined;
   OTPVerification: { email: string };
   ForgotPassword: undefined;
+  BloodChat: { donor: any }; // أو ضع النوع الدقيق للـ donor
   MyOrdersScreen: undefined;
   AbsherStack: undefined;
   OrderDetailsScreen: { order: any };
@@ -118,6 +121,7 @@ type RootStackParamList = {
   BookingsList: undefined;
   BookingDetailsScreen: { bookingId: string };
   AddBooking: undefined;
+  Transport: undefined;
 
   SelectLocation: undefined;
   GroceryDetails: undefined;
@@ -428,7 +432,11 @@ const AppNavigation = ({
     >
       <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
       <RootStack.Screen name="MainApp" component={AppDrawer} />
-
+  <RootStack.Screen
+      name="Transport"
+      component={TransportStack}
+      options={{ title: "وصلني" }}
+    />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
       <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
@@ -498,6 +506,7 @@ const AppNavigation = ({
         name="BookingFormScreen"
         component={BookingFormScreen}
       />
+
       <RootStack.Screen
         name="ForgotPassword"
         component={ForgotPasswordScreen}
@@ -525,7 +534,12 @@ const AppNavigation = ({
         name="AddLostItemScreen"
         component={AddLostItemScreen}
       />
-
+        <RootStack.Screen
+        name="BloodChat"
+        component={BloodChatScreen}
+        options={{ title: "الدردشة مع المتبرع" }}
+      />
+<RootStack.Screen name="Charity" component={CharityStack} options={{ title: "الأعمال الخيرية" }} />
       <RootStack.Screen
         name="AddFoundItemScreen"
         component={AddFoundItemScreen}

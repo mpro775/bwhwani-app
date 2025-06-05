@@ -19,6 +19,8 @@ import { useGoogleLogin } from "../../utils/api/googleAuth";
 import { loginWithEmail } from "../../api/authService";
 import { useCart } from "context/CartContext";
 import * as LocalAuthentication from 'expo-local-authentication';
+import { saveUserProfile } from "storage/userStorage";
+import { fetchServerUserProfile } from "api/userApi";
 
 type AuthStackParamList = {
   Login: undefined;
@@ -132,12 +134,20 @@ const handleLogin = async () => {
       return;
     }
 
+
     // 4) يمكنك أيضاً حفظ idToken/oauth token العام للتطبيق:
     await AsyncStorage.setItem("firebase-token", token);
     await AsyncStorage.setItem("userId", userId);
 
     // 5) ادمج سلة الضيف مع حساب المستخدم
     await mergeGuestCart(userId);
+
+    await saveUserProfile({
+  uid: userId,
+  fullName: result.displayName || "مستخدم",
+  email: email,
+  phone: result.phone || "",
+});
 
     Alert.alert("🎉 مرحبًا بك من جديد!", `تم تسجيل الدخول بنجاح.`);
     navigation.replace("MainApp");

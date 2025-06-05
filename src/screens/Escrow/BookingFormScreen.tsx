@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// screens/BookingFormScreen.tsx
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,117 +13,106 @@ import {
   SafeAreaView,
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { CheckBox } from "react-native-elements";
-import { RootStackParamList } from "../../types/navigation";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../types/navigation";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axiosInstance from "utils/api/axiosInstance";
 
-// ألوان التصميم
 const COLORS = {
   primary: "#D84315",
   secondary: "#5D4037",
-  accent: "#8B4B47",
   background: "#FFF8F0",
   text: "#3E2723",
   lightText: "#757575",
-  white: "#FFFFFF",
   lightGray: "#F5F5F5",
-  success: "#4CAF50",
+  white: "#FFFFFF",
 };
 
 type BookingFormRouteProp = RouteProp<
-  { 
-    BookingFormScreen: { 
-      bookingId: string; 
-      title: string; 
-      price: number; 
+  {
+    BookingFormScreen: {
+      bookingId: string;
+      title: string;
+      price: number;
       availableHours: string[];
       image: string;
-        unavailableHours: string[]; // ✅ أضف هذا
-
-    } 
+      unavailableHours: string[];
+    };
   },
   "BookingFormScreen"
 >;
 
 const BookingFormScreen = () => {
   const route = useRoute<BookingFormRouteProp>();
-const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-const { title, price, availableHours, image, unavailableHours } = route.params;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { bookingId, title, price, availableHours, image, unavailableHours } = route.params;
 
   const [selectedHour, setSelectedHour] = useState<string | null>(null);
   const [useDefaultPhone, setUseDefaultPhone] = useState(true);
-  const [phone, setPhone] = useState("777777777");
+  const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const fadeAnim = useState(new Animated.Value(0))[0];
 
-
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
     }).start();
+
+    (async () => {
+      const storedPhone = await AsyncStorage.getItem("userPhone"); 
+      if (storedPhone) setPhone(storedPhone);
+    })();
   }, []);
 
- const handleConfirm = async () => {
-  if (!selectedHour) {
-    Alert.alert("خطأ", "يرجى اختيار وقت الحجز");
-    return;
-  }
+  const isHourAvailable = (hour: string) => !unavailableHours.includes(hour);
 
-  if (!agreedToTerms) {
-    Alert.alert("خطأ", "يجب الموافقة على الشروط والأحكام");
-    return;
-  }
+  const handleConfirm = async () => {
+    if (!selectedHour) {
+      Alert.alert("خطأ", "يرجى اختيار وقت الحجز");
+      return;
+    }
+    if (!agreedToTerms) {
+      Alert.alert("خطأ", "يجب الموافقة على الشروط والأحكام");
+      return;
+    }
+    if (!useDefaultPhone && !phone.trim()) {
+      Alert.alert("خطأ", "يرجى إدخال رقم هاتف صالح");
+      return;
+    }
 
-  try {
-    const token = await AsyncStorage.getItem('firebase-token'); // تأكد من تخزين التوكن عند تسجيل الدخول
-
-    const response = await fetch('https://api.bthwani.com/bookings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        bookingId: route.params.bookingId,
+    try {
+      const payload = {
+        bookingId,
         hour: selectedHour,
         phone,
         notes,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      Alert.alert(
-        "تم الحجز بنجاح ✅",
-        `تم تأكيد حجزك لـ ${title} في الساعة ${selectedHour}`,
-        [
-          {
-            text: "حسناً",
-            onPress: () => navigation.navigate("MyBookingsScreen"),
-          },
-        ]
-      );
-    } else {
-      Alert.alert("خطأ", data.message || "حدث خطأ أثناء الحجز.");
+      };
+      const response = await axiosInstance.post("/bookings", payload);
+      if (response.status === 201 || response.status === 200) {
+        Alert.alert(
+          "تم الحجز بنجاح ✅",
+          `تم تأكيد حجزك لـ ${title} في الساعة ${selectedHour}`,
+          [
+            {
+              text: "حسناً",
+              onPress: () => navigation.navigate("MyBookingsScreen"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert("خطأ", response.data.message || "حدث خطأ أثناء الحجز.");
+      }
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert("خطأ", "حدث خطأ أثناء الاتصال بالخادم.");
     }
-  } catch (error) {
-    console.error(error);
-    Alert.alert("خطأ", "حدث خطأ أثناء الاتصال بالخادم.");
-  }
-};
-
-  const isHourAvailable = (hour: string) => {
-  return !unavailableHours.includes(hour);
-};
-
-
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -132,23 +122,19 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="white" />
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>تأكيد الحجز</Text>
       </LinearGradient>
 
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* معلومات الحجز */}
+          {/* بطاقة المعلومات */}
           <View style={styles.bookingCard}>
             <Image source={{ uri: image }} style={styles.bookingImage} />
             <View style={styles.bookingInfo}>
               <Text style={styles.bookingTitle}>{title}</Text>
-              
               <View style={styles.priceContainer}>
                 <Text style={styles.priceLabel}>السعر:</Text>
                 <Text style={styles.price}>{price.toLocaleString()} ر.ي</Text>
@@ -156,52 +142,43 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
             </View>
           </View>
 
-          {/* اختيار الوقت */}
+          {/* قسم اختيار الوقت */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>اختر وقت الحجز</Text>
             <View style={styles.hoursContainer}>
-              {availableHours.map((hour) => (
-              <TouchableOpacity
-  key={hour}
-  style={[
-    styles.hourButton,
-    selectedHour === hour && styles.hourSelected,
-    !isHourAvailable(hour) && { backgroundColor: "#e0e0e0" },
-  ]}
-  onPress={() => {
-    if (!isHourAvailable(hour)) {
-      Alert.alert("غير متاح", "الوقت الذي اخترته محجوز مسبقاً، يرجى اختيار وقت آخر.");
-      return;
-    }
-    setSelectedHour(hour);
-  }}
->
-  <Text
-    style={[
-      styles.hourText,
-      selectedHour === hour && styles.hourTextSelected,
-    ]}
-  >
-    {hour}
-  </Text>
-  {selectedHour === hour && (
-    <Ionicons
-      name="checkmark"
-      size={16}
-      color="white"
-      style={styles.hourCheckIcon}
-    />
-  )}
-</TouchableOpacity>
-
-              ))}
+              {availableHours.map((hour) => {
+                const disabled = !isHourAvailable(hour);
+                const selected = selectedHour === hour;
+                return (
+                  <TouchableOpacity
+                    key={hour}
+                    style={[
+                      styles.hourButton,
+                      selected && styles.hourSelected,
+                      disabled && styles.hourDisabled,
+                    ]}
+                    onPress={() => {
+                      if (disabled) {
+                        Alert.alert("غير متاح", "الوقت محجوز مسبقاً، يرجى اختيار غيره.");
+                        return;
+                      }
+                      setSelectedHour(hour);
+                    }}
+                    disabled={disabled}
+                  >
+                    <Text style={[styles.hourText, selected && styles.hourTextSelected]}>
+                      {hour}
+                    </Text>
+                    {selected && <Ionicons name="checkmark" size={16} color={COLORS.white} style={styles.hourCheckIcon} />}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
 
-          {/* معلومات التواصل */}
+          {/* قسم معلومات التواصل */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>معلومات التواصل</Text>
-            
             <CheckBox
               title="استخدام رقم الهاتف المسجل"
               checked={useDefaultPhone}
@@ -210,7 +187,6 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
               textStyle={styles.checkboxText}
               checkedColor={COLORS.primary}
             />
-            
             {!useDefaultPhone && (
               <TextInput
                 placeholder="أدخل رقم التواصل"
@@ -223,7 +199,7 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
             )}
           </View>
 
-          {/* ملاحظات إضافية */}
+          {/* قسم الملاحظات */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>ملاحظات إضافية</Text>
             <TextInput
@@ -237,7 +213,7 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
             />
           </View>
 
-          {/* الشروط والأحكام */}
+          {/* قسم الشروط والأحكام */}
           <View style={styles.section}>
             <CheckBox
               title="أوافق على الشروط والأحكام وسياسة الإلغاء"
@@ -247,16 +223,15 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
               textStyle={styles.checkboxText}
               checkedColor={COLORS.primary}
             />
-            
             <TouchableOpacity style={styles.termsLink}>
               <Text style={styles.termsText}>عرض الشروط والأحكام</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
 
-        {/* زر التأكيد */}
-        <TouchableOpacity 
-          style={styles.confirmButton}
+        {/* زر تأكيد الحجز */}
+        <TouchableOpacity
+          style={[styles.confirmButton, (!selectedHour || !agreedToTerms) && styles.confirmDisabled]}
           onPress={handleConfirm}
           disabled={!selectedHour || !agreedToTerms}
         >
@@ -266,7 +241,7 @@ const { title, price, availableHours, image, unavailableHours } = route.params;
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Ionicons name="checkmark-circle" size={24} color="white" />
+            <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
             <Text style={styles.confirmText}>تأكيد الحجز</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -283,21 +258,22 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 16,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    elevation: 4,
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 16,
     padding: 8,
   },
   headerTitle: {
+    fontFamily: "Cairo-Bold",
     fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.white,
   },
   content: {
     flex: 1,
@@ -306,10 +282,10 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   bookingCard: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     margin: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -317,38 +293,39 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   bookingImage: {
-    width: '100%',
+    width: "100%",
     height: 180,
   },
   bookingInfo: {
     padding: 16,
   },
   bookingTitle: {
+    fontFamily: "Cairo-Bold",
     fontSize: 18,
-    fontWeight: 'bold',
     color: COLORS.text,
     marginBottom: 8,
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row-reverse",
+    alignItems: "center",
   },
   priceLabel: {
+    fontFamily: "Cairo-SemiBold",
     fontSize: 16,
     color: COLORS.text,
   },
   price: {
+    fontFamily: "Cairo-Bold",
     fontSize: 18,
-    fontWeight: 'bold',
     color: COLORS.primary,
     marginLeft: 8,
   },
   section: {
-    backgroundColor: 'white',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 16,
-    margin: 16,
-    marginTop: 0,
+    marginHorizontal: 16,
+    marginTop: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -356,14 +333,14 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionTitle: {
+    fontFamily: "Cairo-Bold",
     fontSize: 16,
-    fontWeight: 'bold',
     color: COLORS.text,
     marginBottom: 12,
   },
   hoursContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row-reverse",
+    flexWrap: "wrap",
   },
   hourButton: {
     paddingHorizontal: 16,
@@ -372,87 +349,96 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightGray,
     marginLeft: 8,
     marginBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row-reverse",
+    alignItems: "center",
   },
   hourSelected: {
     backgroundColor: COLORS.primary,
   },
+  hourDisabled: {
+    backgroundColor: "#E0E0E0",
+  },
   hourText: {
+    fontFamily: "Cairo-Regular",
     fontSize: 14,
     color: COLORS.text,
   },
   hourTextSelected: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: COLORS.white,
+    fontFamily: "Cairo-Bold",
   },
   hourCheckIcon: {
     marginRight: 4,
   },
   checkboxContainer: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 0,
     padding: 0,
-    marginLeft: 0,
-    marginRight: 0,
-    marginBottom: 0,
+    margin: 0,
   },
   checkboxText: {
+    fontFamily: "Cairo-Regular",
     fontSize: 14,
     color: COLORS.text,
-    fontWeight: 'normal',
   },
   input: {
     backgroundColor: COLORS.lightGray,
     borderRadius: 10,
     padding: 14,
+    fontFamily: "Cairo-Regular",
     fontSize: 14,
     color: COLORS.text,
     marginTop: 12,
-    textAlign: 'right',
+    textAlign: "right",
   },
   notesInput: {
     backgroundColor: COLORS.lightGray,
     borderRadius: 10,
     padding: 14,
+    fontFamily: "Cairo-Regular",
     fontSize: 14,
     color: COLORS.text,
     height: 100,
-    textAlignVertical: 'top',
-    textAlign: 'right',
+    textAlignVertical: "top",
+    textAlign: "right",
+    marginTop: 8,
   },
   termsLink: {
     marginTop: 8,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   termsText: {
+    fontFamily: "Cairo-SemiBold",
     fontSize: 14,
     color: COLORS.primary,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   confirmButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     left: 20,
     right: 20,
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
   },
+  confirmDisabled: {
+    opacity: 0.5,
+  },
   gradient: {
     padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   confirmText: {
-    color: 'white',
+    fontFamily: "Cairo-Bold",
+    color: COLORS.white,
     fontSize: 18,
-    fontWeight: 'bold',
     marginRight: 8,
   },
 });

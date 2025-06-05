@@ -16,6 +16,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { fetchUserProfile, updateBloodSettings } from "../../api/userApi";
 import { BloodData } from "../../types/types";
+import { updateUserProfile } from "storage/userStorage";
 
 const governorates = ["أمانة العاصمة", "عدن", "تعز", "حضرموت", "إب", "الحديدة"];
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -67,9 +68,9 @@ const BecomeDonorScreen = ({ navigation }: any) => {
     }
   };
 
- const handleSubmit = async () => {
+const handleSubmit = async () => {
   try {
-    const user = await fetchUserProfile(); // بدل getUserProfile
+    const user = await fetchUserProfile();
     if (!user) {
       Alert.alert("خطأ", "يجب تسجيل الدخول أولًا");
       return;
@@ -82,15 +83,21 @@ const BecomeDonorScreen = ({ navigation }: any) => {
       bloodType: form.bloodType as BloodData["bloodType"],
       status: form.status as BloodData["status"],
       lastDonation: form.lastDonation || undefined,
+        isAvailableToDonate: true,
     };
 
     await updateBloodSettings(bloodData);
+
+    // ✅ تحديث الملف الشخصي المحلي لتفادي ظهور شاشة فارغة
+    await updateUserProfile({ bloodData });
+
     Alert.alert("تم الحفظ", "✅ تم تحديث بيانات المتبرع بنجاح");
     navigation.goBack();
   } catch (error) {
     Alert.alert("خطأ", "حدثت مشكلة أثناء حفظ البيانات");
   }
 };
+
 
 
 

@@ -10,12 +10,12 @@ import {
   Alert,
   Share,
 } from "react-native";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import axiosInstance from "utils/api/axiosInstance";
+import COLORS from "constants/colors";
 
 export default function MyTransactionsScreen() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -24,11 +24,8 @@ export default function MyTransactionsScreen() {
   useEffect(() => {
     const fetchLogs = async () => {
       setLoading(true);
-      const token = await AsyncStorage.getItem("firebase-token");
       try {
-        const res = await axiosInstance.get("/my-logs", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosInstance.get("topup/my-logs");
         setLogs(res.data);
       } catch (err) {
         console.log("Error:", err);
@@ -40,23 +37,25 @@ export default function MyTransactionsScreen() {
   }, []);
 
   const handleGeneratePDF = async (item: any) => {
-  const htmlContent = `
-    <html dir="rtl" lang="ar">
-      <body style="font-family: sans-serif; padding: 20px;">
-        <h2>إيصال العملية</h2>
-        <p><strong>الخدمة:</strong> ${item.product}</p>
-        <p><strong>المرسل إليه:</strong> ${item.recipient}</p>
-        <p><strong>الحالة:</strong> ${item.status}</p>
-        <p><strong>التاريخ:</strong> ${new Date(item.createdAt).toLocaleString()}</p>
-        <p><strong>المعرف:</strong> ${item.externalId}</p>
-      </body>
-    </html>
-  `;
-
-  const { uri } = await Print.printToFileAsync({ html: htmlContent });
-  await Sharing.shareAsync(uri);
-};
-
+    const htmlContent = `
+      <html dir="rtl" lang="ar">
+        <body style="font-family: Cairo, sans-serif; padding: 20px; background-color: #fff;">
+          <h2 style="color: ${COLORS.primary};">إيصال العملية</h2>
+          <p><strong>الخدمة:</strong> ${item.product}</p>
+          <p><strong>المرسل إليه:</strong> ${item.recipient}</p>
+          <p><strong>الحالة:</strong> ${item.status}</p>
+          <p><strong>التاريخ:</strong> ${new Date(item.createdAt).toLocaleString()}</p>
+          <p><strong>المعرف:</strong> ${item.externalId}</p>
+        </body>
+      </html>
+    `;
+    try {
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      await Sharing.shareAsync(uri);
+    } catch (error) {
+      Alert.alert("خطأ", "تعذر إنشاء أو مشاركة ملف PDF");
+    }
+  };
 
   const formatLog = (item: any) => `
 🧾 إيصال العملية:
@@ -72,7 +71,7 @@ export default function MyTransactionsScreen() {
     try {
       await Share.share({ message: formatLog(item) });
     } catch (err) {
-      Alert.alert("خطأ في المشاركة", "تعذر إرسال العملية");
+      Alert.alert("خطأ في المشاركة", "تعذر إرسال بيانات العملية");
     }
   };
 
@@ -84,16 +83,30 @@ export default function MyTransactionsScreen() {
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.item}>
       <Text style={styles.title}>🔧 {item.product}</Text>
-      <Text>📞 إلى: {item.recipient}</Text>
-      <Text>📦 الحالة: {item.status}</Text>
-      <Text>📅 {new Date(item.createdAt).toLocaleString()}</Text>
+      <Text style={styles.fieldText}>📞 إلى: {item.recipient}</Text>
+      <Text style={styles.fieldText}>📦 الحالة: {item.status}</Text>
+      <Text style={styles.fieldText}>
+        📅 {new Date(item.createdAt).toLocaleString()}
+      </Text>
 
       <View style={styles.actions}>
-        <TouchableOpacity onPress={() => handleShare(item)} style={styles.actionButton}>
+        <TouchableOpacity
+          onPress={() => handleShare(item)}
+          style={styles.actionButton}
+        >
           <Text style={styles.actionText}>🔗 مشاركة</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleCopy(item)} style={styles.actionButton}>
+        <TouchableOpacity
+          onPress={() => handleCopy(item)}
+          style={styles.actionButton}
+        >
           <Text style={styles.actionText}>📋 نسخ</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleGeneratePDF(item)}
+          style={styles.actionButton}
+        >
+          <Text style={styles.actionText}>🖨️ PDF</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -103,12 +116,18 @@ export default function MyTransactionsScreen() {
     <View style={styles.container}>
       <Text style={styles.header}>📑 العمليات الخاصة بي</Text>
       {loading ? (
-        <ActivityIndicator />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       ) : (
         <FlatList
           data={logs}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
+          contentContainerStyle={
+            logs.length === 0 && styles.emptyContainer
+          }
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>لا توجد عمليات حتى الآن</Text>
+          }
         />
       )}
     </View>
@@ -116,22 +135,67 @@ export default function MyTransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1, backgroundColor: "#FFF8F0" },
-  header: { fontSize: 20, fontWeight: "bold", marginBottom: 15, color: "#3E2723" },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: COLORS.background,
+  },
+  header: {
+    fontSize: 22,
+    fontFamily: "Cairo-Regular",
+    fontWeight: "bold",
+    color: COLORS.primary,
+    marginBottom: 15,
+  },
   item: {
     backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 15,
+    borderRadius: 10,
+    padding: 18,
     marginBottom: 15,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  title: { fontSize: 16, fontWeight: "bold", marginBottom: 5, color: "#D84315" },
-  actions: { flexDirection: "row", marginTop: 10 },
+  title: {
+    fontSize: 18,
+    fontFamily: "Cairo-Regular",
+    fontWeight: "bold",
+    color: COLORS.accent,
+    marginBottom: 8,
+  },
+  fieldText: {
+    fontSize: 16,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: 12,
+    justifyContent: "flex-end",
+  },
   actionButton: {
-    backgroundColor: "#eee",
-    padding: 8,
+    backgroundColor: COLORS.lightGray,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 6,
-    marginRight: 10,
+    marginLeft: 10,
   },
-  actionText: { fontSize: 14 },
+  actionText: {
+    fontSize: 14,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.secondary,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.lightText,
+  },
 });

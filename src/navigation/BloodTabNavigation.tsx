@@ -17,7 +17,8 @@ const BloodTabNavigation = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: true,
+          headerShown: false, // ⬅️ هذا يخفي الهيدر العلوي
+
         tabBarActiveTintColor: "#D84315",
         tabBarInactiveTintColor: "#B0BEC5",
         tabBarStyle: {

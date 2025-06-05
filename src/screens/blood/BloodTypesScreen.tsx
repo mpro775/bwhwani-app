@@ -8,9 +8,12 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { fetchAllDonors } from "../../api/bloodApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import COLORS from "constants/colors";
 
 const GovernorateDropdown = ({
   selected,
@@ -74,25 +77,37 @@ const GovernorateDropdown = ({
 const BloodTypesScreen = ({ navigation }: any) => {
   const [selectedGovernorate, setSelectedGovernorate] = useState("الكل");
   const [selectedType, setSelectedType] = useState("الكل");
-  const [donors, setDonors] = useState([]);
+  const [donors, setDonors] = useState<any[]>([]);
+  const [currentMongoId, setCurrentMongoId] = useState<string | null>(null);
+
   const bloodTypes = ["الكل", "A+", "B+", "O+", "AB+", "A-", "B-", "O-", "AB-"];
 
-useEffect(() => {
-  fetchDonors();
-}, [selectedGovernorate, selectedType]);
+  // عند تحميل الشاشة لأول مرة، استرجع معرف MongoDB من AsyncStorage
+  useEffect(() => {
+    const loadMongoId = async () => {
+      const mongoId = await AsyncStorage.getItem("mongoUserId");
+      console.log(mongoId)
+      setCurrentMongoId(mongoId);
+    };
+    loadMongoId();
+  }, []);
 
-const fetchDonors = async () => {
-  try {
-    const allDonors = await fetchAllDonors({
-      governorate: selectedGovernorate,
-      bloodType: selectedType,
-    });
-    setDonors(allDonors);
-  } catch (err) {
-    console.error("Failed to fetch donors", err);
-  }
-};
+  // استرجاع قائمة المتبرّعين عند تغيّر الفلاتر
+  useEffect(() => {
+    fetchDonors();
+  }, [selectedGovernorate, selectedType]);
 
+  const fetchDonors = async () => {
+    try {
+      const allDonors = await fetchAllDonors({
+        governorate: selectedGovernorate,
+        bloodType: selectedType,
+      });
+      setDonors(allDonors);
+    } catch (err) {
+      console.error("Failed to fetch donors", err);
+    }
+  };
 
   const filteredDonors = donors.filter(
     (d: any) =>
@@ -100,28 +115,39 @@ const fetchDonors = async () => {
       (selectedType === "الكل" || d.bloodType === selectedType)
   );
 
-  const renderDonor = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate("BloodChatScreen", { donor: item })}
-    >
-      <View style={styles.cardContent}>
-        <View>
-          <Text style={styles.name}>{item.fullName}</Text>
-          <Text style={styles.governorate}>{item.governorate}</Text>
-          <Text style={styles.bloodType}>{item.bloodType}</Text>
+  const renderDonor = ({ item }: any) => {
+    const isSelf = currentMongoId === item._id; // الآن نقارن معرف MongoDB وليس معرف Firebase
+
+    return (
+      <TouchableOpacity
+        style={[styles.card, isSelf && styles.cardDisabled]}
+        onPress={() => {
+          if (isSelf) {
+            Alert.alert(
+              "لا يمكن الدردشة مع نفسك",
+              "يرجى اختيار متبرع آخر لإجراء المحادثة."
+            );
+            return;
+          }
+          navigation.navigate("BloodChat", { donor: item });
+        }}
+        activeOpacity={isSelf ? 1 : 0.7}
+      >
+        <View style={styles.cardContent}>
+          <View>
+            <Text style={styles.name}>{item.fullName}</Text>
+            <Text style={styles.governorate}>📍 {item.governorate}</Text>
+            <Text style={styles.bloodType}>🩸 {item.bloodType}</Text>
+          </View>
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusText}>
+              {item.isAvailableToDonate ? "✅ متاح" : "🚫 غير متاح"}
+            </Text>
+          </View>
         </View>
-        <Text
-          style={[
-            styles.status,
-            { color: item.isAvailableToDonate ? "#4CAF50" : "#9E9E9E" },
-          ]}
-        >
-          {item.isAvailableToDonate ? "متاح" : "غير متاح"}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -161,7 +187,7 @@ const fetchDonors = async () => {
       <FlatList
         data={filteredDonors}
         renderItem={renderDonor}
-keyExtractor={(item: any) => item._id || item.id}
+        keyExtractor={(item: any) => item._id || item.id}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
@@ -180,8 +206,6 @@ keyExtractor={(item: any) => item._id || item.id}
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -192,6 +216,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
+  },
+  statusBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: COLORS.lightGray,
+  },
+  statusText: {
+    fontFamily: "Cairo-SemiBold",
+    fontSize: 13,
+    color: COLORS.text,
+    textAlign: "center",
   },
   dropdownContainer: {
     marginBottom: 16,
@@ -275,6 +311,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  cardDisabled: {
+    opacity: 0.6,
+  },
   cardContent: {
     flexDirection: "row-reverse",
     justifyContent: "space-between",
@@ -296,10 +335,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#D84315",
     marginTop: 8,
-  },
-  status: {
-    fontFamily: "Cairo-SemiBold",
-    fontSize: 14,
   },
   addButton: {
     position: "absolute",

@@ -6,8 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  TextInput,
-  Alert,
+ 
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -15,37 +14,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { DrawerNavigationProp } from "@react-navigation/drawer";
-import { inlineStyles } from "react-native-svg";
 import COLORS from "constants/colors";
 
-type ValidIconName = keyof typeof MaterialCommunityIcons.glyphMap;
-type ValidScreenName = keyof DrawerParamList;
-const quickActions: QuickAction[] = [
-  { name: "التوصيل", icon: "car", screen: "DeliveryTab" },
-  { name: "بنك الدم", icon: "water", screen: "BloodBankStack" },
-  { name: "المفقودات", icon: "help-circle-outline", screen: "LostAndFound" },
-  { name: "الحجوزات", icon: "calendar", screen: "BookingTabs" },
-];
-type QuickAction = {
-  name: string;
-  icon: ValidIconName;
-  screen: ValidScreenName;
-};
-const getDynamicContent = () => {
-  return {
-    isReturningUser: true,
-    userName: "عبدالسلام",
-    hasUnfinishedBooking: true,
-    recommended: [
-      { id: "r1", title: "قاعة الفخامة", type: "booking" },
-      { id: "r2", title: "طلب دم في تعز", type: "blood" },
-    ],
-    shortVideos: [
-      { id: "v1", title: "عروض اليوم", thumbnail: "https://via.placeholder.com/100" },
-      { id: "v2", title: "خصم في مطعم لذيذ", thumbnail: "https://via.placeholder.com/100" },
-    ],
-  };
-};
+
+
 
 const data = {
   services: [
@@ -96,6 +68,7 @@ type RootStackParamList = {
   BookingTabs:undefined;
 
 };
+
 type ServiceItem = {
   id: number;
   name: string;
@@ -113,7 +86,6 @@ const services: ServiceItem[] = data.services.map((item) => ({
 const HomeScreen = () => {
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
 
-  const [dynamicContent, setDynamicContent] = useState(getDynamicContent());
 
 
 

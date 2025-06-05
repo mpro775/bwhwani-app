@@ -1,28 +1,23 @@
 // navigation/CharityStack.tsx
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import CharityFormScreen from "screens/Charity/CharityFormScreen";
-import CharityMyPostsScreen from "screens/Charity/CharityMyPostsScreen";
-
+import CharityFormScreen from "../screens/Charity/CharityFormScreen"; // للتأكيد على وجود النوع
+import CharityMyPostsScreen from "../screens/Charity/CharityMyPostsScreen";
+import CharityTopTabs from "./CharityTabNavigation";
 
 export type CharityStackParamList = {
-  CharityForm: undefined;
-  CharityMyPosts: undefined;
+  CharityTabs: undefined;
+  // لا حاجة لتعريف شاشات أخرى منفصلة، لأننا نتنقل داخل الـ TopTabs
 };
 
 const Stack = createStackNavigator<CharityStackParamList>();
 
 const CharityStack = () => (
-  <Stack.Navigator initialRouteName="CharityForm">
+  <Stack.Navigator initialRouteName="CharityTabs">
     <Stack.Screen
-      name="CharityForm"
-      component={CharityFormScreen}
-      options={{ title: "نموذج التبرع" }}
-    />
-    <Stack.Screen
-      name="CharityMyPosts"
-      component={CharityMyPostsScreen}
-      options={{ title: "منشوراتي في التبرع" }}
+      name="CharityTabs"
+      component={CharityTopTabs}
+      options={{ headerShown: false }}
     />
   </Stack.Navigator>
 );
