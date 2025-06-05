@@ -17,4 +17,4 @@ const isLocal =
     hostUri.includes("127.0.0.1"));
 
 // ✅ استخدم الاختيار الفعلي
-export const API_URL = LOCAL_API;
+export const API_URL = PRODUCTION_API;
