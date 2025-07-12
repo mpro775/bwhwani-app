@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Animated,
+  TextInput,
 } from "react-native";
 import { useCart } from "../../context/CartContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +28,7 @@ const COLORS = {
 type RootStackParamList = {
   CartScreen: undefined;
   InvoiceScreen: {
-    items: any[]; // أو تكتب النوع الحقيقي لاحقًا
+    items: any[];
   };
 };
 
@@ -36,10 +37,16 @@ type NavProp = NativeStackNavigationProp<RootStackParamList, "CartScreen">;
 const CartScreen = () => {
   const { items, updateQuantity, removeFromCart, totalPrice, totalQuantity } =
     useCart();
-    const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
-const cartItems = items || [];
-const [deliveryMode, setDeliveryMode] = useState<"unified" | "split">("split");
-const storeIds = [...new Set(cartItems.map((item: any) => item.storeId?.toString()))];
+    const [note, setNote] = useState("");
+
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+  const cartItems = items || [];
+  const [deliveryMode, setDeliveryMode] = useState<"unified" | "split">(
+    "split"
+  );
+  const storeIds = [
+    ...new Set(cartItems.map((item: any) => item.storeId?.toString())),
+  ];
 
   const navigation = useNavigation<NavProp>();
 
@@ -78,7 +85,8 @@ const storeIds = [...new Set(cartItems.map((item: any) => item.storeId?.toString
 
   const renderItem = ({ item }: any) => (
     <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
-<Image source={{ uri: item.image }} style={styles.image} />      <View style={styles.details}>
+      <Image source={{ uri: item.image }} style={styles.image} />{" "}
+      <View style={styles.details}>
         <Text style={styles.name} numberOfLines={1}>
           {item.name}
         </Text>
@@ -133,28 +141,48 @@ const storeIds = [...new Set(cartItems.map((item: any) => item.storeId?.toString
         <>
           <FlatList
             data={items}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item, index) =>
+              item.id ? item.id.toString() : index.toString()
+            }
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
           />
+<View style={{ marginVertical: 8 }}>
+  <Text style={{ marginBottom: 6, color: COLORS.text }}>ملاحظة على الطلب (خدمة على طريقي):</Text>
+  <TextInput
+    style={{
+      backgroundColor: "#fff",
+      borderRadius: 10,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: "#eee",
+    }}
+    placeholder="مثلاً: أريد ماء بارد، أحتاج كيس ثلج..."
+    value={note}
+    onChangeText={setNote}
+    multiline
+  />
+</View>
 
           <LinearGradient
             colors={["rgba(255,245,242,0.9)", "rgba(255,245,242,1)"]}
             style={styles.footer}
           >
             {storeIds.length > 1 && (
-  <View style={{ marginVertical: 10 }}>
-    <Text>اختر نوع التوصيل:</Text>
-    <RadioGroup
-      options={[
-        { label: "توصيل موحد (مندوب واحد)", value: "unified" },
-        { label: "توصيل منفصل لكل متجر", value: "split" }
-      ]}
-      selectedValue={deliveryMode}
-      onChange={setDeliveryMode}
-    />
-  </View>
-)}
+              <View style={{ marginVertical: 10 }}>
+                <View>
+                  <Text>اختر نوع التوصيل:</Text>
+                </View>
+                <RadioGroup
+                  options={[
+                    { label: "توصيل موحد (مندوب واحد)", value: "unified" },
+                    { label: "توصيل منفصل لكل متجر", value: "split" },
+                  ]}
+                  selectedValue={deliveryMode}
+                  onChange={setDeliveryMode}
+                />
+              </View>
+            )}
             <TouchableOpacity
               style={styles.checkoutButton}
               onPress={() => navigation.navigate("InvoiceScreen", { items })}
@@ -172,9 +200,9 @@ const storeIds = [...new Set(cartItems.map((item: any) => item.storeId?.toString
                   <Text style={styles.badgeText}>{totalQuantity}</Text>
                   <Ionicons name="arrow-forward" size={24} color="#fff" />
                 </View>
-                <ScheduledDeliveryPicker onChange={(date) => setScheduledDate(date)} />
-
-
+                <ScheduledDeliveryPicker
+                  onChange={(date) => setScheduledDate(date)}
+                />
               </View>
             </TouchableOpacity>
           </LinearGradient>

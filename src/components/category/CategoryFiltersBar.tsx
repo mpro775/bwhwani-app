@@ -63,15 +63,15 @@ const CategoryFiltersBar: React.FC<Props> = ({ onChange }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row-reverse",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    gap: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    gap: 6,
   },
   filterButton: {
     backgroundColor: "#FAFAFA",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 15,
     borderWidth: 1.5,
     borderColor: "#EEE",
     elevation: 1,

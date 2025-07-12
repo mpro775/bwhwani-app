@@ -1,48 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+const MAIN = "#D84315";
+const SECONDARY = "#8B4B47";
+const LIGHT = "#FFF7F4";
+const GRAY = "#616161";
+const DARK_GRAY = "#3A3A3A";
 
-const formatTime12 = (time24: string): string => {
+const formatTime12 = (time24: string) => {
+  if (!time24) return "";
   const [hStr, mStr] = time24.split(":");
   let h = parseInt(hStr, 10);
-  const m = mStr;
   const period = h < 12 ? "ص" : "م";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${m} ${period}`;
+  h = h % 12 || 12;
+  return `${h}:${mStr} ${period}`;
 };
 
-const COLORS = {
-  primary: "#D84315",
-  secondary: "#5D4037",
-  background: "#FFFFFF",
-  text: "#4E342E",
-  accent: "#8B4B47",
-  success: "#2E7D32",
-  error: "#C62828",
-};
-interface ScheduleItem {
-  day: string;
-  open: boolean;
-  from: string;
-  to: string;
-}
-interface Props {
-  business: {
-    name: string;
-    nameAr: string;
-    logo: any;
-    rating: number;
-    distance: string;
-    time: string;
-    isOpen: boolean;
-    categories?: string[];
-        schedule?: ScheduleItem[];
-
-  };
-  
-}
 const ARABIC_DAYS: Record<string, string> = {
   sunday: "الأحد",
   monday: "الاثنين",
@@ -52,97 +34,120 @@ const ARABIC_DAYS: Record<string, string> = {
   friday: "الجمعة",
   saturday: "السبت",
 };
-const BusinessInfoCard: React.FC<Props> = ({ business }) => {
-    const [showSchedule, setShowSchedule] = useState(false);
+
+interface ScheduleItem {
+  day: string;
+  open: boolean;
+  from: string;
+  to: string;
+}
+
+interface Props {
+  business: {
+    name: string;
+    nameAr: string;
+    logo: string;
+    rating: number;
+    distance: string;
+    time: string;
+    isOpen: boolean;
+    categories?: string[];
+    schedule?: ScheduleItem[];
+  };
+}
+
+export default function BusinessInfoCard({ business }: Props) {
+  const [showSchedule, setShowSchedule] = useState(false);
 
   return (
     <View style={styles.card}>
-      {/* الطبقة الخلفية المميزة */}
-      <View style={styles.cardBackground} />
-
-      {/* المحتوى الرئيسي */}
-      <View style={styles.content}>
-        {/* الصف العلوي: الاسم والشعار */}
-        <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.englishName}>{business.name}</Text>
-            <Text style={styles.arabicName}>{business.nameAr}</Text>
-            <Text style={styles.categories}>
-              {business.categories?.join(" • ") || "بدون تصنيف"}
-            </Text>
-          </View>
-
-<Image source={{ uri: business.logo }} style={styles.logoImage} />
+      <View style={styles.topRow}>
+        <Image source={{ uri: business.logo }} style={styles.logo} />
+        <View style={styles.headerText}>
+          <Text style={styles.name}>{business.name}</Text>
+          <Text style={styles.nameAr}>{business.nameAr}</Text>
         </View>
-
-        {/* معلومات التقييم والوقت */}
-        <View style={styles.metaContainer}>
-          <View style={styles.metaItem}>
-            <Ionicons name="star" size={16} color="#FFD700" />
-<Text style={styles.metaText}>
-  {Number.isFinite(business.rating)
-    ? business.rating.toFixed(1)
-    : "—"}{/* مثلا علامة بدل */}
-</Text>
-          </View>
-
-          <View style={styles.metaItem}>
-            <Ionicons name="time-outline" size={16} color={COLORS.text} />
-            <Text style={styles.metaText}>{business.time}</Text>
-          </View>
-
-          <View style={styles.metaItem}>
-            <Ionicons name="navigate-outline" size={16} color={COLORS.text} />
-            <Text style={styles.metaText}>{business.distance}</Text>
-          </View>
-        </View>
-
-        {/* حالة العمل وأوقات الدوام */}
-        <View style={styles.footer}>
-          <View
+        <View
+          style={[
+            styles.statusBadge,
+            { backgroundColor: business.isOpen ? "#E0F2F1" : "#FFEBEE" },
+          ]}
+        >
+          <Ionicons
+            name={business.isOpen ? "checkmark-circle" : "close-circle"}
+            size={16}
+            color={business.isOpen ? MAIN : "#C62828"}
+            style={{ marginLeft: 3 }}
+          />
+          <Text
             style={[
-              styles.statusBadge,
-              { backgroundColor: business.isOpen ? "#E8F5E9" : "#FFEBEE" },
+              styles.statusText,
+              { color: business.isOpen ? MAIN : "#C62828" },
             ]}
           >
-            <Text
-              style={[
-                styles.statusText,
-                { color: business.isOpen ? COLORS.success : COLORS.error },
-              ]}
-            >
-              {business.isOpen ? "مفتوح الآن" : "مغلق"}
-            </Text>
-          </View>
-
-          <TouchableOpacity           onPress={() => setShowSchedule(true)}
- style={styles.scheduleButton}>
-            <Text style={styles.scheduleText}>عرض أوقات الدوام</Text>
-            <Ionicons name="time" size={16} color={COLORS.accent} />
-          </TouchableOpacity>
+            {business.isOpen ? "مفتوح" : "مغلق"}
+          </Text>
         </View>
-          {/* المودال */}
-       {/* مودال أوقات الدوام */}
+      </View>
+
+      <View style={styles.metaRow}>
+        <View style={styles.metaItem}>
+          <Ionicons name="star" size={15} color="#FFD600" />
+          <Text style={styles.metaText}>
+            {typeof business.rating === "number"
+              ? business.rating.toFixed(1)
+              : "—"}
+          </Text>
+        </View>
+        <View style={styles.metaItem}>
+          <Ionicons name="time-outline" size={15} color={GRAY} />
+          <Text style={styles.metaText}>{business.time}</Text>
+        </View>
+        <View style={styles.metaItem}>
+          <Ionicons name="navigate-outline" size={15} color={GRAY} />
+          <Text style={styles.metaText}>{business.distance}</Text>
+        </View>
+      </View>
+
+      {business.categories?.length ? (
+        <View style={styles.categoriesWrap}>
+          {business.categories.map((c) => (
+            <View key={c} style={styles.categoryPill}>
+              <Text style={styles.categoryText}>{c}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      <TouchableOpacity
+        style={styles.showScheduleButton}
+        onPress={() => setShowSchedule(true)}
+      >
+        <Ionicons name="calendar" size={17} color={SECONDARY} />
+        <Text style={styles.showScheduleText}>أوقات الدوام</Text>
+      </TouchableOpacity>
+
+      {/* مودال الجدول */}
       <Modal
         visible={showSchedule}
         transparent
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setShowSchedule(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>أوقات الدوام</Text>
-            <ScrollView>
+            <ScrollView style={{ maxHeight: 260 }}>
               {business.schedule?.map((s, i) => (
                 <View key={i} style={styles.modalRow}>
                   <Text style={styles.modalDay}>
-                    {ARABIC_DAYS[s.day.toLowerCase()] || s.day}
+                    {ARABIC_DAYS[s.day.toLowerCase()]}
                   </Text>
-               <Text style={styles.modalTime}>
-  {s.open
-    ? `${formatTime12(s.from)} - ${formatTime12(s.to)}`
-    : "مغلق"}
-</Text>
+                  <Text style={styles.modalTime}>
+                    {s.open
+                      ? `${formatTime12(s.from)} - ${formatTime12(s.to)}`
+                      : "مغلق"}
+                  </Text>
                 </View>
               ))}
               {!business.schedule?.length && (
@@ -150,7 +155,7 @@ const BusinessInfoCard: React.FC<Props> = ({ business }) => {
               )}
             </ScrollView>
             <TouchableOpacity
-              style={styles.modalClose}
+              style={styles.modalCloseBtn}
               onPress={() => setShowSchedule(false)}
             >
               <Text style={styles.modalCloseText}>إغلاق</Text>
@@ -158,148 +163,188 @@ const BusinessInfoCard: React.FC<Props> = ({ business }) => {
           </View>
         </View>
       </Modal>
-      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.background,
-    borderRadius: 24,
-    marginHorizontal: 16,
-    marginTop: -40,
-    elevation: 8,
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 18,
+    backgroundColor: "#FFF",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    overflow: "hidden",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 8,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#F5F5F5",
   },
-  cardBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: COLORS.primary,
-    opacity: 0.05,
-  },
-    scheduleButton: { flexDirection: "row-reverse", alignItems: "center", gap: 8 },
- modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    maxHeight: "80%",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontFamily: "Cairo-Bold",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  modalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  modalDay: { fontFamily: "Cairo-SemiBold", fontSize: 14 },
-  modalTime: { fontFamily: "Cairo-Regular", fontSize: 14 },
-  modalEmpty: { textAlign: "center", marginTop: 20, color: "#888" },
-  modalClose: {
-    marginTop: 16,
-    alignSelf: "center",
-    padding: 10,
-  },
-  modalCloseText: {
-    fontFamily: "Cairo-Bold",
-    color: COLORS.primary,
-    fontSize: 16,
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
+  topRow: {
     flexDirection: "row-reverse",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 16,
+    alignItems: "center",
+    marginBottom: 12,
   },
-  titleContainer: {
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    borderWidth: 1.2,
+    borderColor: "#F5F5F5",
+    marginLeft: 10,
+  },
+  headerText: {
     flex: 1,
-    marginEnd: 16,
+    marginHorizontal: 10,
   },
-  englishName: {
-    fontFamily: "Cairo-Bold",
-    fontSize: 20,
-    color: COLORS.text,
-    lineHeight: 28,
-    textAlign: "right",
-  },
-  arabicName: {
+  name: {
+    fontSize: 18,
     fontFamily: "Cairo-SemiBold",
-    fontSize: 16,
-    color: "#666",
-    lineHeight: 24,
+    color: DARK_GRAY,
     textAlign: "right",
-    marginTop: 4,
+    letterSpacing: 0.2,
   },
-  categories: {
+  nameAr: {
+    fontSize: 15,
     fontFamily: "Cairo-Regular",
-    fontSize: 14,
-    color: "#888",
+    color: "#A1887F",
     textAlign: "right",
-    marginTop: 8,
+    marginTop: 3,
   },
-  logoImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 2,
-    borderColor: "#EEE",
+  statusBadge: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    borderRadius: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    alignSelf: "flex-start",
+    marginLeft: 4,
   },
-  metaContainer: {
+  statusText: {
+    fontSize: 13,
+    fontFamily: "Cairo-SemiBold",
+    marginLeft: 3,
+  },
+  metaRow: {
     flexDirection: "row-reverse",
     justifyContent: "flex-start",
-    gap: 24,
-    marginVertical: 16,
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 20,
   },
   metaItem: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    gap: 6,
+    marginRight: 15,
   },
   metaText: {
-    fontFamily: "Cairo-SemiBold",
-    fontSize: 14,
-    color: COLORS.text,
+    marginRight: 5,
+    fontSize: 13.5,
+    fontFamily: "Cairo-Medium",
+    color: DARK_GRAY,
   },
-  footer: {
+  categoriesWrap: {
     flexDirection: "row-reverse",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
+    marginBottom: 15,
+    gap: 8,
+  },
+  categoryPill: {
+    backgroundColor: LIGHT,
+    borderColor: "#FFEDE7",
+    borderWidth: 1,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+  },
+  categoryText: {
+    fontSize: 11.5,
+    fontFamily: "Cairo-SemiBold",
+    color: MAIN,
+  },
+  showScheduleButton: {
+    flexDirection: "row-reverse",
     alignItems: "center",
-    marginTop: 12,
+    justifyContent: "center",
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: "#E6D0CB",
+    backgroundColor: "#FFF",
+    marginTop: 4,
   },
-  statusBadge: {
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-  },
-  statusText: {
-    fontFamily: "Cairo-Bold",
+  showScheduleText: {
     fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: SECONDARY,
+    marginRight: 8,
   },
-
-  scheduleText: {
+  // مودال
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 15,
+  },
+  modalBox: {
+    backgroundColor: "#FFF",
+    borderRadius: 14,
+    padding: 20,
+    width: 330,
+    maxWidth: "96%",
+    alignSelf: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontFamily: "Cairo-Bold",
+    textAlign: "center",
+    marginBottom: 12,
+    color: MAIN,
+  },
+  modalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F0F0F0",
+  },
+  modalDay: {
+    fontSize: 14,
+    fontFamily: "Cairo-SemiBold",
+    color: DARK_GRAY,
+  },
+  modalTime: {
+    fontSize: 14,
+    fontFamily: "Cairo-Medium",
+    color: MAIN,
+  },
+  modalEmpty: {
+    textAlign: "center",
+    color: "#888",
+    marginTop: 16,
     fontFamily: "Cairo-Regular",
     fontSize: 14,
-    color: COLORS.accent,
-    textDecorationLine: "underline",
+  },
+  modalCloseBtn: {
+    alignSelf: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    backgroundColor: MAIN,
+    marginTop: 10,
+  },
+  modalCloseText: {
+    color: "#FFF",
+    fontSize: 15,
+    fontFamily: "Cairo-SemiBold",
+    textAlign: "center",
   },
 });
-
-export default BusinessInfoCard;

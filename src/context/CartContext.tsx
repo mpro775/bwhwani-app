@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getOrCreateCartId } from "../utils/cartId";
 import axiosInstance from "utils/api/axiosInstance";
@@ -58,51 +64,66 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     loadCart();
   }, []);
 
-  
-const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
-  console.log("1️⃣ [CartContext] addToCart entry");
+  const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
+    console.log("1️⃣ [CartContext] addToCart entry");
+    const cartId = await getOrCreateCartId();
+    const userId = await AsyncStorage.getItem("userId");
 
-  // 2) احصل على cartId حقيقي
-  const cartId = await getOrCreateCartId();
-  console.log("2️⃣ [CartContext] got cartId:", cartId);
+    // اطبع القيم للتأكد
+    console.log(
+      "👀 userId:",
+      userId,
+      "storeId:",
+      item.storeId,
+      "productId:",
+      item.id
+    );
 
-  // 3) userId نصيّ من AsyncStorage
-  const userId = await AsyncStorage.getItem("userId");
-  console.log("3️⃣ [CartContext] got userId:", userId);
+    // إيقاف إذا كانت القيم ناقصة
+    if (!userId || !item.storeId || !item.id) {
+      console.error(
+        "❌ userId أو storeId أو productId مفقود. لن يتم إرسال الطلب!"
+      );
+      return false;
+    }
 
-  // 4) جهّز الجسم للطلب
-  const body = {
-    cartId,
-    userId: userId || undefined,
-    productId: item.id,
-    name: item.name,
-    price: item.price,
-    quantity: qty,
-    storeId: item.storeId,
-    image: item.image.uri || item.image,
+    const body = {
+      cartId,
+      user: userId,
+      store: item.storeId,
+      items: [
+        {
+          product: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: qty,
+          store: item.storeId,
+          image: item.image.uri || item.image,
+        },
+      ],
+    };
+
+    console.log("4️⃣ [CartContext] built body:", body);
+
+    try {
+      const res = await axiosInstance.post("/delivery/cart/add", body);
+      setItems(res.data.cart.items || []);
+      return true;
+    } catch (err: any) {
+      console.error("5️⃣ [CartContext] POST error message:", err.message);
+      console.error(
+        "5️⃣ [CartContext] POST error response data:",
+        err.response?.data
+      );
+      return false;
+    }
   };
-  console.log("4️⃣ [CartContext] built body:", body);
-
-  // 5) أرسل للـ backend
-  try {
-    const res = await axiosInstance.post("/delivery/cart/add", body);
-    console.log("5️⃣ [CartContext] POST success:", res.status);
-    console.log("6️⃣ [CartContext] response data:", res.data);
-    setItems(res.data.cart.items || []);
-    return true;
-  } catch (err: any) {
-    console.error("5️⃣ [CartContext] POST error message:", err.message);
-    console.error("5️⃣ [CartContext] POST error response data:", err.response?.data);
-    return false;
-  }
-};
-
 
   const updateQuantity = async (id: string, quantity: number) => {
     if (quantity <= 0) {
       await removeFromCart(id);
     } else {
-      const item = items.find(i => i.id === id);
+      const item = items.find((i) => i.id === id);
       if (item) {
         await addToCart({ ...item }, quantity - item.quantity);
       }
@@ -130,18 +151,21 @@ const addToCart = async (item: CartItem, qty = 1): Promise<boolean> => {
   };
 
   const mergeGuestCart = async (userId: string) => {
-    const json = await AsyncStorage.getItem('guestCart');
+    const json = await AsyncStorage.getItem("guestCart");
     if (!json) return;
     const guestItems: CartItem[] = JSON.parse(json);
-    const storeId = await AsyncStorage.getItem('guestStoreId');
+    const storeId = await AsyncStorage.getItem("guestStoreId");
 
     try {
-      await axiosInstance.post('/delivery/cart/merge', { items: guestItems, storeId });
-      await AsyncStorage.removeItem('guestCart');
-      await AsyncStorage.removeItem('guestStoreId');
+      await axiosInstance.post("/delivery/cart/merge", {
+        items: guestItems,
+        storeId,
+      });
+      await AsyncStorage.removeItem("guestCart");
+      await AsyncStorage.removeItem("guestStoreId");
       await loadCart(userId);
     } catch (e) {
-      console.error('Failed to merge guest cart', e);
+      console.error("Failed to merge guest cart", e);
     }
   };
 

@@ -11,6 +11,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const COLORS = {
   primary: "#D84315",
@@ -67,42 +68,55 @@ const DeliveryHeader = () => {
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
 
   return (
-    <View style={styles.container}>
-      {/* العنوان */}
-      <View style={styles.locationContainer}>
-        <Text style={styles.deliveryText}>التوصيل الآن</Text>
-
-        {loading ? (
-          <ActivityIndicator color={COLORS.primary} />
-        ) : addresses.length === 0 ? (
-          <TouchableOpacity
-            style={styles.addressContainer}
-            onPress={() => navigation.navigate("DeliveryAddresses")}
-          >
-            <Ionicons name="location-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.addressText}>أضف عنوان التوصيل</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.addressContainer}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="location-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.addressText}>
-              {selectedAddress
-                ? `${selectedAddress.label} - ${selectedAddress.city}`
-                : "اختر عنوان التوصيل"}
-            </Text>
-          </TouchableOpacity>
-        )}
+    <LinearGradient
+      colors={["#FF7A00", "#FF5252"]}
+      style={styles.gradientContainer}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      <View style={styles.headerRow}>
+        {/* أيقونة المحفظة يمين */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => navigation.navigate("WalletStack")}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="wallet" size={22} color="#FFF" />
+        </TouchableOpacity>
+        {/* كلمة بثواني في الوسط */}
+        <View style={styles.centerTitleWrap}>
+          <Text style={styles.centerTitle}>بثواني</Text>
+        </View>
+        {/* أيقونة العناوين يسار */}
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() =>
+            addresses.length === 0
+              ? navigation.navigate("DeliveryAddresses")
+              : setModalVisible(true)
+          }
+          activeOpacity={0.8}
+        >
+          <Ionicons name="location-outline" size={22} color="#FFF" />
+        </TouchableOpacity>
       </View>
-
-      {/* الرصيد */}
-      <View style={styles.balanceContainer}>
-        <Text style={styles.balanceText}>رصيدك: 0.00 ر.س</Text>
-      </View>
-
-      {/* قائمة العناوين */}
+      {/* حقل البحث أسفل الهيدر */}
+      <TouchableOpacity
+        style={styles.searchBar}
+        onPress={() => navigation.navigate("DeliverySearch")}
+        activeOpacity={0.9}
+      >
+        <Ionicons
+          name="search"
+          size={18}
+          color="#FF7A00"
+          style={{ marginLeft: 6 }}
+        />
+        <Text style={styles.searchPlaceholder}>ابحث عن مطعم أو منتج...</Text>
+      </TouchableOpacity>
+      {/* الكيرف السفلي */}
+      <View style={styles.curve} />
+      {/* قائمة العناوين (المودال) */}
       <Modal visible={modalVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -128,24 +142,77 @@ const DeliveryHeader = () => {
           </View>
         </TouchableOpacity>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 };
 
 export default DeliveryHeader;
 
 const styles = StyleSheet.create({
-  container: {
-    zIndex: 1000,
+  gradientContainer: {
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: "hidden",
+    paddingBottom: 12,
+    paddingTop: 0,
+    elevation: 4,
+  },
+  headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingTop: 10,
+    paddingBottom: 2,
+  },
+  iconButton: {
+    backgroundColor: "rgba(255,255,255,0.13)",
+    borderRadius: 16,
+    padding: 7,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 36,
+    height: 36,
+  },
+  centerTitleWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centerTitle: {
+    color: "#FFF",
+    fontFamily: "Cairo-Bold",
+    fontSize: 18,
+    letterSpacing: 0.5,
+  },
+  searchBar: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
     backgroundColor: "#FFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
-    elevation: 2,
+    borderRadius: 12,
+    marginHorizontal: 12,
+    marginTop: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    elevation: 1,
+  },
+  searchPlaceholder: {
+    color: "#888",
+    fontFamily: "Cairo-Regular",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "right",
+  },
+  curve: {
+    position: "absolute",
+    bottom: -32,
+    left: 0,
+    right: 0,
+    height: 32,
+    backgroundColor: "#FFF",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    zIndex: 1,
   },
   locationContainer: {
     flex: 1,
@@ -153,9 +220,9 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontFamily: "Cairo-Bold",
-    fontSize: 18,
-    color: COLORS.text,
-    marginBottom: 4,
+    fontSize: 15, // تصغير الخط
+    color: "#FFF",
+    marginBottom: 2, // تقليل المسافة السفلية
   },
   addressContainer: {
     flexDirection: "row",
@@ -163,25 +230,44 @@ const styles = StyleSheet.create({
   },
   addressText: {
     fontFamily: "Cairo-Regular",
-    fontSize: 14,
-    color: "#666",
+    fontSize: 12, // تصغير الخط
+    color: "#FFF",
     marginLeft: 4,
   },
   streetText: {
     fontFamily: "Cairo-Regular",
     fontSize: 12,
-    color: "#AAA",
+    color: "#FFE0B2",
   },
-  balanceContainer: {
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+  walletSearchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginLeft: 6,
   },
-  balanceText: {
+  walletButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 14,
+    marginRight: 2,
+  },
+  walletText: {
+    color: "#FFF",
     fontFamily: "Cairo-SemiBold",
     fontSize: 14,
-    color: COLORS.primary,
+    marginLeft: 5,
+  },
+  searchButton: {
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderRadius: 16,
+    padding: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 32,
+    height: 32,
   },
   modalOverlay: {
     flex: 1,
@@ -199,5 +285,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
+  },
+  rightSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
 });

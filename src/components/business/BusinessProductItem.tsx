@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Product as P } from "./BusinessProductList";
-import { useCart } from "../../context/CartContext";
+import COLORS from "constants/colors";
 
 type RootStackParamList = {
   UniversalProductDetails: {
@@ -16,6 +16,7 @@ type RootStackParamList = {
       originalPrice?: number;
       discountPercent?: number;
     };
+    
     storeId: string;
     storeType: "restaurant" | "grocery" | "shop";
   };
@@ -42,34 +43,48 @@ const BusinessProductItem: React.FC<Props> = ({
   const navigation = useNavigation<NavigationProp>();
 
   const handleAddPress = () => {
-    // نضيف دائماً كمية 1 عند الضغط على زر +
     onAdd(product, 1);
   };
 
   const handleCardPress = () => {
-    // احسب نسبة الخصم لو موجودة
-    const discountPercent = product.originalPrice
-      ? ((product.originalPrice - product.price) / product.originalPrice) * 100
-      : undefined;
-
-       navigation.navigate("UniversalProductDetails", {
+    navigation.navigate("UniversalProductDetails", {
       product,
-      storeId,    // هذا يأتي من props
-      storeType,  // هذا أيضًا من props
-    })
+      storeId,
+      storeType,
+    });
   };
 
+  // حساب نسبة الخصم إن وجدت
+  const discountPercent =
+    product.originalPrice && product.originalPrice > product.price
+      ? Math.round(
+          ((product.originalPrice - product.price) / product.originalPrice) *
+            100
+        )
+      : undefined;
+
   return (
-    <TouchableOpacity onPress={handleCardPress} activeOpacity={0.8}>
+    <TouchableOpacity
+      onPress={handleCardPress}
+      activeOpacity={0.84}
+      style={styles.touchArea}
+    >
       <View style={styles.card}>
-        <Image source={product.image} style={styles.image} />
+        <View style={styles.imageBox}>
+          <Image source={product.image} style={styles.image} />
+          {discountPercent && (
+            <View style={styles.discountBadge}>
+              <Text style={styles.discountText}>-{discountPercent}%</Text>
+            </View>
+          )}
+        </View>
         <View style={styles.info}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={styles.name} numberOfLines={2}>
             {product.name}
           </Text>
           <View style={styles.priceRow}>
             <Text style={styles.price}>{product.price} ﷼</Text>
-            {product.originalPrice && (
+            {product.originalPrice && product.originalPrice > product.price && (
               <Text style={styles.originalPrice}>
                 {product.originalPrice} ﷼
               </Text>
@@ -87,50 +102,98 @@ const BusinessProductItem: React.FC<Props> = ({
 export default BusinessProductItem;
 
 const styles = StyleSheet.create({
+  touchArea: { marginBottom: 16 },
   card: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 10,
+    backgroundColor: "#FFF",
+    fontFamily: "Cairo-SemiBold",
+
+    borderRadius: 17,
+    padding: 11,
     elevation: 3,
-    marginBottom: 10,
+    shadowColor: "#B14D35",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.09,
+    shadowRadius: 8,
+    marginBottom: 0,
+    minHeight: 96,
+    position: "relative",
+  },
+  imageBox: {
+    position: "relative",
+    marginLeft: 15,
+    marginRight: 2,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+    backgroundColor: "#F9E8E1",
+  },
+  discountBadge: {
+    position: "absolute",
+    top: 5,
+    left: 5,
+    backgroundColor: "#FFD7DC",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 1,
+    zIndex: 2,
+    borderWidth: 1,
+    borderColor: "#FFF2F2",
+  },
+  discountText: {
+    fontSize: 12,
+    color: "#C62828",
+    fontWeight: "bold",
   },
   info: {
     flex: 1,
     justifyContent: "center",
-    marginLeft: 10,
+    marginLeft: 5,
+    marginRight: 8,
   },
   name: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 15,
+    fontFamily: "Cairo-SemiBold",
+
+    fontWeight: "700",
     textAlign: "right",
     marginBottom: 4,
+    color: "#4E342E",
   },
   priceRow: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   price: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "bold",
+    color: COLORS.primary,
+    fontFamily: "Cairo-SemiBold",
+
     textAlign: "right",
+    marginLeft: 6,
   },
   originalPrice: {
-    fontSize: 12,
-    color: "#999",
+    fontSize: 13,
+    color: "#C1C1C1",
+    fontFamily: "Cairo-SemiBold",
+
     textDecorationLine: "line-through",
-    textAlign: "right",
+    marginRight: 7,
+    fontWeight: "600",
   },
   addButton: {
-    backgroundColor: "#8B4B47",
-    padding: 12,
-    borderRadius: 25,
+    backgroundColor: COLORS.primary,
+    padding: 13,
+    borderRadius: 24,
+    marginLeft: 4,
+    shadowColor: COLORS.accent,
+    shadowOpacity: 0.15,
+    shadowRadius: 7,
+    elevation: 4,
   },
 });

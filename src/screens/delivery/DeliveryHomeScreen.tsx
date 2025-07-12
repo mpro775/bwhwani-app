@@ -1,139 +1,68 @@
-import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import React from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import DeliveryHeader from "../../components/delivery/DeliveryHeader";
-import DeliverySearchBar from "../../components/delivery/DeliverySearchBar";
-import DeliveryWorkingHours from "../../components/delivery/DeliveryWorkingHours";
 import DeliveryBannerSlider from "../../components/delivery/DeliveryBannerSlider";
 import DeliveryCategories from "../../components/delivery/DeliveryCategories";
 import DeliveryTrending from "../../components/delivery/DeliveryTrending";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types/navigation";
-import axiosInstance from "utils/api/axiosInstance";
-import * as Location from "expo-location";
+import { RootStackParamList } from "types/navigation";
 
-interface Product {
-  _id: string;
-  name: string;
-  // أضف أي خصائص أخرى تستخدمها (مثلاً price، image، etc)
-}
+
 type NavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  "CategoryDetails"
+  "BusinessDetails"
 >;
-interface Props {
-  onSelectCategory?: (id: string, title: string) => void;
-}
-
 const DeliveryHomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  console.log("🔥 DeliveryHomeScreen loaded");
-  const [dailyOffers, setDailyOffers] = useState<Product[]>([]);
-  const [nearbyNewProducts, setNearbyNewProducts] = useState([]);
-  const [loadingNearby, setLoadingNearby] = useState(true);
-
-  const [loading, setLoading] = useState(true);
-  //  useEffect(() => {
-  //     const fetchNearbyNewProducts = async () => {
-  //       try {
-  //         let { status } = await Location.requestForegroundPermissionsAsync();
-  //         if (status !== "granted") {
-  //           console.error("تم رفض إذن الموقع");
-  //           return;
-  //         }
-
-  //         let location = await Location.getCurrentPositionAsync({});
-  //         const { latitude, longitude } = location.coords;
-
-  //         const response = await axiosInstance.get("delivery/products/nearby/new", {
-  //           params: { lat: latitude, lng: longitude },
-  //         });
-
-  //         setNearbyNewProducts(response.data);
-  //       } catch (error) {
-  //         console.error("خطأ في جلب المنتجات الجديدة:", error);
-  //       } finally {
-  //         setLoadingNearby(false);
-  //       }
-  //     };
-
-  //     fetchNearbyNewProducts();
-  //   }, []);
-
-  // useEffect(() => {
-  //   const fetchDailyOffers = async () => {
-  //     try {
-  //       const response = await axiosInstance.get("delivery/categories");
-  //       console.log("✅ Daily Offers Response:", response.data); // ✅ اطبع الرد
-  //       setDailyOffers(response.data);
-  //     } catch (error) {
-  //       console.error("❌ خطأ في جلب العروض اليومية:", error);
-  //     }
-  //   };
-  //   fetchDailyOffers();
-  // }, []);
-
-
+  
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.section}>
+    <View style={styles.container}>
+      {/* الهيدر ثابت */}
+      <View style={styles.stickyHeader}>
         <DeliveryHeader />
       </View>
 
-      <View style={styles.section}>
-        <DeliverySearchBar />
-      </View>
+      {/* باقي المحتوى قابل للتمرير */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.section}>
+          <DeliveryBannerSlider />
+        </View>
 
-      <View style={styles.section}>
-        <DeliveryWorkingHours />
-      </View>
+        <View style={styles.section}>
+         <DeliveryCategories />
 
-      <View style={styles.section}>
-        <DeliveryBannerSlider />
-      </View>
+        </View>
 
-      <View style={styles.section}>
-        <DeliveryCategories
-          onSelectCategory={(id: string, title: string) =>
-            navigation.navigate("CategoryDetails", {
-              categoryId: id,
+        <View style={styles.section}>
+         <DeliveryTrending
+  onSelect={(store) =>
+    navigation.navigate("BusinessDetails", { business: store })
+  }/>
 
-              categoryName: title,
-            })
-          }
-        />
-      </View>
-
-      <View style={styles.section}>
-        <DeliveryTrending onSelect={(id) => console.log("تم الضغط على:", id)} />
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 export default DeliveryHomeScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
-    backgroundColor: "#FFFFFF", // خلفية ناعمة
+    backgroundColor: "#FFFFFF",
   },
-  contentContainer: {
-    paddingBottom: 40, // مسافة إضافية في نهاية الصفحة
+  stickyHeader: {
+    zIndex: 10, // تأكد أنه فوق
+    backgroundColor: "#FFFFFF",
+    paddingBottom: 6,
+  },
+  scrollContent: {
+    paddingBottom: 40,
+    paddingTop: 6, // مساحة تعويضية أسفل الهيدر
   },
   section: {
-    marginBottom: 10, // مسافة بين العناصر
+    marginBottom: 10,
   },
 });

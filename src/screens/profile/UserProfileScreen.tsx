@@ -30,8 +30,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axiosInstance from "utils/api/axiosInstance";
 import COLORS from "constants/colors";
 
-
-
 const UserProfileScreen = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -67,41 +65,44 @@ const UserProfileScreen = () => {
     }, [])
   );
 
-const pickImage = async () => {
-  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (status !== "granted") {
-    Alert.alert("يجب منح صلاحية الوصول للصور");
-    return;
-  }
-
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
-    quality: 0.8,
-  });
-
-  if (!result.canceled && result.assets[0].uri) {
-    setIsUploadingAvatar(true);
-    try {
-      console.log("📸 تم اختيار الصورة:", result.assets[0].uri);
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
-
-      const url = await uploadFileToBunny(blob); // ← هنا نمرر الـ Blob
-      console.log("✅ رابط الصورة المرفوعة:", url);
-console.log("🚀 رفع إلى:", axiosInstance.defaults.baseURL + "/users/avatar");
-
-      await updateUserAvatar(url);
-      await loadProfile();
-    } catch (err) {
-      console.error("❌ فشل رفع الصورة:", err);
-      Alert.alert("خطأ", "فشل رفع الصورة");
-    } finally {
-      setIsUploadingAvatar(false);
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("يجب منح صلاحية الوصول للصور");
+      return;
     }
-  }
-};
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0].uri) {
+      setIsUploadingAvatar(true);
+      try {
+        console.log("📸 تم اختيار الصورة:", result.assets[0].uri);
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
+
+        const url = await uploadFileToBunny(blob); // ← هنا نمرر الـ Blob
+        console.log("✅ رابط الصورة المرفوعة:", url);
+        console.log(
+          "🚀 رفع إلى:",
+          axiosInstance.defaults.baseURL + "/users/avatar"
+        );
+
+        await updateUserAvatar(url);
+        await loadProfile();
+      } catch (err) {
+        console.error("❌ فشل رفع الصورة:", err);
+        Alert.alert("خطأ", "فشل رفع الصورة");
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    }
+  };
 
   if (!profile) {
     return (
@@ -182,15 +183,21 @@ console.log("🚀 رفع إلى:", axiosInstance.defaults.baseURL + "/users/avat
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>الرصيد في المحفظة</Text>
-          <LinearGradient
-            colors={["#FF7A00", "#FF5252"]}
-            style={styles.walletCard}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate("WalletStack")}
           >
-            <Text style={styles.walletAmount}>
-              {profile.wallet?.balance ?? 0} ريال
-            </Text>
-            <Ionicons name="wallet" size={24} color="#FFF" />
-          </LinearGradient>
+            <LinearGradient
+              colors={["#FF7A00", "#FF5252"]}
+              style={styles.walletCard}
+            >
+              <Text style={styles.walletAmount}>
+                {profile.wallet?.balance ?? 0} ريال
+              </Text>
+              <Ionicons name="wallet" size={24} color="#FFF" />
+            </LinearGradient>
+            <Text style={styles.walletHint}>اضغط هنا لشحن الرصيد</Text>
+          </TouchableOpacity>
         </View>
 
         <SectionButton
@@ -198,33 +205,7 @@ console.log("🚀 رفع إلى:", axiosInstance.defaults.baseURL + "/users/avat
           label="إدارة العناوين"
           onPress={() => navigation.navigate("DeliveryAddresses", {})}
         />
-        <SectionButton
-          icon="water"
-          label="بنك الدم"
-          onPress={() => navigation.navigate("DonorProfile")}
-        />
-        <SectionButton
-          icon="briefcase"
-          label="بيانات الفريلانسر"
-          onPress={() => {
-            if (profile?.id) {
-              navigation.navigate("MyFreelancerProfile");
-            } else {
-              Alert.alert("خطأ", "لم يتم العثور على معرف المستخدم");
-            }
-          }}
-        />
-        <SectionButton
-          icon="help-circle-outline"
-          label="المفقودات "
-          onPress={() => setModalVisible(true)}
-        />
-
-      <SectionButton
-  icon="person-circle-outline" // بديل مناسب لـ "account-edit"
-  label="تعديل الملف الشخصي"
-  onPress={() => navigation.navigate("EditProfile")}
-/>
+    
         <SectionButton
           icon="settings"
           label="الإعدادات"
@@ -280,9 +261,7 @@ console.log("🚀 رفع إلى:", axiosInstance.defaults.baseURL + "/users/avat
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
-      >
-       
-      </Modal>
+      ></Modal>
     </Animated.ScrollView>
   );
 };
@@ -656,7 +635,7 @@ const styles = StyleSheet.create({
 
   registerButton: {
     borderRadius: 12,
-backgroundColor:COLORS.primary,
+    backgroundColor: COLORS.primary,
     paddingVertical: 8,
   },
 
@@ -664,6 +643,15 @@ backgroundColor:COLORS.primary,
     fontFamily: "Cairo-SemiBold",
 
     fontSize: 16,
+  },
+
+  walletHint: {
+    textAlign: "center",
+    color: COLORS.primary,
+    fontFamily: "Cairo-Regular",
+    fontSize: 13,
+    marginTop: -8,
+    marginBottom: 8,
   },
 });
 

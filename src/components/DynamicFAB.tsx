@@ -4,8 +4,6 @@ import {
   PanResponder,
   StyleSheet,
   TouchableOpacity,
-  View,
-  Text,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -22,7 +20,7 @@ const DynamicFAB = () => {
 
   useEffect(() => {
     getUserProfile().then((profile) => {
-    //   setUserRole(profile?.role || null);
+      //   setUserRole(profile?.role || null);
     });
   }, []);
 
@@ -37,18 +35,7 @@ const DynamicFAB = () => {
       icon = "cart";
       onPress = () => navigation.navigate("CartScreen");
       break;
-    case "BloodTypes":
-      isVisible = true;
-      icon = "water";
-      onPress = () => navigation.navigate("BecomeDonor");
-      break;
-    case "LostAndFound":
-      isVisible = true;
-      icon = "add-circle";
-      onPress = () => navigation.navigate("AddLostItemScreen");
-      break;
   }
-
 
   const panResponder = useRef(
     PanResponder.create({
@@ -70,7 +57,11 @@ const DynamicFAB = () => {
       style={[styles.buttonContainer, pan.getLayout()]}
       {...panResponder.panHandlers}
     >
-      <TouchableOpacity style={styles.button} onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
         <Ionicons name={icon} size={24} color="#fff" />
       </TouchableOpacity>
     </Animated.View>

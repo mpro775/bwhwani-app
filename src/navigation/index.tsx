@@ -17,27 +17,16 @@ import {
   Feather,
   MaterialIcons,
   MaterialCommunityIcons,
+  Entypo,
 } from "@expo/vector-icons";
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import ProductDetailsScreen from "../screens/market/ProductDetailsScreen";
 import DeliveryTabNavigation from "../navigation/DeliveryTabNavigation";
 
 // الشاشات
-import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/profile/UserProfileScreen";
 import SettingsScreen from "../screens/system/SettingsScreen";
-import MarketTabNavigation from "./MarketTabNavigation";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
-
-import BloodTypesScreen from "../screens/blood/BloodTypesScreen";
-import BecomeDonorScreen from "../screens/blood/BecomeDonorScreen";
-import OpportunitiesStack from "./OpportunitiesStack";
-import LostAndFoundStack from "./LostAndFoundStack";
-import AllProductsScreen from "../screens/market/AllProductsScreen";
-import BloodTabNavigation from "./BloodTabNavigation";
-import BloodChatScreen from "../screens/blood/BloodChatScreen";
-import DonorProfileScreen from "../screens/blood/DonorProfileScreen";
 
 import CommonProductDetailsScreen from "../screens/delivery/ProductDetailsScreen";
 import CartScreen from "../screens/delivery/CartScreen";
@@ -48,7 +37,6 @@ import FavoritesScreen from "../screens/delivery/FavoritesScreen";
 import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import DeliveryAddressesScreen from "../screens/profile/DeliveryAddressesScreen";
 import SelectLocationScreen from "../screens/map/SelectLocationScreen";
-import MyFreelancerProfileScreen from "../screens/opportunities/MyFreelancerProfileScreen";
 import CategoryDetailsScreen from "../screens/delivery/CategoryDetailsScreen";
 import BusinessDetailsScreen from "../screens/delivery/BusinessDetailsScreen";
 import GroceryDetailsScreen from "../screens/delivery/GroceryDetailsScreen";
@@ -56,79 +44,57 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect, useState } from "react";
 import { getUserProfile } from "../storage/userStorage"; // أو المسار الصحيح
 import { MyFavoritesScreen } from "../screens/FavoritesScreen";
-import MyActivityScreen from "../screens/MyActivityScreen";
-import AddLostItemScreen from "../screens/LostAndFound/AddLostItemScreen";
-import AddFoundItemScreen from "../screens/LostAndFound/AddFoundItemScreen";
-import BookingTabNavigation from "./BookingTabNavigation";
-import BookingDetailsScreen from "../screens/Escrow/BookingDetailsScreen";
-import BookingChatScreen from "../screens/Escrow/BookingChatScreen";
-import BookingFormScreen from "../screens/Escrow/BookingFormScreen";
-import MyBookingsScreen from "../screens/Escrow/MyBookingsScreen";
-import ManageBookingAvailabilityScreen from "../screens/Escrow/ManageBookingAvailabilityScreen";
-import AddBookingScreen from "../screens/Escrow/AddBookingScreen";
+
 import ForgotPasswordScreen from "screens/Auth/ForgotPasswordScreen";
 import OnboardingScreen from "screens/OnboardingScreen";
 import { ScrollView } from "react-native-gesture-handler";
 import OTPVerificationScreen from "screens/Auth/OTPVerificationScreen";
 import SheinStackNavigation from "./SheinStack";
 import PaymentStack from "./PaymentStack";
-import CharityStack from "./CharityStack";
-import AbsherStack from "./AbsherStack";
+
 import WalletStack from "./WalletStack";
-import BookingsListScreen from "screens/Escrow/BookingsListScreen";
-import TransportStack from "./TransportStack";
+
+import DeliveryHomeScreen from "screens/delivery/DeliveryHomeScreen";
+import { DefaultTheme } from "@react-navigation/native";
+import DeliverySearch from "screens/delivery/DeliverySearch";
+import SHEINScreen from "screens/delivery/SHEINScreen";
 
 // أنواع التنقل
-
+const MyTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "transparent", // خلفية شفافة حتى يظهر الهيدر الملون
+  },
+};
 type RootStackParamList = {
   MainApp: undefined;
   Login: undefined;
+  SheinScreen: undefined;
+  WasliScreen: undefined;
+  FazaaScreen: undefined;
   Register: undefined;
-  MarketStack: NavigatorScreenParams<MarketStackParamList>;
   UniversalProductDetails: { product: any };
   CartScreen: undefined;
   InvoiceScreen: { items: any[] };
-  Charity:undefined;
-  AddBookingScreen: undefined;
   OTPVerification: { email: string };
   ForgotPassword: undefined;
-  BloodChat: { donor: any }; // أو ضع النوع الدقيق للـ donor
   MyOrdersScreen: undefined;
-  AbsherStack: undefined;
   OrderDetailsScreen: { order: any };
   FavoritesScreen: undefined;
   Onboarding: undefined;
   PaymentStack: undefined;
   WalletStack: undefined;
   EditProfile: undefined;
-  AddLostItemScreen: undefined;
-  BookingsStack: undefined;
-  BecomeDonor: undefined;
   SheinStack: undefined;
-  MyBookingsScreen: undefined;
-  ManageBookingAvailability: { bookingId: string };
-  CharityStack: undefined;
-  BookingFormScreen: {
-    bookingId: string;
-    title: string;
-    price: number;
-    availableHours: string[];
-  };
-  AddFoundItemScreen: undefined;
+  DeliverySearch: undefined;
   DeliveryAddresses: {
     selectedLocation?: { latitude: number; longitude: number };
   };
-  BookingsList: undefined;
-  BookingDetailsScreen: { bookingId: string };
-  AddBooking: undefined;
-  Transport: undefined;
 
   SelectLocation: undefined;
   GroceryDetails: undefined;
-  MyFreelancerProfile: undefined;
   DeliveryTab: undefined;
-  BookingTabs: undefined;
-  BookingChatScreen: undefined;
 
   CategoryDetails: undefined;
   BusinessDetails: { business: any };
@@ -136,39 +102,10 @@ type RootStackParamList = {
 
 type DrawerParamList = {
   HomeStack: undefined;
-  BloodBankStack: undefined;
-  Opportunities: undefined;
-  MarketStack: NavigatorScreenParams<MarketStackParamList>;
 
-  LostAndFound: undefined;
   Settings: undefined;
-  BookingsStack: undefined;
 };
 
-type BloodStackParamList = {
-  BloodTypes: undefined;
-  BloodChatScreen: undefined;
-  BecomeDonor: undefined;
-  DonorProfile: undefined;
-};
-type MarketStackParamList = {
-  MarketTabs: undefined;
-  AllProducts: { selectedCategoryId?: string };
-  ProductDetails: { product: any };
-};
-const MarketStack = createNativeStackNavigator<MarketStackParamList>();
-
-const MarketStackNavigator = () => (
-  <MarketStack.Navigator screenOptions={{ headerShown: false }}>
-    <MarketStack.Screen name="MarketTabs" component={MarketTabNavigation} />
-
-    <MarketStack.Screen name="AllProducts" component={AllProductsScreen} />
-    <MarketStack.Screen
-      name="ProductDetails"
-      component={ProductDetailsScreen}
-    />
-  </MarketStack.Navigator>
-);
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator<DrawerParamList>();
 const TopTab = createMaterialTopTabNavigator();
@@ -241,7 +178,6 @@ const MainTabs = () => {
     <TopTab.Navigator
       tabBarPosition="bottom"
       screenOptions={{
-        tabBarShowIcon: true,
         tabBarActiveTintColor: "#D84315",
         tabBarInactiveTintColor: "#B0BEC5",
         tabBarStyle: {
@@ -255,28 +191,50 @@ const MainTabs = () => {
         },
       }}
     >
+      {/* Tab للتوصيل */}
       <TopTab.Screen
-        name="HomeTab"
-        component={HomeScreen}
+        name="DeliveryHome"
+        component={DeliveryHomeScreen}
         options={{
-          title: "الرئيسية", // ✅ سيُستخدم كـ headerTitle تلقائي
-          tabBarLabel: "الرئيسية",
+          tabBarLabel: ({ color }) => (
+            <Text style={{ color, fontFamily: "Cairo-SemiBold", fontSize: 12 }}>
+              الرئيسية
+            </Text>
+          ),
           tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={20} color={color} />
+            <Entypo name="shop" size={20} color={color} />
           ),
         }}
       />
       <TopTab.Screen
-        name="ActivityTab"
-        component={MyActivityScreen}
+        name="MyOrders"
+        component={MyOrdersScreen}
         options={{
-          title: "أنشطتي",
-          tabBarLabel: "أنشطتي",
+          tabBarLabel: ({ color }) => (
+            <Text style={{ color, fontFamily: "Cairo-SemiBold", fontSize: 12 }}>
+              طلباتي
+            </Text>
+          ),
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="dashboard" size={20} color={color} />
+            <Ionicons name="list-outline" size={20} color={color} />
           ),
         }}
       />
+      <TopTab.Screen
+        name="MyFaveorites"
+        component={MyFavoritesScreen}
+        options={{
+          tabBarLabel: ({ color }) => (
+            <Text style={{ color, fontFamily: "Cairo-SemiBold", fontSize: 12 }}>
+              المفضلة
+            </Text>
+          ),
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="heart" size={20} color={color} />
+          ),
+        }}
+      />
+      {/* Tab لحساب المستخدم */}
       <TopTab.Screen
         name="ProfileTab"
         component={ProfileScreen}
@@ -296,7 +254,7 @@ const AppDrawer = () => (
   <Drawer.Navigator
     initialRouteName="HomeStack"
     screenOptions={({ navigation }) => ({
-      headerShown: true,
+      headerShown: false,
       drawerActiveTintColor: "#D84315",
       drawerPosition: "right",
       drawerInactiveTintColor: "#B0BEC5",
@@ -344,66 +302,6 @@ const AppDrawer = () => (
         ),
       }}
     />
-    <Drawer.Screen
-      name="MarketStack"
-      component={MarketStackNavigator}
-      options={{
-        drawerLabel: "حراج يثواني",
-        headerTitle: "حراج بثواني ",
-        headerTitleAlign: "center",
-        drawerIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name="shopping" size={size} color={color} />
-        ),
-      }}
-    />
-    <Drawer.Screen
-      name="BloodBankStack"
-      component={BloodTabNavigation}
-      options={{
-        drawerLabel: "بنك الدم",
-        headerTitle: "بنك الدم",
-        drawerIcon: ({ color, size }) => (
-          <Ionicons name="medkit" size={size} color={color} />
-        ),
-      }}
-    />
-    <Drawer.Screen
-      name="Opportunities"
-      component={OpportunitiesStack}
-      options={{
-        drawerLabel: "فرص وخدمات",
-        headerTitle: "فرص وخدمات",
-        headerTitleAlign: "center",
-        drawerIcon: ({ color, size }) => (
-          <Feather name="briefcase" size={size} color={color} />
-        ),
-      }}
-    />
-    <Drawer.Screen
-      name="BookingsStack"
-      component={BookingTabNavigation}
-      options={{
-        drawerLabel: "الحجوزات",
-        headerTitle: "إدارة الحجوزات",
-        headerTitleAlign: "center",
-        drawerIcon: ({ color, size }) => (
-          <Ionicons name="calendar" size={size} color={color} />
-        ),
-      }}
-    />
-
-    <Drawer.Screen
-      name="LostAndFound"
-      component={LostAndFoundStack}
-      options={{
-        drawerLabel: "المفقودات",
-        headerTitle: "المفقودات",
-        headerTitleAlign: "center",
-        drawerIcon: ({ color, size }) => (
-          <Ionicons name="alert-circle-outline" size={size} color={color} />
-        ),
-      }}
-    />
 
     <Drawer.Screen
       name="Settings"
@@ -425,21 +323,20 @@ const AppNavigation = ({
 }: {
   hasSeenOnboarding: boolean;
 }) => (
-  <NavigationContainer>
+  <NavigationContainer theme={MyTheme}>
     <RootStack.Navigator
       initialRouteName={hasSeenOnboarding ? "MainApp" : "Onboarding"}
       screenOptions={{ headerShown: false }}
     >
       <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
       <RootStack.Screen name="MainApp" component={AppDrawer} />
-  <RootStack.Screen
-      name="Transport"
-      component={TransportStack}
-      options={{ title: "وصلني" }}
-    />
+      <RootStack.Screen
+        name="DeliverySearch"
+        component={DeliverySearch}
+        options={{ headerShown: false }}
+      />
       <RootStack.Screen name="Login" component={LoginScreen} />
       <RootStack.Screen name="Register" component={RegisterScreen} />
-      <RootStack.Screen name="MarketStack" component={MarketStackNavigator} />
       <RootStack.Screen
         name="SheinStack"
         component={SheinStackNavigation}
@@ -450,36 +347,7 @@ const AppNavigation = ({
         component={PaymentStack}
         options={{ title: "التسديد والشحن" }}
       />
-      {/* شاشة قائمة الحجوزات */}
-      <RootStack.Screen
-        name="BookingsList"
-        component={BookingsListScreen}
-        options={{ headerShown: true, title: "الحجوزات المتاحة" }}
-      />
 
-      {/* شاشة إضافة حجز جديد */}
-      <RootStack.Screen
-        name="AddBooking"
-        component={AddBookingScreen}
-        options={{ headerShown: true, title: "إضافة حجز جديد" }}
-      />
-
-      {/* شاشة تفاصيل الحجز (مع برامتر bookingId) */}
-      <RootStack.Screen
-        name="BookingDetailsScreen"
-        component={BookingDetailsScreen}
-        options={{ headerShown: true, title: "تفاصيل الحجز" }}
-      />
-      <RootStack.Screen
-        name="CharityStack"
-        component={CharityStack}
-        options={{ title: "الأعمال الخيرية" }}
-      />
-      <RootStack.Screen
-        name="AbsherStack"
-        component={AbsherStack}
-        options={{ title: "أبشر" }}
-      />
       <RootStack.Screen
         name="WalletStack"
         component={WalletStack}
@@ -502,10 +370,6 @@ const AppNavigation = ({
         component={CommonProductDetailsScreen}
       />
       <RootStack.Screen name="FavoritesScreen" component={FavoritesScreen} />
-      <RootStack.Screen
-        name="BookingFormScreen"
-        component={BookingFormScreen}
-      />
 
       <RootStack.Screen
         name="ForgotPassword"
@@ -513,42 +377,11 @@ const AppNavigation = ({
       />
 
       <RootStack.Screen
-        name="ManageBookingAvailability"
-        component={ManageBookingAvailabilityScreen}
-      />
-      <RootStack.Screen name="AddBookingScreen" component={AddBookingScreen} />
-
-      <RootStack.Screen name="MyBookingsScreen" component={MyBookingsScreen} />
-
-      <RootStack.Screen
         name="EditProfile"
         component={EditProfileScreen}
         options={{ title: "تعديل الملف الشخصي" }}
       />
-      <RootStack.Screen name="BookingTabs" component={BookingTabNavigation} />
-      <RootStack.Screen
-        name="BookingChatScreen"
-        component={BookingChatScreen}
-      />
-      <RootStack.Screen
-        name="AddLostItemScreen"
-        component={AddLostItemScreen}
-      />
-        <RootStack.Screen
-        name="BloodChat"
-        component={BloodChatScreen}
-        options={{ title: "الدردشة مع المتبرع" }}
-      />
-<RootStack.Screen name="Charity" component={CharityStack} options={{ title: "الأعمال الخيرية" }} />
-      <RootStack.Screen
-        name="AddFoundItemScreen"
-        component={AddFoundItemScreen}
-      />
-      <RootStack.Screen
-        name="BecomeDonor"
-        component={BecomeDonorScreen}
-        options={{ title: "تعديل بيانات التبرع" }}
-      />
+
       <RootStack.Screen
         name="CategoryDetails"
         component={CategoryDetailsScreen}
@@ -564,16 +397,8 @@ const AppNavigation = ({
         component={SelectLocationScreen}
         options={{ title: "اختر موقعك على الخريطة" }}
       />
-      <RootStack.Screen
-        name="MyFreelancerProfile"
-        component={MyFreelancerProfileScreen}
-        options={{ title: "بيانات الفريلانسر" }}
-      />
 
-      <RootStack.Screen
-        name="GroceryDetails"
-        component={GroceryDetailsScreen}
-      />
+      <RootStack.Screen name="SheinScreen" component={SHEINScreen} />
 
       <RootStack.Screen
         name="OrderDetailsScreen"

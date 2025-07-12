@@ -1,31 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   Image,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
+  Animated,
+  Easing,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { addFavorite, removeFavorite, isFavorite } from "../../utils/favoratStorage";
-import { getUserProfile } from "../../storage/userStorage";
-import { FavoriteItem } from "../../types/types";
+import COLORS from "constants/colors";
 
-const { width } = Dimensions.get("window");
-
-const COLORS = {
-  primary: "#D84315",
-  secondary: "#5D4037",
-  background: "#FFFFFF",
-  text: "#3E2723",
-  accent: "#8B4B47",
-  tagBg: "#F5F5F5",
-  green: "#4CAF50",
-};
-type FavoriteType = 'restaurant' | 'product' | 'service' | 'haraj';
-const type: FavoriteType = 'restaurant'; // 🔐 النوع مضبوط هنا
-
+// تعريف نوع العنصر
 interface Item {
   id: string;
   title: string;
@@ -34,226 +20,242 @@ interface Item {
   time: string;
   rating: number;
   isOpen: boolean;
-      schedule?: ScheduleItem[];
-
-  isFavorite:boolean;
+  isFavorite: boolean;
   tags: string[];
   image: any;
   logo: any;
 }
 
-
+// تعريف Props للكومبوننت
 interface Props {
   item: Item;
   onPress?: (id: string) => void;
+  showStatus?: boolean;
 }
 
-interface ScheduleItem {
-  day: string;
-  open: boolean;
-  from: string;
-  to: string;
-}
+const CategoryItemCardSimple: React.FC<Props> = ({
+  item,
+  onPress,
+  showStatus = true,
+}) => {
+  const [isFavorite, setIsFavorite] = useState(item.isFavorite);
 
-const CategoryItemCard: React.FC<Props> = ({ item, onPress }) => {
-  console.log("📦 البطاقة:", item.title, item.distance, item.time);
-
- const [liked, setLiked] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // تحميل بيانات المستخدم والتحقق من المفضلة
-  useEffect(() => {
-    const load = async () => {
-      const user = await getUserProfile();
-      if (user?.id) {
-        setUserId(user.id);
-    const isFav = await isFavorite(item.id, "restaurant");
-
-        setLiked(isFav);
-      }
-    };
-    load();
-  }, [item.id]);
-
-  const handleFavoriteToggle = async () => {
-    if (!userId) return;
-
-const favItem: FavoriteItem = {
-  id: item.id,
-  type,
-  title: item.title,
-  userId,
-  addedAt: new Date().toISOString(),
-};
-
-    if (liked) {
-      await removeFavorite(favItem);
-    } else {
-      await addFavorite(favItem);
-    }
-    setLiked(!liked);
+  const handleFavoritePress = () => {
+    setIsFavorite(!isFavorite);
   };
 
   return (
-    <TouchableOpacity style={styles.card} onPress={() => onPress?.(item.id)}>
-      <Image source={item.image} style={styles.mainImage} />
-
-      {/* زر المفضلة */}
-   
-      <TouchableOpacity style={styles.heartBtn} onPress={handleFavoriteToggle}>
-        <Ionicons
-          name={liked ? "heart" : "heart-outline"}
-          size={20}
-          color={liked ? "#D84315" : "#000"}
-        />
-      </TouchableOpacity>
-
-      {/* المسافة والمدة */}
-      <View style={styles.topOverlay}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>دقيقة {item.time}</Text>
-          <MaterialCommunityIcons
-            name="clock-outline"
-            size={14}
-            color="#D84315"
-          />
-        </View>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{item.distance} كم</Text>
-          <MaterialCommunityIcons name="map-marker" size={14} color="#D84315" />
-        </View>
-      </View>
-
-      {/* حالة المطعم + الشعار */}
-      <View style={styles.statusContainer}>
-        <View style={styles.openStatus}>
-          <Text style={styles.openText}>{item.isOpen ? "مفتوح" : "مغلق"}</Text>
-        </View>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => onPress?.(item.id)}
+      activeOpacity={0.9}
+    >
+      {/* شعار المتجر */}
+      <View style={styles.logoContainer}>
         <Image source={item.logo} style={styles.logo} />
+
+        {/* التقييم */}
+        <View style={styles.rating}>
+          <Ionicons name="star" size={12} color="#FFD700" />
+          <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
+        </View>
       </View>
 
-      {/* التفاصيل */}
-      <View style={styles.details}>
-        <Text style={styles.englishTitle}>- {item.title}</Text>
-        <Text style={styles.arabicTitle}>{item.subtitle}</Text>
-        <View style={styles.tagsRow}>
-          <Text style={styles.tagsText}>{item.tags.join("، ")}</Text>
+      {/* تفاصيل المتجر */}
+      <View style={styles.detailsContainer}>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} numberOfLines={1}>
+            {item.title}
+          </Text>
+
+          <TouchableOpacity
+            onPress={handleFavoritePress}
+            style={styles.heartButton}
+          >
+            <Ionicons
+              name={isFavorite ? "heart" : "heart-outline"}
+              size={20}
+              color={isFavorite ? COLORS.danger : COLORS.gray}
+            />
+          </TouchableOpacity>
         </View>
-        <View style={styles.ratingRow}>
-          <Text style={styles.ratingText}>{item.rating}</Text>
-          <Ionicons name="star" size={14} color="#FFC107" />
+
+        <Text style={styles.subtitle} numberOfLines={1}>
+          {item.subtitle}
+        </Text>
+
+        <View style={styles.infoRow}>
+          <View style={styles.infoItem}>
+            <Ionicons name="location-outline" size={14} color={COLORS.blue} />
+            <Text style={styles.infoText}>{item.distance}</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Ionicons name="time-outline" size={14} color={COLORS.blue} />
+            <Text style={styles.infoText}>{item.time}</Text>
+          </View>
+        </View>
+
+        {/* العلامات */}
+        <View style={styles.tagsContainer}>
+          {item.tags.slice(0, 3).map((tag, index) => (
+            <View key={index} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </View>
+          ))}
         </View>
       </View>
+
+      {/* حالة المتجر */}
+      {showStatus && (
+        <View
+          style={[
+            styles.statusBadge,
+            item.isOpen ? styles.openBadge : styles.closedBadge,
+          ]}
+        >
+          <View style={styles.statusIndicator} />
+          <Text style={styles.statusText}>
+            {item.isOpen ? "مفتوح" : "مغلق"}
+          </Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
 
-export default CategoryItemCard;
+export default CategoryItemCardSimple;
 
 const styles = StyleSheet.create({
   card: {
-    width: width - 32,
-    alignSelf: "center",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 16,
-    elevation: 3,
-  },
-  mainImage: {
-    width: "100%",
-    height: 160,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  heartBtn: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 6,
-    elevation: 2,
-  },
-  topOverlay: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    flexDirection: "row-reverse",
-    gap: 6,
-  },
-  badge: {
-    backgroundColor: "#fff",
-    flexDirection: "row-reverse",
+    flexDirection: "row",
     alignItems: "center",
+    padding: 16,
+    backgroundColor: COLORS.background,
+    marginBottom: 16,
+    borderRadius: 16,
+    shadowColor: COLORS.dark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    position: "relative",
+    overflow: "hidden",
+  },
+  logoContainer: {
+    position: "relative",
+    marginRight: 16,
+  },
+  logo: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  rating: {
+    position: "absolute",
+    bottom: -6,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 20,
-    elevation: 1,
-  },
-  badgeText: {
-    fontSize: 12,
-    color: "#D84315",
-    fontFamily: "Cairo-Regular",
-    marginLeft: 4,
-  },
-  statusContainer: {
-    position: "absolute",
-    top: 120,
-    right: 10,
-    flexDirection: "row-reverse",
-    alignItems: "center",
-  },
-  openStatus: {
-    backgroundColor: COLORS.green,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 4,
-  },
-  openText: {
-    fontSize: 12,
-    color: "#fff",
-    fontFamily: "Cairo-Bold",
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    marginLeft: 4,
-  },
-  details: {
-    padding: 12,
-  },
-  englishTitle: {
-    fontSize: 13,
-    fontFamily: "Cairo-SemiBold",
-    color: "#222",
-  },
-  arabicTitle: {
-    fontSize: 15,
-    fontFamily: "Cairo-Bold",
-    color: "#000",
-    marginBottom: 4,
-  },
-  tagsRow: {
-    flexDirection: "row-reverse",
-    marginBottom: 4,
-  },
-  tagsText: {
-    fontSize: 12,
-    fontFamily: "Cairo-Regular",
-    color: "#777",
-  },
-  ratingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    borderWidth: 2,
+    borderColor: COLORS.background,
   },
   ratingText: {
-    fontSize: 13,
+    marginLeft: 4,
+    fontSize: 12,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.lightText,
+  },
+  detailsContainer: {
+    flex: 1,
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 16,
     fontFamily: "Cairo-Bold",
-    color: "#000",
+    color: COLORS.primary,
+    flex: 1,
+    marginRight: 8,
+  },
+  heartButton: {
+    padding: 4,
+  },
+  subtitle: {
+    fontSize: 13,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.blue,
+    marginBottom: 8,
+  },
+  infoRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  infoText: {
+    fontSize: 12,
+    fontFamily: "Cairo-SemiBold",
+    color: COLORS.blue,
+    marginLeft: 4,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  tag: {
+    backgroundColor: "#00000",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  tagText: {
+    fontSize: 11,
+    fontFamily: "Cairo-Regular",
+    color: COLORS.blue,
+  },
+  statusBadge: {
+    position: "absolute",
+    top: 16,
+    left: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  openBadge: {
+    backgroundColor: "rgba(76, 153, 240, 0.37)",
+  },
+  closedBadge: {
+    backgroundColor: "rgba(247, 37, 133, 0.2)",
+  },
+  statusIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  statusText: {
+    fontSize: 12,
+    fontFamily: "Cairo-SemiBold",
   },
 });

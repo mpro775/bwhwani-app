@@ -32,7 +32,9 @@ export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(true);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(null);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState<boolean | null>(
+    null
+  );
 
   const handleRetry = useCallback(() => {
     setChecking(true);
@@ -97,8 +99,12 @@ export default function App() {
         <CartProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaProvider>
-              <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }} edges={["top"]}>
-                <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+              <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+                <StatusBar
+                  translucent={false}
+                  backgroundColor="#FF7A00"
+                  barStyle="light-content"
+                />
                 {!appIsReady || hasSeenOnboarding === null ? (
                   <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#8B4B47" />

@@ -1,4 +1,3 @@
-// BusinessProductList.tsx
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import BusinessProductItem from "./BusinessProductItem";
@@ -27,13 +26,13 @@ const BusinessProductList: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       {products.map((product) => (
-       <BusinessProductItem
-  key={product.id}
-  product={product}
-  storeId={storeId}
-  storeType={storeType}
-  onAdd={onAdd}
-/>
+        <BusinessProductItem
+          key={product.id}
+          product={product}
+          storeId={storeId}
+          storeType={storeType}
+          onAdd={onAdd}
+        />
       ))}
     </View>
   );
@@ -43,9 +42,9 @@ export default BusinessProductList;
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 15,
-    paddingBottom: 20,
-    gap: 15,
-    backgroundColor: "#fff",
+    paddingHorizontal: 8,
+    paddingBottom: 24,
+    gap: 0,
+    backgroundColor: "#FFF",
   },
 });

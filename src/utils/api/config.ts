@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 
 // روابط API
-const LOCAL_API = "http://192.168.1.109:3000/api/v1";
+const LOCAL_API = "http://192.168.1.3:3000/api/v1";
 const PRODUCTION_API = "https://bthwani-backend.onrender.com/api/v1";
 
 // قراءة hostUri
@@ -17,4 +17,4 @@ const isLocal =
     hostUri.includes("127.0.0.1"));
 
 // ✅ استخدم الاختيار الفعلي
-export const API_URL = PRODUCTION_API;
+export const API_URL = LOCAL_API;

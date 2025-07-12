@@ -25,3 +25,4 @@ export const estimateDuration = (distanceKm: number, averageSpeedKmh = 40): stri
   const minutes = Math.round(hours * 60);
   return `${minutes} دقيقة تقريباً`;
 };
+

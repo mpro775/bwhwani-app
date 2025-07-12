@@ -83,6 +83,7 @@ export type FavoriteType = "restaurant" | "product" | "service" | "haraj";
 export type FavoriteItem = {
   _id?: string;
   itemId: string;
+  title?:string;
   itemType: 'product' | 'store' | 'freelancer' | 'opportunity' | 'blood' | 'lostItem' | 'foundItem';
   userId: string;
   createdAt?: string;
@@ -151,7 +152,8 @@ export interface DeliveryStore {
   tags?: string[];
   rating?: number;
   isActive?: boolean;
-
+    isTrending: boolean;
+  isFeatured: boolean;
   // إضافات محلية للحساب
   distance?: string; // مثال: "2.4 كم"
   time?: string;     // مثال: "6 دقيقة تقريباً"

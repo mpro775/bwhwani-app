@@ -1,14 +1,14 @@
 import React from "react";
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
+import {
+  ScrollView,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  View,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import COLORS from "constants/colors";
 
-const COLORS = {
-  primary: "#D84315", // أحمر ترابي
-  secondary: "#5D4037", // بني داكن
-  accent: "#8B4B47", // أحمر داكن
-  background: "#FFF5F2", // خلفية فاتحة
-  text: "#4E342E", // بني غامق للنصوص
-};
 interface Props {
   categories: string[];
   selected: string;
@@ -17,82 +17,97 @@ interface Props {
 
 const BusinessTabs: React.FC<Props> = ({ categories, selected, onSelect }) => {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-      style={styles.container}
-    >
-      {categories.map((cat) => {
-        const isActive = cat === selected;
-        return (
-          <TouchableOpacity
-            key={cat}
-            onPress={() => onSelect(cat)}
-            activeOpacity={0.8}
-            style={[styles.tab, isActive && styles.tabActive]}
-          >
-            {isActive ? (
-              <LinearGradient
-                colors={["#FBE9E7", "#FFCCBC"]}
-                style={styles.gradient}
-                start={{ x: 1, y: 0 }} // بداية التدرج من اليمين
-                end={{ x: 0, y: 0 }} // نهاية التدرج إلى اليسار
-              >
-                <Text style={styles.textActive}>{cat}</Text>
-              </LinearGradient>
-            ) : (
-              <Text style={styles.text}>{cat}</Text>
-            )}
-          </TouchableOpacity>
-        );
-      })}
-    </ScrollView>
+    <View style={styles.outerWrap}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.container}
+      >
+        {categories.map((cat) => {
+          const isActive = cat === selected;
+          return (
+            <TouchableOpacity
+              key={cat}
+              onPress={() => onSelect(cat)}
+              activeOpacity={0.86}
+              style={[styles.tab, isActive && styles.tabActive]}
+            >
+              {isActive ? (
+                <LinearGradient
+                  colors={["#FFF7F2", "#FFE0D7", "#FFD3C0"]}
+                  style={styles.gradient}
+                  start={{ x: 0.7, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                >
+                  <Text style={styles.textActive}>{cat}</Text>
+                </LinearGradient>
+              ) : (
+                <Text style={styles.text}>{cat}</Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerWrap: {
+    paddingBottom: 8,
+    paddingTop: 6,
+    backgroundColor: COLORS.background,
+  },
   container: {
-    marginVertical: 20,
+    // لا تضع margin أفقي هنا كي لا يتقطع الشريط
   },
   scrollContent: {
-    paddingRight: 16, // تعديل الحشو للاتجاه العربي
-    gap: 8,
-    flexDirection: "row-reverse", // عكس اتجاه الصف
+    paddingHorizontal: 10,
+    flexDirection: "row-reverse",
+    gap: 9,
+    minHeight: 53,
   },
   tab: {
-    borderRadius: 30,
+    borderRadius: 23,
     overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#000",
+    marginHorizontal: 0,
+    backgroundColor: "#FFF",
+    borderWidth: 1.2,
+    borderColor: COLORS.blue,
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.07,
+    shadowRadius: 9,
+    elevation: 2,
+    minWidth: 65,
   },
   tabActive: {
-    shadowColor: COLORS.accent,
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    borderColor: COLORS.primary,
+    elevation: 7,
+    shadowOpacity: 0.15,
+    shadowColor: COLORS.primary,
   },
   gradient: {
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    alignItems: "flex-end", // محاذاة النص إلى اليمين
+    paddingHorizontal: 26,
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: {
     fontSize: 15,
     fontFamily: "Cairo-SemiBold",
-    color: "#666",
+    color: COLORS.text,
     paddingVertical: 12,
-    paddingHorizontal: 24,
-    textAlign: "right", // محاذاة النص إلى اليمين
+    paddingHorizontal: 26,
+    textAlign: "center",
   },
   textActive: {
-    fontSize: 15,
+    fontSize: 15.5,
     fontFamily: "Cairo-Bold",
-    color: COLORS.accent,
-    letterSpacing: 0.5,
-    textAlign: "right", // محاذاة النص إلى اليمين
+    color: COLORS.primary,
+    textAlign: "center",
+    letterSpacing: 0.2,
   },
 });
 
